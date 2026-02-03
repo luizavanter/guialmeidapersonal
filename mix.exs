@@ -8,7 +8,15 @@ defmodule GaPersonal.Umbrella.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       aliases: aliases(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      releases: [
+        ga_personal: [
+          applications: [
+            ga_personal: :permanent,
+            ga_personal_web: :permanent
+          ]
+        ]
+      ]
     ]
   end
 

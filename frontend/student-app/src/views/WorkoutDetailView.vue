@@ -73,7 +73,7 @@
 
     <!-- Log Workout Modal -->
     <Modal v-model="showLogModal" :title="t('workouts.logWorkout')" size="lg">
-      <form @submit.prevent="handleLogWorkout">
+      <form id="log-workout-form" @submit.prevent="handleLogWorkout">
         <div class="space-y-4">
           <div>
             <h4 class="text-lg font-semibold text-smoke mb-2">
@@ -168,18 +168,18 @@
             <p class="text-sm text-red-500">{{ logErrors.general }}</p>
           </div>
         </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <Button variant="ghost" @click="showLogModal = false">
-              {{ t('common.cancel') }}
-            </Button>
-            <Button type="submit" variant="primary" :loading="isSubmitting">
-              {{ t('common.save') }}
-            </Button>
-          </div>
-        </template>
       </form>
+
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <Button variant="ghost" @click="showLogModal = false">
+            {{ t('common.cancel') }}
+          </Button>
+          <Button type="submit" form="log-workout-form" variant="primary" :loading="isSubmitting">
+            {{ t('common.save') }}
+          </Button>
+        </div>
+      </template>
     </Modal>
   </div>
 </template>

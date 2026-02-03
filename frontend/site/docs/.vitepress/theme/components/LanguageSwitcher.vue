@@ -75,3 +75,4 @@ const switchLanguage = (code: string) => {
     color: $coal;
   }
 }
+</style>

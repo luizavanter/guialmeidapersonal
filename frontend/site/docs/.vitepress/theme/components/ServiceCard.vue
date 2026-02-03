@@ -80,3 +80,4 @@ h3 {
     color: lighten($ocean, 10%);
   }
 }
+</style>

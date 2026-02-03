@@ -83,7 +83,7 @@
 
     <!-- Change Request Modal -->
     <Modal v-model="showChangeModal" :title="t('schedule.requestChange')" size="md">
-      <form @submit.prevent="handleChangeRequest">
+      <form id="change-request-form" @submit.prevent="handleChangeRequest">
         <div class="space-y-4">
           <div v-if="selectedAppointment" class="p-3 bg-coal/50 rounded-lg border border-smoke/10">
             <p class="text-sm text-smoke/60 mb-1">Sessão atual:</p>
@@ -121,18 +121,18 @@
             <p class="text-sm text-red-500">{{ changeErrors.general }}</p>
           </div>
         </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <Button variant="ghost" @click="showChangeModal = false">
-              {{ t('common.cancel') }}
-            </Button>
-            <Button type="submit" variant="primary" :loading="isSubmitting">
-              {{ t('common.submit') }}
-            </Button>
-          </div>
-        </template>
       </form>
+
+      <template #footer>
+        <div class="flex justify-end gap-3">
+          <Button variant="ghost" @click="showChangeModal = false">
+            {{ t('common.cancel') }}
+          </Button>
+          <Button type="submit" form="change-request-form" variant="primary" :loading="isSubmitting">
+            {{ t('common.submit') }}
+          </Button>
+        </div>
+      </template>
     </Modal>
   </div>
 </template>

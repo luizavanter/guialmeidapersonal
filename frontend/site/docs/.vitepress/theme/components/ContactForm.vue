@@ -174,3 +174,4 @@ const handleSubmit = (e: Event) => {
   text-align: center;
   font-weight: 600;
 }
+</style>

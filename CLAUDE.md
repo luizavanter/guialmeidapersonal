@@ -26,10 +26,19 @@
 - **Chart.js** - Gráficos de evolução
 - **Vue I18n** - Internacionalização
 
-### Infraestrutura
-- **Docker Compose** - PostgreSQL + Redis em desenvolvimento
-- **Fly.io / Gigalixir** - Deploy do backend (recomendado)
-- **Vercel / Netlify** - Deploy dos frontends (recomendado)
+### Infraestrutura (Produção - GCP)
+- **GCP Project:** `guialmeidapersonal`
+- **Region:** `southamerica-east1` (São Paulo)
+- **Cloud Run:** Backend Phoenix API
+- **Cloud SQL:** PostgreSQL 16 (db-perf-optimized-N-2)
+- **Memorystore:** Redis 7.0 (1GB)
+- **Cloud Storage + CDN:** 3 frontend buckets
+- **Global HTTPS Load Balancer:** SSL termination + routing
+- **Certificate Manager:** Wildcard SSL for *.guialmeidapersonal.esp.br
+- **Workload Identity Federation:** Secure CI/CD (no service account keys)
+
+### Infraestrutura (Desenvolvimento)
+- **Docker Compose** - PostgreSQL + Redis local
 
 ## Estrutura do Projeto
 
@@ -85,17 +94,32 @@ npm install && npm run dev    # http://localhost:3003
 # Terminal 4: cd frontend/site && npm run dev
 ```
 
-## Credenciais de Teste
+## URLs de Produção
+
+| Serviço | URL |
+|---------|-----|
+| **API** | https://api.guialmeidapersonal.esp.br |
+| **Admin (Trainer)** | https://admin.guialmeidapersonal.esp.br |
+| **App (Student)** | https://app.guialmeidapersonal.esp.br |
+| **Site Marketing** | https://guialmeidapersonal.esp.br |
+
+**Load Balancer IP:** `34.149.155.125`
+
+## Credenciais de Acesso
 
 ### Personal Trainer (Guilherme)
 - **Email:** guilherme@gapersonal.com
 - **Senha:** trainer123
-- **Acesso:** http://localhost:3001
+- **Acesso Produção:** https://admin.guialmeidapersonal.esp.br
+- **Acesso Local:** http://localhost:3001
 
 ### Alunos (Estudantes)
 - **Maria:** maria.silva@example.com / student123
 - **Carlos:** carlos.santos@example.com / student123
-- **Acesso:** http://localhost:3002
+- **Acesso Produção:** https://app.guialmeidapersonal.esp.br
+- **Acesso Local:** http://localhost:3002
+
+> **Nota:** Execute `gcloud run jobs execute ga-personal-migrations` para criar os usuários em produção.
 
 ## Design System (GA Personal)
 
@@ -444,28 +468,35 @@ npm install && npm run dev    # http://localhost:3003
 - Tailwind CSS, Chart.js
 - VitePress, Vue I18n
 
-## Antes de Produção
+## Status de Produção
+
+### Infraestrutura GCP (Completa)
+- [x] VPC Network e Subnet (10.0.0.0/20)
+- [x] VPC Connector para Cloud Run
+- [x] Cloud SQL PostgreSQL 16 (private IP)
+- [x] Memorystore Redis 7.0 (private IP)
+- [x] Service Accounts (backend-sa, cicd-sa)
+- [x] Secret Manager (database-url, redis-url, jwt-secret, secret-key-base)
+- [x] Cloud Storage buckets (admin, app, site, media)
+- [x] Artifact Registry (Docker images)
+- [x] Cloud Run service (ga-personal-api)
+- [x] Global HTTPS Load Balancer
+- [x] SSL Certificate (Certificate Manager)
+- [x] Cloud DNS records
+- [x] GitHub Actions CI/CD workflows
+- [x] Uptime monitoring checks
 
 ### Assets Pendentes
 - [ ] Foto do Guilherme (`/frontend/site/docs/public/images/guilherme-hero.jpg`)
 - [ ] Logo GA Personal (`/frontend/site/docs/public/images/logo.svg`)
 - [ ] Favicon (`/frontend/site/docs/public/favicon.ico`)
 
-### Configurações
+### Configurações Pendentes
 - [ ] Formspree form ID no ContactForm.vue
 - [ ] Info de contato real (telefone, social links)
-- [ ] Domínio e SSL
-- [ ] Variáveis de ambiente de produção
-- [ ] Secrets (JWT_SECRET, DATABASE_URL)
+- [ ] Configurar GitHub Secrets (GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT)
 
-### Infraestrutura
-- [ ] Deploy backend (Fly.io ou Gigalixir)
-- [ ] Deploy frontends (Vercel ou Netlify)
-- [ ] CI/CD pipeline (GitHub Actions)
-- [ ] Monitoring (logs, errors)
-- [ ] Backup do banco de dados
-
-### Testes
+### Testes Pendentes
 - [ ] Testes E2E (Playwright ou Cypress)
 - [ ] Testes de integração
 - [ ] Testes de carga
@@ -496,6 +527,54 @@ npm run lint                # ESLint
 ```bash
 docker-compose up           # Start PostgreSQL + Redis
 docker-compose down         # Stop services
+```
+
+## Comandos GCP (Produção)
+
+### Deploy
+```bash
+# Build e deploy backend
+./infrastructure/gcp/09-build-backend.sh
+./infrastructure/gcp/10-deploy-backend.sh
+
+# Deploy frontends
+./infrastructure/gcp/13-deploy-frontends.sh
+
+# Run migrations
+gcloud run jobs execute ga-personal-migrations --region=southamerica-east1 --project=guialmeidapersonal --wait
+```
+
+### Monitoramento
+```bash
+# Status do Cloud Run
+gcloud run services describe ga-personal-api --region=southamerica-east1 --project=guialmeidapersonal
+
+# Logs do backend
+gcloud run services logs read ga-personal-api --region=southamerica-east1 --project=guialmeidapersonal --limit=50
+
+# Status do SSL
+gcloud certificate-manager certificates describe ga-personal-cert --project=guialmeidapersonal
+
+# DNS records
+gcloud dns record-sets list --zone=guialmeidapersonal --project=guialmeidapersonal
+```
+
+### Scaling
+```bash
+# Scale up (min 1 instance)
+gcloud run services update ga-personal-api --min-instances=1 --region=southamerica-east1 --project=guialmeidapersonal
+
+# Scale down (back to zero)
+gcloud run services update ga-personal-api --min-instances=0 --region=southamerica-east1 --project=guialmeidapersonal
+```
+
+### Secrets
+```bash
+# View secret
+gcloud secrets versions access latest --secret=jwt-secret --project=guialmeidapersonal
+
+# Update secret
+echo -n "new-value" | gcloud secrets versions add jwt-secret --data-file=- --project=guialmeidapersonal
 ```
 
 ## Troubleshooting
