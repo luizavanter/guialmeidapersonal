@@ -1,0 +1,12 @@
+# .dockerignore
+.git
+.gitignore
+README.md
+docs/
+reference/
+frontend/
+infrastructure/
+_build/
+deps/
+*.log
+.DS_Store
