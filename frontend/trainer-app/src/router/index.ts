@@ -54,8 +54,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/workouts/WorkoutPlanDetailView.vue'),
       },
       {
-        path: 'evolution/:studentId',
+        path: 'evolution',
         name: 'evolution',
+        component: () => import('@/views/evolution/EvolutionView.vue'),
+      },
+      {
+        path: 'evolution/:studentId',
+        name: 'evolution-student',
         component: () => import('@/views/evolution/EvolutionView.vue'),
       },
       {

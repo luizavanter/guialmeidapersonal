@@ -24,7 +24,15 @@
     "upload": "Enviar",
     "select": "Selecionar",
     "selectAll": "Selecionar Todos",
-    "clear": "Limpar"
+    "clear": "Limpar",
+    "firstName": "Nome",
+    "lastName": "Sobrenome",
+    "phone": "Telefone",
+    "name": "Nome",
+    "description": "Descrição",
+    "notes": "Observações",
+    "requiredFields": "Preencha todos os campos obrigatórios",
+    "error": "Ocorreu um erro. Tente novamente."
   },
   "auth": {
     "login": "Entrar",
@@ -99,7 +107,8 @@
     "assessments": "Avaliações",
     "searchStudents": "Pesquisar alunos...",
     "noStudentsFound": "Nenhum aluno encontrado",
-    "confirmDelete": "Tem certeza que deseja excluir este aluno?"
+    "confirmDelete": "Tem certeza que deseja excluir este aluno?",
+    "passwordHint": "Deixe vazio para senha padrão"
   },
   "appointments": {
     "title": "Compromissos",
@@ -127,6 +136,9 @@
     "week": "Semana",
     "month": "Mês",
     "day": "Dia",
+    "date": "Data",
+    "startTime": "Horário de Início",
+    "endTime": "Horário de Término",
     "viewDay": "Visualizar Dia",
     "viewWeek": "Visualizar Semana",
     "viewMonth": "Visualizar Mês",
@@ -164,7 +176,21 @@
     "addExerciseToPlan": "Adicionar Exercício ao Plano",
     "searchExercises": "Pesquisar exercícios...",
     "noExercisesFound": "Nenhum exercício encontrado",
-    "confirmDelete": "Tem certeza que deseja excluir?"
+    "noPlansFound": "Nenhum plano encontrado",
+    "confirmDelete": "Tem certeza que deseja excluir?",
+    "bodyweight": "Peso corporal",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "muscles": {
+      "chest": "Peitoral",
+      "back": "Costas",
+      "shoulders": "Ombros",
+      "arms": "Braços",
+      "legs": "Pernas",
+      "core": "Core/Abdômen",
+      "cardio": "Cardio",
+      "full_body": "Corpo Inteiro"
+    }
   },
   "evolution": {
     "title": "Evolução",
@@ -203,7 +229,8 @@
     "achieved": "Alcançada",
     "abandoned": "Abandonada",
     "progress": "Progresso",
-    "charts": "Gráficos"
+    "charts": "Gráficos",
+    "selectStudent": "Selecione um aluno para ver sua evolução"
   },
   "finance": {
     "title": "Financeiro",
@@ -214,6 +241,8 @@
     "addPayment": "Adicionar Pagamento",
     "editPayment": "Editar Pagamento",
     "deletePayment": "Excluir Pagamento",
+    "paymentDetails": "Detalhes do Pagamento",
+    "noPayments": "Nenhum pagamento encontrado",
     "amount": "Valor",
     "dueDate": "Data de Vencimento",
     "paidAt": "Data de Pagamento",
@@ -233,15 +262,31 @@
     "addPlan": "Adicionar Plano",
     "editPlan": "Editar Plano",
     "deletePlan": "Excluir Plano",
+    "noPlans": "Nenhum plano encontrado",
     "planName": "Nome do Plano",
     "price": "Preço",
-    "durationDays": "Duração (dias)",
-    "durationMonths": "Duração (meses)",
+    "duration": "Duração",
+    "durationType": "Tipo de Duração",
+    "durationDays": "dias",
+    "durationMonths": "meses",
     "features": "Recursos",
+    "featuresPlaceholder": "Aulas presenciais\\nAcompanhamento online\\nPlanilha de treino",
+    "oneFeaturePerLine": "Um recurso por linha",
+    "activeStatus": "Plano ativo",
     "monthlyRevenue": "Receita Mensal",
     "totalRevenue": "Receita Total",
     "pendingPayments": "Pagamentos Pendentes",
-    "overduePayments": "Pagamentos Atrasados"
+    "overduePayments": "Pagamentos Atrasados",
+    "addSubscription": "Adicionar Assinatura",
+    "editSubscription": "Editar Assinatura",
+    "deleteSubscription": "Excluir Assinatura",
+    "noSubscriptions": "Nenhuma assinatura encontrada",
+    "plan": "Plano",
+    "startDate": "Data de Início",
+    "endDate": "Data de Término",
+    "active": "Ativa",
+    "cancelled": "Cancelada",
+    "expired": "Expirada"
   },
   "messages": {
     "title": "Mensagens",
@@ -249,6 +294,8 @@
     "sent": "Enviadas",
     "compose": "Nova Mensagem",
     "recipient": "Destinatário",
+    "to": "Para",
+    "from": "De",
     "subject": "Assunto",
     "message": "Mensagem",
     "send": "Enviar",
@@ -258,6 +305,7 @@
     "markAsRead": "Marcar como Lida",
     "markAsUnread": "Marcar como Não Lida",
     "noMessages": "Nenhuma mensagem",
+    "selectMessage": "Selecione uma mensagem para visualizar",
     "announcement": "Anúncio",
     "sendAnnouncement": "Enviar Anúncio",
     "sendToAll": "Enviar para Todos"

@@ -24,7 +24,15 @@
     "upload": "Upload",
     "select": "Select",
     "selectAll": "Select All",
-    "clear": "Clear"
+    "clear": "Clear",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "phone": "Phone",
+    "name": "Name",
+    "description": "Description",
+    "notes": "Notes",
+    "requiredFields": "Please fill in all required fields",
+    "error": "An error occurred. Please try again."
   },
   "auth": {
     "login": "Login",
@@ -99,7 +107,8 @@
     "assessments": "Assessments",
     "searchStudents": "Search students...",
     "noStudentsFound": "No students found",
-    "confirmDelete": "Are you sure you want to delete this student?"
+    "confirmDelete": "Are you sure you want to delete this student?",
+    "passwordHint": "Leave empty for default password"
   },
   "appointments": {
     "title": "Appointments",
@@ -127,6 +136,9 @@
     "week": "Week",
     "month": "Month",
     "day": "Day",
+    "date": "Date",
+    "startTime": "Start Time",
+    "endTime": "End Time",
     "viewDay": "Day View",
     "viewWeek": "Week View",
     "viewMonth": "Month View",
@@ -164,7 +176,21 @@
     "addExerciseToPlan": "Add Exercise to Plan",
     "searchExercises": "Search exercises...",
     "noExercisesFound": "No exercises found",
-    "confirmDelete": "Are you sure you want to delete?"
+    "noPlansFound": "No plans found",
+    "confirmDelete": "Are you sure you want to delete?",
+    "bodyweight": "Bodyweight",
+    "active": "Active",
+    "inactive": "Inactive",
+    "muscles": {
+      "chest": "Chest",
+      "back": "Back",
+      "shoulders": "Shoulders",
+      "arms": "Arms",
+      "legs": "Legs",
+      "core": "Core",
+      "cardio": "Cardio",
+      "full_body": "Full Body"
+    }
   },
   "evolution": {
     "title": "Evolution",
@@ -203,7 +229,8 @@
     "achieved": "Achieved",
     "abandoned": "Abandoned",
     "progress": "Progress",
-    "charts": "Charts"
+    "charts": "Charts",
+    "selectStudent": "Select a student to view their evolution"
   },
   "finance": {
     "title": "Finance",
@@ -214,6 +241,8 @@
     "addPayment": "Add Payment",
     "editPayment": "Edit Payment",
     "deletePayment": "Delete Payment",
+    "paymentDetails": "Payment Details",
+    "noPayments": "No payments found",
     "amount": "Amount",
     "dueDate": "Due Date",
     "paidAt": "Paid At",
@@ -233,15 +262,31 @@
     "addPlan": "Add Plan",
     "editPlan": "Edit Plan",
     "deletePlan": "Delete Plan",
+    "noPlans": "No plans found",
     "planName": "Plan Name",
     "price": "Price",
-    "durationDays": "Duration (days)",
-    "durationMonths": "Duration (months)",
+    "duration": "Duration",
+    "durationType": "Duration Type",
+    "durationDays": "days",
+    "durationMonths": "months",
     "features": "Features",
+    "featuresPlaceholder": "In-person classes\\nOnline tracking\\nWorkout plan",
+    "oneFeaturePerLine": "One feature per line",
+    "activeStatus": "Active plan",
     "monthlyRevenue": "Monthly Revenue",
     "totalRevenue": "Total Revenue",
     "pendingPayments": "Pending Payments",
-    "overduePayments": "Overdue Payments"
+    "overduePayments": "Overdue Payments",
+    "addSubscription": "Add Subscription",
+    "editSubscription": "Edit Subscription",
+    "deleteSubscription": "Delete Subscription",
+    "noSubscriptions": "No subscriptions found",
+    "plan": "Plan",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "active": "Active",
+    "cancelled": "Cancelled",
+    "expired": "Expired"
   },
   "messages": {
     "title": "Messages",
@@ -249,6 +294,8 @@
     "sent": "Sent",
     "compose": "New Message",
     "recipient": "Recipient",
+    "to": "To",
+    "from": "From",
     "subject": "Subject",
     "message": "Message",
     "send": "Send",
@@ -258,6 +305,7 @@
     "markAsRead": "Mark as Read",
     "markAsUnread": "Mark as Unread",
     "noMessages": "No messages",
+    "selectMessage": "Select a message to view",
     "announcement": "Announcement",
     "sendAnnouncement": "Send Announcement",
     "sendToAll": "Send to All"
