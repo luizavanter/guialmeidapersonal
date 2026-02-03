@@ -292,6 +292,16 @@ create_api_backend() {
             --network-endpoint-group-region=$REGION \
             --project=$PROJECT_ID 2>/dev/null || log_warn "NEG may already be attached to backend"
     fi
+
+    # Attach health check to backend service (CRITICAL: this connects the health check to the backend)
+    if [ "$DRY_RUN" != "true" ]; then
+        log_info "Attaching health check to backend service..."
+        gcloud compute backend-services update $BACKEND_API \
+            --global \
+            --health-checks=$HEALTH_CHECK_NAME \
+            --project=$PROJECT_ID 2>/dev/null || log_warn "Health check may already be attached to backend"
+        log_info "Health check '$HEALTH_CHECK_NAME' attached to backend service '$BACKEND_API'"
+    fi
 }
 
 #============================================================================
@@ -320,6 +330,7 @@ create_url_map() {
     # Add host rules
     if [ "$DRY_RUN" != "true" ]; then
         log_info "Configuring host-based routing rules..."
+        log_warn "NOTE: URL map import will overwrite existing configuration. Proceeding..."
 
         # Create URL map configuration file
         cat > /tmp/url-map-config.yaml << EOF
@@ -416,6 +427,7 @@ create_http_forwarding_rule() {
 # Create SSL certificate with Certificate Manager
 create_ssl_certificate() {
     log_step "Creating SSL certificate with Certificate Manager..."
+    log_warn "Certificate provisioning timing: 15-60 minutes (depends on DNS propagation)"
 
     # Check if certificate exists
     if gcloud certificate-manager certificates describe $CERT_NAME \
@@ -429,7 +441,9 @@ create_ssl_certificate() {
             gcloud certificate-manager certificates create $CERT_NAME \
                 --domains="$DOMAIN,*.$DOMAIN,guialmeidapersonal.esp.br,*.guialmeidapersonal.esp.br" \
                 --project=$PROJECT_ID
-            log_info "Certificate '$CERT_NAME' created (provisioning may take 15-60 minutes)"
+            log_info "Certificate '$CERT_NAME' created"
+            log_warn "IMPORTANT: Certificate provisioning takes 15-60 minutes"
+            log_warn "           Monitor status: gcloud certificate-manager certificates describe $CERT_NAME --project=$PROJECT_ID"
         fi
     fi
 }
