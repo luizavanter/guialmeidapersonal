@@ -31,8 +31,8 @@ export const useStudentsStore = defineStore('students', () => {
 
     try {
       const response = await api.get<Student[]>(API_ENDPOINTS.STUDENTS, { params: filters })
-      students.value = response.data
-      return response.data
+      students.value = response
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to fetch students'
       throw err
@@ -47,8 +47,8 @@ export const useStudentsStore = defineStore('students', () => {
 
     try {
       const response = await api.get<Student>(API_ENDPOINTS.STUDENT(id))
-      currentStudent.value = response.data
-      return response.data
+      currentStudent.value = response
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to fetch student'
       throw err
@@ -63,8 +63,8 @@ export const useStudentsStore = defineStore('students', () => {
 
     try {
       const response = await api.post<Student>(API_ENDPOINTS.STUDENTS, data)
-      students.value.push(response.data)
-      return response.data
+      students.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to create student'
       throw err
@@ -81,12 +81,12 @@ export const useStudentsStore = defineStore('students', () => {
       const response = await api.put<Student>(API_ENDPOINTS.STUDENT(id), data)
       const index = students.value.findIndex(s => s.id === id)
       if (index > -1) {
-        students.value[index] = response.data
+        students.value[index] = response
       }
       if (currentStudent.value?.id === id) {
-        currentStudent.value = response.data
+        currentStudent.value = response
       }
-      return response.data
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to update student'
       throw err

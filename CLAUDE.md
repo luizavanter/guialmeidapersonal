@@ -1,11 +1,13 @@
 # GA Personal — Projeto Guilherme Almeida
 
 ## Status do Projeto
-✅ **Sistema completo implementado** (2026-02-03)
-- Backend Phoenix com 8 contextos
-- 3 aplicações frontend (Trainer, Student, Site)
+✅ **Sistema em PRODUÇÃO** (2026-02-03)
+- Backend Phoenix com 8 contextos - **DEPLOYED**
+- 3 aplicações frontend (Trainer, Student, Site) - **DEPLOYED**
 - Suporte bilíngue completo (PT-BR/EN-US)
 - 15.000+ linhas de código em produção
+- **Todos os endpoints funcionando**
+- **Login e navegação testados e funcionando**
 
 ## Stack Tecnológica
 
@@ -107,19 +109,25 @@ npm install && npm run dev    # http://localhost:3003
 
 ## Credenciais de Acesso
 
-### Personal Trainer (Guilherme)
+### Admin (Produção)
+- **Email:** admin@guialmeidapersonal.esp.br
+- **Senha:** Admin@123456
+- **Role:** admin
+- **Acesso:** https://admin.guialmeidapersonal.esp.br
+
+### Personal Trainer (Guilherme) - Para Criar
 - **Email:** guilherme@gapersonal.com
 - **Senha:** trainer123
 - **Acesso Produção:** https://admin.guialmeidapersonal.esp.br
 - **Acesso Local:** http://localhost:3001
 
-### Alunos (Estudantes)
+### Alunos (Estudantes) - Para Criar
 - **Maria:** maria.silva@example.com / student123
 - **Carlos:** carlos.santos@example.com / student123
 - **Acesso Produção:** https://app.guialmeidapersonal.esp.br
 - **Acesso Local:** http://localhost:3002
 
-> **Nota:** Execute `gcloud run jobs execute ga-personal-migrations` para criar os usuários em produção.
+> **Nota:** Execute `gcloud run jobs execute ga-personal-migrations` para criar usuários seed em produção.
 
 ## Design System (GA Personal)
 
@@ -577,6 +585,24 @@ gcloud secrets versions access latest --secret=jwt-secret --project=guialmeidape
 echo -n "new-value" | gcloud secrets versions add jwt-secret --data-file=- --project=guialmeidapersonal
 ```
 
+## Fixes Aplicados (2026-02-03)
+
+### Backend
+1. **CORS** - Movido CORSPlug para `endpoint.ex` (antes do router) para suportar OPTIONS preflight
+2. **Auth Response** - Atualizado formato para `{ user, tokens: { accessToken, refreshToken, expiresIn } }`
+
+### Frontend (trainer-app)
+1. **Router** - Permitido role 'admin' além de 'trainer' nas rotas protegidas
+2. **Vue Imports** - Adicionado `computed` nos imports de `StudentsView.vue` e `ExercisesView.vue`
+3. **Stores** - Corrigido `response.data` para `response` (useApi já extrai os dados)
+
+### Infraestrutura
+1. **GCS SPA Routing** - Configurado error page = index.html para suportar rotas client-side
+2. **CDN Cache** - Configurado no-cache para index.html, invalidação de CDN após deploys
+
+### Documentação
+- Detalhes completos em: `/docs/plans/2026-02-03-frontend-fixes-deployment.md`
+
 ## Troubleshooting
 
 ### Backend não inicia
@@ -613,6 +639,12 @@ curl http://localhost:4000/api/v1/health
 
 ---
 
-**Sistema completo desenvolvido em 2026-02-03**
-**Status:** ✅ Pronto para produção
-**Próximo passo:** Deploy e UAT
+**Sistema completo desenvolvido e deployado em 2026-02-03**
+**Status:** ✅ EM PRODUÇÃO
+**URLs:**
+- API: https://api.guialmeidapersonal.esp.br
+- Admin: https://admin.guialmeidapersonal.esp.br
+- App: https://app.guialmeidapersonal.esp.br
+- Site: https://guialmeidapersonal.esp.br
+
+**Próximo passo:** Upload de assets (imagens) e UAT com Guilherme

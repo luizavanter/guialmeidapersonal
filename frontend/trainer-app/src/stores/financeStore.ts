@@ -45,8 +45,8 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       const response = await api.get<Payment[]>(API_ENDPOINTS.PAYMENTS, { params: filters })
-      payments.value = response.data
-      return response.data
+      payments.value = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -59,8 +59,8 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       const response = await api.post<Payment>(API_ENDPOINTS.PAYMENTS, data)
-      payments.value.push(response.data)
-      return response.data
+      payments.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -74,8 +74,8 @@ export const useFinanceStore = defineStore('finance', () => {
     try {
       const response = await api.put<Payment>(API_ENDPOINTS.PAYMENT(id), data)
       const index = payments.value.findIndex(p => p.id === id)
-      if (index > -1) payments.value[index] = response.data
-      return response.data
+      if (index > -1) payments.value[index] = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -89,8 +89,8 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       const response = await api.get<Subscription[]>(API_ENDPOINTS.SUBSCRIPTIONS, { params: filters })
-      subscriptions.value = response.data
-      return response.data
+      subscriptions.value = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -103,8 +103,8 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       const response = await api.post<Subscription>(API_ENDPOINTS.SUBSCRIPTIONS, data)
-      subscriptions.value.push(response.data)
-      return response.data
+      subscriptions.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -118,8 +118,8 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       const response = await api.get<Plan[]>(API_ENDPOINTS.PLANS)
-      plans.value = response.data
-      return response.data
+      plans.value = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -132,8 +132,8 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       const response = await api.post<Plan>(API_ENDPOINTS.PLANS, data)
-      plans.value.push(response.data)
-      return response.data
+      plans.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err

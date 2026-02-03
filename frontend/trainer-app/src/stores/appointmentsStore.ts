@@ -37,8 +37,8 @@ export const useAppointmentsStore = defineStore('appointments', () => {
 
     try {
       const response = await api.get<Appointment[]>(API_ENDPOINTS.APPOINTMENTS, { params: filters })
-      appointments.value = response.data
-      return response.data
+      appointments.value = response
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to fetch appointments'
       throw err
@@ -53,8 +53,8 @@ export const useAppointmentsStore = defineStore('appointments', () => {
 
     try {
       const response = await api.get<Appointment>(API_ENDPOINTS.APPOINTMENT(id))
-      currentAppointment.value = response.data
-      return response.data
+      currentAppointment.value = response
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to fetch appointment'
       throw err
@@ -69,8 +69,8 @@ export const useAppointmentsStore = defineStore('appointments', () => {
 
     try {
       const response = await api.post<Appointment>(API_ENDPOINTS.APPOINTMENTS, data)
-      appointments.value.push(response.data)
-      return response.data
+      appointments.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to create appointment'
       throw err
@@ -87,9 +87,9 @@ export const useAppointmentsStore = defineStore('appointments', () => {
       const response = await api.put<Appointment>(API_ENDPOINTS.APPOINTMENT(id), data)
       const index = appointments.value.findIndex(a => a.id === id)
       if (index > -1) {
-        appointments.value[index] = response.data
+        appointments.value[index] = response
       }
-      return response.data
+      return response
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to update appointment'
       throw err

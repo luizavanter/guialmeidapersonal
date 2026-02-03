@@ -20,8 +20,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     loading.value = true
     try {
       const response = await api.get<Exercise[]>(API_ENDPOINTS.EXERCISES, { params: filters })
-      exercises.value = response.data
-      return response.data
+      exercises.value = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -34,8 +34,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     loading.value = true
     try {
       const response = await api.post<Exercise>(API_ENDPOINTS.EXERCISES, data)
-      exercises.value.push(response.data)
-      return response.data
+      exercises.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -49,8 +49,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     try {
       const response = await api.put<Exercise>(API_ENDPOINTS.EXERCISE(id), data)
       const index = exercises.value.findIndex(e => e.id === id)
-      if (index > -1) exercises.value[index] = response.data
-      return response.data
+      if (index > -1) exercises.value[index] = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -77,8 +77,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     loading.value = true
     try {
       const response = await api.get<WorkoutPlan[]>(API_ENDPOINTS.WORKOUT_PLANS, { params: filters })
-      workoutPlans.value = response.data
-      return response.data
+      workoutPlans.value = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -91,8 +91,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     loading.value = true
     try {
       const response = await api.get<WorkoutPlan>(API_ENDPOINTS.WORKOUT_PLAN(id))
-      currentPlan.value = response.data
-      return response.data
+      currentPlan.value = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -105,8 +105,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     loading.value = true
     try {
       const response = await api.post<WorkoutPlan>(API_ENDPOINTS.WORKOUT_PLANS, data)
-      workoutPlans.value.push(response.data)
-      return response.data
+      workoutPlans.value.push(response)
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -120,8 +120,8 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     try {
       const response = await api.put<WorkoutPlan>(API_ENDPOINTS.WORKOUT_PLAN(id), data)
       const index = workoutPlans.value.findIndex(p => p.id === id)
-      if (index > -1) workoutPlans.value[index] = response.data
-      return response.data
+      if (index > -1) workoutPlans.value[index] = response
+      return response
     } catch (err: any) {
       error.value = err.message
       throw err

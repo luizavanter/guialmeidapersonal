@@ -108,10 +108,13 @@ router.beforeEach((to, from, next) => {
       return
     }
 
-    // Check if route requires trainer role
-    if (to.meta.requiresTrainer && user.value?.role !== 'trainer') {
-      next({ name: 'login' })
-      return
+    // Check if route requires trainer role (admin also has access)
+    if (to.meta.requiresTrainer) {
+      const allowedRoles = ['trainer', 'admin']
+      if (!user.value || !allowedRoles.includes(user.value.role)) {
+        next({ name: 'login' })
+        return
+      }
     }
   }
 
