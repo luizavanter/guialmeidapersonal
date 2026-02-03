@@ -1,6 +1,32 @@
 // API Configuration and Endpoints
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1'
+// API Base URL - determined at runtime based on environment
+// Use getter to ensure runtime evaluation
+let _apiBaseUrl: string | null = null
+
+export const getApiBaseUrl = (): string => {
+  if (_apiBaseUrl !== null) return _apiBaseUrl
+
+  // Check for env variable first (Vite dev mode)
+  const envUrl = (import.meta as any)?.env?.VITE_API_URL
+  if (envUrl) {
+    _apiBaseUrl = `${envUrl}/api/v1`
+    return _apiBaseUrl
+  }
+
+  // Check if running on localhost (development)
+  if (typeof window !== 'undefined' && window.location?.hostname === 'localhost') {
+    _apiBaseUrl = 'http://localhost:4000/api/v1'
+    return _apiBaseUrl
+  }
+
+  // Default to production
+  _apiBaseUrl = 'https://api.guialmeidapersonal.esp.br/api/v1'
+  return _apiBaseUrl
+}
+
+// For backwards compatibility, export as constant that resolves at first access
+export const API_BASE_URL = 'https://api.guialmeidapersonal.esp.br/api/v1'
 
 export const API_ENDPOINTS = {
   // Auth

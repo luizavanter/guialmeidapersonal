@@ -1,5 +1,6 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000'
+// Production URL - for local development, set VITE_API_URL=http://localhost:4000
+export const API_BASE_URL = 'https://api.guialmeidapersonal.esp.br'
 export const API_VERSION = 'v1'
 export const API_TIMEOUT = 30000
 

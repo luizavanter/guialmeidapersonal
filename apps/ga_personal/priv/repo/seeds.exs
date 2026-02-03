@@ -14,13 +14,8 @@ alias GaPersonal.Repo
 alias GaPersonal.Accounts
 alias GaPersonal.Workouts
 
-# Clear existing data (only in development)
-if Mix.env() == :dev do
-  IO.puts("Clearing existing data...")
-  Repo.delete_all(GaPersonal.Accounts.StudentProfile)
-  Repo.delete_all(GaPersonal.Accounts.User)
-  Repo.delete_all(GaPersonal.Workouts.Exercise)
-end
+# Note: In production releases, Mix.env() is not available
+# Clearing data is disabled in production seeds
 
 IO.puts("Creating trainer account...")
 

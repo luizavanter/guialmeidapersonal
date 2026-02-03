@@ -219,7 +219,7 @@ create_migration_job() {
             --set-env-vars="MIX_ENV=prod" \
             --set-secrets="DATABASE_URL=database-url:latest" \
             --command="/app/bin/backend" \
-            --args="eval","Backend.Release.migrate" \
+            --args="eval","GaPersonal.Release.migrate" \
             --quiet
     else
         log_info "Creating migration job..."
@@ -238,7 +238,7 @@ create_migration_job() {
             --set-env-vars="MIX_ENV=prod" \
             --set-secrets="DATABASE_URL=database-url:latest" \
             --command="/app/bin/backend" \
-            --args="eval","Backend.Release.migrate" \
+            --args="eval","GaPersonal.Release.migrate" \
             --quiet
     fi
 
@@ -351,7 +351,7 @@ print_summary() {
 
     log_info "Migration Job:"
     echo "  Job Name:      $MIGRATION_JOB_NAME"
-    echo "  Command:       Backend.Release.migrate"
+    echo "  Command:       GaPersonal.Release.migrate"
     echo ""
 
     log_info "Useful Commands:"
