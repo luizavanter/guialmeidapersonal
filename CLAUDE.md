@@ -595,6 +595,20 @@ echo -n "new-value" | gcloud secrets versions add jwt-secret --data-file=- --pro
 1. **Router** - Permitido role 'admin' além de 'trainer' nas rotas protegidas
 2. **Vue Imports** - Adicionado `computed` nos imports de `StudentsView.vue` e `ExercisesView.vue`
 3. **Stores** - Corrigido `response.data` para `response` (useApi já extrai os dados)
+4. **API Payload Format** - Todos os stores agora enviam dados no formato correto:
+   - `{ student: data }`, `{ appointment: data }`, `{ payment: data }`, etc.
+5. **Field Names** - Corrigidos nomes de campos para match com backend:
+   - `scheduled_at` + `duration_minutes` (não start_time/end_time)
+   - `amount_cents` (integer cents, não float)
+   - `price_cents` + `duration_days` (não price + duration_type)
+   - `muscle_groups`, `equipment_needed`, `difficulty_level`
+6. **Modals** - Adicionados modals funcionais em todas as views:
+   - StudentsView, AgendaView, ExercisesView, WorkoutPlansView
+   - PaymentsView, SubscriptionsView, PlansView, MessagesView
+7. **Traduções** - Adicionadas todas as traduções faltantes (pt-BR e en-US):
+   - `common.firstName`, `common.lastName`, `common.phone`, etc.
+   - `workouts.muscles.*`, `finance.*`, `messages.*`
+8. **Evolution Route** - Adicionada rota base `/evolution` (sem studentId)
 
 ### Infraestrutura
 1. **GCS SPA Routing** - Configurado error page = index.html para suportar rotas client-side
@@ -602,6 +616,41 @@ echo -n "new-value" | gcloud secrets versions add jwt-secret --data-file=- --pro
 
 ### Documentação
 - Detalhes completos em: `/docs/plans/2026-02-03-frontend-fixes-deployment.md`
+
+## API Payload Requirements
+
+### IMPORTANTE: Formato dos Dados
+
+O backend Phoenix espera dados **sempre wrappados** em uma chave específica:
+
+```typescript
+// ❌ ERRADO - causa 400 Bad Request
+api.post('/students', { email: 'test@test.com', full_name: 'Test' })
+
+// ✅ CORRETO
+api.post('/students', { student: { email: 'test@test.com', full_name: 'Test' } })
+```
+
+### Chaves por Recurso:
+| Recurso | Chave | Exemplo |
+|---------|-------|---------|
+| Students | `student` | `{ student: { email, full_name, phone, status } }` |
+| Appointments | `appointment` | `{ appointment: { student_id, scheduled_at, duration_minutes } }` |
+| Payments | `payment` | `{ payment: { student_id, amount_cents, due_date } }` |
+| Subscriptions | `subscription` | `{ subscription: { student_id, plan_id, start_date } }` |
+| Plans | `plan` | `{ plan: { name, price_cents, duration_days } }` |
+| Exercises | `exercise` | `{ exercise: { name, category, muscle_groups } }` |
+| Workout Plans | `workout_plan` | `{ workout_plan: { name, description, status } }` |
+
+### Campos em Centavos:
+- `amount_cents` - Valor em centavos (integer), não float
+- `price_cents` - Preço em centavos (integer), não float
+- Exemplo: R$ 150,00 = `15000`
+
+### Campos de Data/Tempo:
+- `scheduled_at` - ISO datetime (não start_time/end_time separados)
+- `duration_minutes` - Duração em minutos (integer)
+- `duration_days` - Duração em dias (integer, não duration_type)
 
 ## Troubleshooting
 

@@ -121,7 +121,40 @@ gcloud compute url-maps invalidate-cdn-cache ga-personal-lb \
 | Main Site | guialmeidapersonal.esp.br | ✅ Deployed |
 | Student App | app.guialmeidapersonal.esp.br | ✅ Deployed |
 
-### 8. Missing Modal Functionality (Frontend)
+### 8. API Payload Format Mismatch (Frontend)
+
+**Problem:** Frontend was sending data without wrapping in required keys, causing 400 errors. Also field names didn't match backend expectations.
+
+**Solution:** Updated all stores and views to use correct format.
+
+**Stores Fixed:**
+- `studentsStore.ts` - wrap in `{ student: data }`
+- `appointmentsStore.ts` - wrap in `{ appointment: data }`
+- `financeStore.ts` - wrap payments in `{ payment: data }`, subscriptions in `{ subscription: data }`, plans in `{ plan: data }`
+- `workoutsStore.ts` - wrap exercises in `{ exercise: data }`, workout plans in `{ workout_plan: data }`
+
+**Field Name Corrections:**
+```typescript
+// StudentsView - flat structure, not nested user object
+{ email, password, full_name, phone, status }
+
+// AgendaView - uses scheduled_at and duration_minutes
+{ student_id, scheduled_at, duration_minutes, notes, status, appointment_type }
+
+// ExercisesView - correct field names
+{ name, category, muscle_groups, equipment_needed, difficulty_level, description, video_url, is_public }
+
+// PaymentsView - uses cents for amount
+{ student_id, amount_cents, currency, due_date, status, notes, payment_method }
+
+// PlansView - uses cents and days
+{ name, description, price_cents, currency, duration_days, features, is_active }
+
+// WorkoutPlansView - includes is_template
+{ name, description, status, is_template }
+```
+
+### 9. Missing Modal Functionality (Frontend)
 
 **Problem:** Multiple views had buttons with no @click handlers and no modals.
 
