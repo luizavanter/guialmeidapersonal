@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GA Personal — Guilherme Almeida | Personal Trainer em Jurere, Florianópolis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== CSS RESET & VARIABLES ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  /* Brand Colors - Inspired by ocean meets energy */
+  --coal: #0A0A0A;
+  --graphite: #1A1A1A;
+  --steel: #2A2A2A;
+  --smoke: #8A8A8A;
+  --fog: #C4C4C4;
+  --white: #F5F5F0;
+  --accent: #C4F53A;       /* Electric lime - energy, vitality */
+  --accent-dim: #9BC22E;
+  --ocean: #0EA5E9;         /* Jurere ocean blue */
+  --ocean-deep: #0369A1;
+  --warm: #F59E0B;          /* Warm amber for highlights */
+  --coral: #EF4444;         /* For alerts/intensity */
+  --gradient-hero: linear-gradient(135deg, #0A0A0A 0%, #1a1a2e 50%, #0A0A0A 100%);
+
+  /* Typography */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  --space-2xl: 8rem;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--coal);
+  color: var(--white);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ===== UTILITY CLASSES ===== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); border: 0;
+}
+
+/* ===== NOISE TEXTURE OVERLAY ===== */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--coal); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* ===== ANIMATED GRID BACKGROUND ===== */
+.grid-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(196,245,58,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(196,245,58,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: -1;
+}
+
+/* ===== TOP NAV BAR ===== */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: var(--space-md) 0;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(0px);
+}
+
+.navbar.scrolled {
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(196,245,58,0.1);
+}
+
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.logo-mark {
+  width: 48px;
+  height: 48px;
+  background: var(--accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--coal);
+  letter-spacing: -1px;
+  transform: rotate(-3deg);
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-mark { transform: rotate(0deg) scale(1.05); }
+
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  color: var(--white);
+}
+
+.logo-text span {
+  color: var(--accent);
+}
+
+.nav-links {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: center;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--fog);
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0;
+  width: 0; height: 2px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover { color: var(--accent); }
+.nav-links a:hover::after { width: 100%; }
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.7rem 1.6rem;
+  background: var(--accent);
+  color: var(--coal);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-cta::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-cta:hover::before { left: 100%; }
+.btn-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(196,245,58,0.3); }
+
+.btn-outline {
+  padding: 0.7rem 1.6rem;
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(196,245,58,0.1);
+  transform: translateY(-2px);
+}
+
+/* Mobile menu button */
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-sm);
+}
+
+.menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--white);
+  margin: 5px 0;
+  transition: all 0.3s ease;
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-hero);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 0.4rem 1rem;
+  background: rgba(196,245,58,0.1);
+  border: 1px solid rgba(196,245,58,0.2);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+  animation: fadeSlideUp 0.8s ease 0.2s both;
+}
+
+.hero-tag .dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 8vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: -1px;
+  margin-bottom: var(--space-lg);
+  animation: fadeSlideUp 0.8s ease 0.4s both;
+}
+
+.hero h1 .line {
+  display: block;
+}
+
+.hero h1 .highlight {
+  color: var(--accent);
+  position: relative;
+}
+
+.hero h1 .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 5px; left: 0;
+  width: 100%; height: 8px;
+  background: rgba(196,245,58,0.2);
+  transform: skewX(-12deg);
+}
+
+.hero-description {
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: var(--fog);
+  max-width: 550px;
+  line-height: 1.8;
+  margin-bottom: var(--space-xl);
+  animation: fadeSlideUp 0.8s ease 0.6s both;
+}
+
+.hero-actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  animation: fadeSlideUp 0.8s ease 0.8s both;
+}
+
+.hero-stats {
+  display: flex;
+  gap: var(--space-xl);
+  margin-top: var(--space-2xl);
+  animation: fadeSlideUp 0.8s ease 1s both;
+}
+
+.stat-item {
+  position: relative;
+}
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 30px; height: 3px;
+  background: var(--accent);
+}
+
+.stat-number {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  color: var(--white);
+  padding-top: var(--space-md);
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--smoke);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* Hero decorative elements */
+.hero-decor {
+  position: absolute;
+  right: -5%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  opacity: 0.08;
+}
+
+.hero-circle {
+  width: 600px;
+  height: 600px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  animation: rotateCircle 30s linear infinite;
+}
+
+.hero-circle::before {
+  content: '';
+  position: absolute;
+  top: 50px; left: 50px;
+  width: 500px; height: 500px;
+  border: 1px solid var(--ocean);
+  border-radius: 50%;
+  animation: rotateCircle 20s linear infinite reverse;
+}
+
+@keyframes rotateCircle {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== SECTION STYLING ===== */
+section {
+  padding: var(--space-2xl) 0;
+  position: relative;
+}
+
+.section-header {
+  margin-bottom: var(--space-xl);
+}
+
+.section-tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+
+.section-subtitle {
+  font-size: 1.05rem;
+  color: var(--smoke);
+  font-weight: 300;
+  max-width: 600px;
+  margin-top: var(--space-md);
+  line-height: 1.7;
+}
+
+/* ===== ABOUT SECTION ===== */
+#sobre {
+  background: var(--graphite);
+  border-top: 1px solid rgba(196,245,58,0.05);
+  border-bottom: 1px solid rgba(196,245,58,0.05);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+}
+
+.about-image {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  background: linear-gradient(135deg, var(--steel) 0%, var(--coal) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-image-placeholder {
+  text-align: center;
+  padding: var(--space-lg);
+}
+
+.about-image-placeholder .icon {
+  font-size: 5rem;
+  margin-bottom: var(--space-md);
+  display: block;
+}
+
+.about-image-placeholder p {
+  color: var(--smoke);
+  font-size: 0.85rem;
+}
+
+.about-image::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(180deg, transparent 50%, rgba(10,10,10,0.8) 100%);
+  z-index: 1;
+}
+
+.about-image .badge {
+  position: absolute;
+  bottom: var(--space-lg);
+  left: var(--space-lg);
+  z-index: 2;
+  background: rgba(10,10,10,0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(196,245,58,0.2);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: 12px;
+}
+
+.badge-number {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  color: var(--accent);
+}
+
+.badge-text {
+  font-size: 0.75rem;
+  color: var(--fog);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.about-content h3 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  margin-bottom: var(--space-lg);
+}
+
+.about-content p {
+  color: var(--fog);
+  font-weight: 300;
+  line-height: 1.8;
+  margin-bottom: var(--space-md);
+}
+
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-lg);
+}
+
+.about-tags .tag {
+  padding: 0.4rem 1rem;
+  background: rgba(196,245,58,0.08);
+  border: 1px solid rgba(196,245,58,0.15);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ===== SERVICES SECTION ===== */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+.service-card {
+  background: var(--graphite);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 20px;
+  padding: var(--space-xl) var(--space-lg);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: default;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.service-card:hover::before {
+  transform: scaleX(1);
+}
+
+.service-card:hover {
+  border-color: rgba(196,245,58,0.15);
+  transform: translateY(-4px);
+}
+
+.service-icon {
+  width: 56px;
+  height: 56px;
+  background: rgba(196,245,58,0.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: var(--space-lg);
+}
+
+.service-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: var(--space-md);
+  letter-spacing: 0.5px;
+}
+
+.service-card p {
+  color: var(--smoke);
+  font-weight: 300;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+.service-features {
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.service-features li {
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--fog);
+  padding: var(--space-xs) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.service-features li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ===== SYSTEM PREVIEW SECTION ===== */
+#sistema {
+  background: var(--graphite);
+  border-top: 1px solid rgba(196,245,58,0.05);
+  border-bottom: 1px solid rgba(196,245,58,0.05);
+}
+
+.system-preview {
+  background: var(--coal);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+}
+
+.system-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(26,26,26,0.5);
+}
+
+.system-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.system-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--steel);
+}
+
+.system-dots span:first-child { background: var(--coral); }
+.system-dots span:nth-child(2) { background: var(--warm); }
+.system-dots span:nth-child(3) { background: var(--accent); }
+
+.system-url {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--smoke);
+  background: rgba(255,255,255,0.04);
+  padding: 0.3rem 1rem;
+  border-radius: 6px;
+}
+
+.system-body {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 500px;
+}
+
+/* System Sidebar */
+.sys-sidebar {
+  background: rgba(26,26,26,0.6);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  padding: var(--space-lg);
+}
+
+.sys-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  margin-bottom: var(--space-lg);
+}
+
+.sys-avatar {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--accent), var(--ocean));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--coal);
+}
+
+.sys-user-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.sys-user-role {
+  font-size: 0.75rem;
+  color: var(--smoke);
+}
+
+.sys-nav {
+  list-style: none;
+}
+
+.sys-nav li {
+  padding: 0.7rem var(--space-md);
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: var(--smoke);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: 2px;
+}
+
+.sys-nav li:hover { background: rgba(196,245,58,0.05); color: var(--white); }
+.sys-nav li.active { background: rgba(196,245,58,0.1); color: var(--accent); font-weight: 500; }
+
+/* System Main Content */
+.sys-main {
+  padding: var(--space-lg);
+}
+
+.sys-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.sys-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+}
+
+.sys-date {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--smoke);
+}
+
+.sys-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.sys-stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 14px;
+  padding: var(--space-md);
+}
+
+.sys-stat-card .label {
+  font-size: 0.7rem;
+  color: var(--smoke);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-xs);
+}
+
+.sys-stat-card .value {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  color: var(--accent);
+}
+
+.sys-stat-card .change {
+  font-size: 0.7rem;
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+/* Schedule Preview */
+.sys-schedule {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.sys-schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.sys-schedule-header h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.sys-schedule-item {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid rgba(255,255,255,0.02);
+  transition: background 0.3s ease;
+}
+
+.sys-schedule-item:hover {
+  background: rgba(196,245,58,0.03);
+}
+
+.sys-time {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.sys-student-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.sys-workout-type {
+  font-size: 0.75rem;
+  color: var(--smoke);
+}
+
+.sys-status {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  font-weight: 500;
+}
+
+.sys-status.confirmed { background: rgba(196,245,58,0.15); color: var(--accent); }
+.sys-status.pending { background: rgba(245,158,11,0.15); color: var(--warm); }
+.sys-status.done { background: rgba(14,165,233,0.15); color: var(--ocean); }
+
+/* ===== FEATURES SECTION ===== */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+.feature-card {
+  background: var(--graphite);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 20px;
+  padding: var(--space-xl);
+  display: flex;
+  gap: var(--space-lg);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+  border-color: rgba(196,245,58,0.1);
+  transform: translateY(-2px);
+}
+
+.feature-number {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  color: rgba(196,245,58,0.15);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.feature-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-bottom: var(--space-sm);
+}
+
+.feature-card p {
+  color: var(--smoke);
+  font-weight: 300;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+/* ===== STUDENT PORTAL PREVIEW ===== */
+#portal {
+  background: var(--graphite);
+  border-top: 1px solid rgba(196,245,58,0.05);
+  border-bottom: 1px solid rgba(196,245,58,0.05);
+}
+
+.portal-demo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.portal-card {
+  background: var(--coal);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  padding: var(--space-xl);
+  overflow: hidden;
+}
+
+.portal-card-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin-bottom: var(--space-lg);
+}
+
+.portal-card-title .icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(196,245,58,0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+/* Workout Plan Card */
+.workout-day {
+  margin-bottom: var(--space-md);
+}
+
+.workout-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.workout-day-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.workout-day-focus {
+  font-size: 0.75rem;
+  color: var(--smoke);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.exercise-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  font-size: 0.85rem;
+}
+
+.exercise-name { color: var(--fog); }
+.exercise-sets {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--smoke);
+}
+
+/* Progress Card */
+.progress-metric {
+  margin-bottom: var(--space-lg);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.progress-label span:first-child {
+  font-size: 0.85rem;
+  color: var(--fog);
+}
+
+.progress-label span:last-child {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--steel);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.5s ease;
+}
+
+.progress-fill.green { background: linear-gradient(90deg, var(--accent-dim), var(--accent)); }
+.progress-fill.blue { background: linear-gradient(90deg, var(--ocean-deep), var(--ocean)); }
+.progress-fill.amber { background: linear-gradient(90deg, #D97706, var(--warm)); }
+
+/* Body metrics */
+.body-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.body-metric {
+  text-align: center;
+}
+
+.body-metric .val {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  color: var(--accent);
+}
+
+.body-metric .lbl {
+  font-size: 0.7rem;
+  color: var(--smoke);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== LOCATION SECTION ===== */
+.location-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  align-items: center;
+}
+
+.location-map {
+  background: var(--graphite);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+  overflow: hidden;
+  aspect-ratio: 16/10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.map-placeholder {
+  text-align: center;
+  z-index: 2;
+}
+
+.map-placeholder .icon { font-size: 3rem; margin-bottom: var(--space-md); }
+.map-placeholder p { color: var(--smoke); font-size: 0.85rem; }
+
+.location-map::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(circle at center, rgba(14,165,233,0.1) 0%, transparent 70%);
+}
+
+.location-info h3 {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  margin-bottom: var(--space-lg);
+}
+
+.location-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.location-detail .icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(196,245,58,0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.location-detail .text h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.location-detail .text p {
+  font-size: 0.85rem;
+  color: var(--smoke);
+}
+
+/* ===== CTA SECTION ===== */
+.cta-section {
+  text-align: center;
+  padding: var(--space-2xl) 0;
+  position: relative;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(196,245,58,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.cta-section h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  margin-bottom: var(--space-md);
+  position: relative;
+}
+
+.cta-section p {
+  color: var(--smoke);
+  font-size: 1.1rem;
+  font-weight: 300;
+  margin-bottom: var(--space-xl);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.cta-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  position: relative;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  background: var(--graphite);
+  border-top: 1px solid rgba(255,255,255,0.04);
+  padding: var(--space-xl) 0 var(--space-lg);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+
+.footer-brand .logo { margin-bottom: var(--space-md); }
+
+.footer-brand p {
+  color: var(--smoke);
+  font-size: 0.85rem;
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 300px;
+}
+
+.footer-col h4 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  margin-bottom: var(--space-md);
+  color: var(--accent);
+}
+
+.footer-col ul { list-style: none; }
+
+.footer-col li {
+  margin-bottom: var(--space-sm);
+}
+
+.footer-col a {
+  font-size: 0.85rem;
+  color: var(--smoke);
+  transition: color 0.3s ease;
+}
+
+.footer-col a:hover { color: var(--accent); }
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-lg);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.footer-bottom p {
+  font-size: 0.75rem;
+  color: var(--smoke);
+}
+
+.footer-tech {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--smoke);
+}
+
+.footer-tech span {
+  padding: 0.2rem 0.5rem;
+  background: rgba(196,245,58,0.08);
+  border-radius: 4px;
+  color: var(--accent);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .system-body { grid-template-columns: 1fr; }
+  .sys-sidebar { display: none; }
+  .sys-stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .menu-toggle { display: block; }
+
+  .hero-stats { flex-direction: column; gap: var(--space-lg); }
+
+  .about-grid,
+  .features-grid,
+  .portal-demo,
+  .location-content {
+    grid-template-columns: 1fr;
+  }
+
+  .services-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: var(--space-lg); }
+
+  .sys-stats-row { grid-template-columns: 1fr 1fr; }
+
+  .hero h1 { font-size: 3rem; }
+}
+
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .footer-bottom { flex-direction: column; gap: var(--space-md); }
+  .cta-actions { flex-direction: column; align-items: center; }
+  .hero-actions { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- Animated grid background -->
+<div class="grid-bg"></div>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-mark">GA</div>
+      <div class="logo-text">GUILHERME <span>ALMEIDA</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#sistema">Sistema</a></li>
+      <li><a href="#portal">Portal do Aluno</a></li>
+      <li><a href="#local">Local</a></li>
+      <li><a href="#contato" class="btn-cta">Agendar aula →</a></li>
+    </ul>
+    <button class="menu-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-tag">
+        <span class="dot"></span>
+        Personal Trainer — Jurerê, Florianópolis
+      </div>
+      <h1>
+        <span class="line">TRANSFORME SEU</span>
+        <span class="line"><span class="highlight">CORPO</span> E SUA</span>
+        <span class="line">MENTALIDADE</span>
+      </h1>
+      <p class="hero-description">
+        Treinamento personalizado para todas as idades e objetivos.
+        Emagrecimento, hipertrofia ou hybrid training — com acompanhamento
+        completo e tecnologia para potencializar seus resultados.
+      </p>
+      <div class="hero-actions">
+        <a href="#contato" class="btn-cta">Comece agora →</a>
+        <a href="#servicos" class="btn-outline">Conheça os serviços</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">20+</span>
+          <span class="stat-label">Anos de experiência</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">500+</span>
+          <span class="stat-label">Alunos transformados</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Dedicação</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-decor">
+    <div class="hero-circle"></div>
+  </div>
+</section>
+
+<!-- ===== SOBRE ===== -->
+<section id="sobre">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-image">
+        <div class="about-image-placeholder">
+          <span class="icon">🏋️</span>
+          <p>Foto do Guilherme</p>
+        </div>
+        <div class="badge">
+          <div class="badge-number">20+</div>
+          <div class="badge-text">Anos em Florianópolis</div>
+        </div>
+      </div>
+      <div class="about-content">
+        <div class="section-tag">// SOBRE</div>
+        <h3>GUILHERME ALMEIDA</h3>
+        <p>
+          Natural de Pelotas e há mais de 20 anos radicado em Florianópolis,
+          Guilherme encontrou em Jurerê o cenário perfeito para combinar
+          qualidade de vida e excelência profissional.
+        </p>
+        <p>
+          Com vasta experiência em treinamento personalizado, atende alunos
+          de todas as idades e perfis — desde jovens atletas até pessoas na
+          melhor idade — sempre com um olhar atento e individualizado para
+          cada objetivo.
+        </p>
+        <p>
+          Sua abordagem integra ciência, motivação e acompanhamento próximo,
+          criando uma experiência de treino que vai muito além da academia.
+        </p>
+        <div class="about-tags">
+          <span class="tag">Emagrecimento</span>
+          <span class="tag">Hipertrofia</span>
+          <span class="tag">Hybrid Training</span>
+          <span class="tag">Todas as idades</span>
+          <span class="tag">CREF Ativo</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SERVIÇOS ===== -->
+<section id="servicos">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">// SERVIÇOS</div>
+      <h2 class="section-title">TREINO SOB MEDIDA</h2>
+      <p class="section-subtitle">
+        Cada programa é desenhado exclusivamente para você, respeitando seus
+        limites e potencializando seus resultados.
+      </p>
+    </div>
+    <div class="services-grid">
+      <!-- Card 1 -->
+      <div class="service-card">
+        <div class="service-icon">🔥</div>
+        <h3>EMAGRECIMENTO</h3>
+        <p>
+          Programa focado em queima de gordura com treinos eficientes,
+          orientação nutricional integrada e acompanhamento de métricas
+          corporais para resultados visíveis e duradouros.
+        </p>
+        <ul class="service-features">
+          <li>Treino HIIT personalizado</li>
+          <li>Acompanhamento de composição corporal</li>
+          <li>Orientação alimentar básica</li>
+          <li>Check-in semanal de progresso</li>
+        </ul>
+      </div>
+      <!-- Card 2 -->
+      <div class="service-card">
+        <div class="service-icon">💪</div>
+        <h3>HIPERTROFIA</h3>
+        <p>
+          Ganho de massa muscular com periodização inteligente, progressão
+          de cargas monitorada e splits de treino otimizados para o seu
+          biótipo e rotina.
+        </p>
+        <ul class="service-features">
+          <li>Periodização linear e ondulada</li>
+          <li>Controle de volume e intensidade</li>
+          <li>Progressão de cargas registrada</li>
+          <li>Ajustes quinzenais de programa</li>
+        </ul>
+      </div>
+      <!-- Card 3 -->
+      <div class="service-card">
+        <div class="service-icon">⚡</div>
+        <h3>HYBRID TRAINING</h3>
+        <p>
+          O melhor de força e condicionamento em um único programa. Ideal
+          para quem quer performance completa — forte, resistente e ágil.
+        </p>
+        <ul class="service-features">
+          <li>Combinação força + cardio</li>
+          <li>Treinos funcionais integrados</li>
+          <li>Melhora de VO2max e potência</li>
+          <li>Preparação física completa</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SISTEMA PREVIEW ===== -->
+<section id="sistema">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">// SISTEMA GA PERSONAL</div>
+      <h2 class="section-title">TECNOLOGIA A SEU FAVOR</h2>
+      <p class="section-subtitle">
+        Um sistema completo para gerenciar agenda, alunos, treinos e evolução.
+        Simples para você, poderoso nos resultados.
+      </p>
+    </div>
+    <div class="system-preview">
+      <div class="system-topbar">
+        <div class="system-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <div class="system-url">app.gapersonal.com.br</div>
+        <div></div>
+      </div>
+      <div class="system-body">
+        <!-- Sidebar -->
+        <div class="sys-sidebar">
+          <div class="sys-user">
+            <div class="sys-avatar">GA</div>
+            <div>
+              <div class="sys-user-name">Guilherme A.</div>
+              <div class="sys-user-role">Personal Trainer</div>
+            </div>
+          </div>
+          <ul class="sys-nav">
+            <li class="active">📊 Dashboard</li>
+            <li>📅 Agenda</li>
+            <li>👥 Alunos</li>
+            <li>📋 Treinos</li>
+            <li>📈 Evoluções</li>
+            <li>💬 Mensagens</li>
+            <li>💰 Financeiro</li>
+            <li>⚙️ Configurações</li>
+          </ul>
+        </div>
+        <!-- Main Content -->
+        <div class="sys-main">
+          <div class="sys-header">
+            <h2>DASHBOARD</h2>
+            <div class="sys-date">FEV 2026</div>
+          </div>
+          <div class="sys-stats-row">
+            <div class="sys-stat-card">
+              <div class="label">Alunos Ativos</div>
+              <div class="value">47</div>
+              <div class="change">↑ +3 este mês</div>
+            </div>
+            <div class="sys-stat-card">
+              <div class="label">Aulas Hoje</div>
+              <div class="value">12</div>
+              <div class="change">3 manhã · 5 tarde · 4 noite</div>
+            </div>
+            <div class="sys-stat-card">
+              <div class="label">Taxa Presença</div>
+              <div class="value">94%</div>
+              <div class="change">↑ +2% vs jan</div>
+            </div>
+            <div class="sys-stat-card">
+              <div class="label">Receita Mensal</div>
+              <div class="value">R$ 18.4k</div>
+              <div class="change">↑ +8% vs jan</div>
+            </div>
+          </div>
+          <div class="sys-schedule">
+            <div class="sys-schedule-header">
+              <h3>Agenda de Hoje — Terça-feira</h3>
+              <span style="font-size: 0.8rem; color: var(--accent); cursor: pointer;">Ver semana →</span>
+            </div>
+            <div class="sys-schedule-item">
+              <div class="sys-time">06:00</div>
+              <div>
+                <div class="sys-student-name">Ana Carolina M.</div>
+                <div class="sys-workout-type">Emagrecimento · Semana 8</div>
+              </div>
+              <span class="sys-status confirmed">Confirmado</span>
+            </div>
+            <div class="sys-schedule-item">
+              <div class="sys-time">07:00</div>
+              <div>
+                <div class="sys-student-name">Roberto S. Filho</div>
+                <div class="sys-workout-type">Hipertrofia · Semana 12</div>
+              </div>
+              <span class="sys-status confirmed">Confirmado</span>
+            </div>
+            <div class="sys-schedule-item">
+              <div class="sys-time">08:00</div>
+              <div>
+                <div class="sys-student-name">Mariana K.</div>
+                <div class="sys-workout-type">Hybrid Training · Semana 4</div>
+              </div>
+              <span class="sys-status pending">Pendente</span>
+            </div>
+            <div class="sys-schedule-item">
+              <div class="sys-time">09:00</div>
+              <div>
+                <div class="sys-student-name">Seu Carlos (68 anos)</div>
+                <div class="sys-workout-type">Funcional · Semana 20</div>
+              </div>
+              <span class="sys-status confirmed">Confirmado</span>
+            </div>
+            <div class="sys-schedule-item">
+              <div class="sys-time">10:00</div>
+              <div>
+                <div class="sys-student-name">Juliana R.</div>
+                <div class="sys-workout-type">Emagrecimento · Semana 3</div>
+              </div>
+              <span class="sys-status done">Concluído</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURES ===== -->
+<section id="funcionalidades">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">// FUNCIONALIDADES</div>
+      <h2 class="section-title">TUDO EM UM SÓ LUGAR</h2>
+      <p class="section-subtitle">
+        Desenvolvido especificamente para a rotina de personal trainers.
+        Cada funcionalidade resolve um problema real do dia a dia.
+      </p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-number">01</div>
+        <div>
+          <h3>AGENDA INTELIGENTE</h3>
+          <p>Gerenciamento completo de horários com confirmação automática via WhatsApp, controle de recorrência, lista de espera e visualização semanal/mensal.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-number">02</div>
+        <div>
+          <h3>MONTAGEM DE TREINOS</h3>
+          <p>Biblioteca de exercícios com vídeos, criação de planilhas de treino por aluno, periodização visual e progressão automática de cargas.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-number">03</div>
+        <div>
+          <h3>PORTAL DO ALUNO</h3>
+          <p>Área exclusiva onde cada aluno acessa seu treino, registra execuções, acompanha evolução corporal e se comunica com o Guilherme.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-number">04</div>
+        <div>
+          <h3>EVOLUÇÃO & MÉTRICAS</h3>
+          <p>Dashboard de evolução com gráficos de peso, medidas, fotos comparativas (antes/depois), registros de cargas e metas personalizadas.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-number">05</div>
+        <div>
+          <h3>FINANCEIRO</h3>
+          <p>Controle de mensalidades, pacotes, aulas avulsas, inadimplência e relatórios financeiros mensais com visão clara do faturamento.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-number">06</div>
+        <div>
+          <h3>COMUNICAÇÃO</h3>
+          <p>Mensagens diretas com alunos, notificações de treino, lembretes de agendamento e avisos automatizados integrados ao WhatsApp.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PORTAL DO ALUNO ===== -->
+<section id="portal">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">// PORTAL DO ALUNO</div>
+      <h2 class="section-title">SEU TREINO NA PALMA DA MÃO</h2>
+      <p class="section-subtitle">
+        Cada aluno tem acesso ao seu próprio portal com treinos, métricas
+        de evolução e comunicação direta com o Guilherme.
+      </p>
+    </div>
+    <div class="portal-demo">
+      <!-- Workout Plan -->
+      <div class="portal-card">
+        <div class="portal-card-title">
+          <div class="icon">📋</div>
+          Meu Treino — Semana 8
+        </div>
+        <div class="workout-day">
+          <div class="workout-day-header">
+            <span class="workout-day-name">Segunda — Treino A</span>
+            <span class="workout-day-focus">Peito + Tríceps</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Supino reto com barra</span>
+            <span class="exercise-sets">4×10 · 60kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Supino inclinado halteres</span>
+            <span class="exercise-sets">3×12 · 22kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Crossover polia alta</span>
+            <span class="exercise-sets">3×15 · 20kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Tríceps corda</span>
+            <span class="exercise-sets">3×12 · 25kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Tríceps francês</span>
+            <span class="exercise-sets">3×10 · 14kg</span>
+          </div>
+        </div>
+        <div class="workout-day" style="margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid rgba(255,255,255,0.04);">
+          <div class="workout-day-header">
+            <span class="workout-day-name">Terça — Treino B</span>
+            <span class="workout-day-focus">Costas + Bíceps</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Puxada frontal aberta</span>
+            <span class="exercise-sets">4×10 · 55kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Remada curvada</span>
+            <span class="exercise-sets">4×10 · 50kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Pulldown corda</span>
+            <span class="exercise-sets">3×12 · 30kg</span>
+          </div>
+          <div class="exercise-row">
+            <span class="exercise-name">Rosca direta barra</span>
+            <span class="exercise-sets">3×12 · 20kg</span>
+          </div>
+        </div>
+      </div>
+      <!-- Progress Dashboard -->
+      <div class="portal-card">
+        <div class="portal-card-title">
+          <div class="icon">📈</div>
+          Minha Evolução
+        </div>
+        <div class="progress-metric">
+          <div class="progress-label">
+            <span>Meta de peso (80kg → 72kg)</span>
+            <span>75.2kg — 60%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill green" style="width: 60%;"></div>
+          </div>
+        </div>
+        <div class="progress-metric">
+          <div class="progress-label">
+            <span>% Gordura corporal (25% → 18%)</span>
+            <span>21.3% — 53%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill blue" style="width: 53%;"></div>
+          </div>
+        </div>
+        <div class="progress-metric">
+          <div class="progress-label">
+            <span>Frequência mensal (meta: 20 treinos)</span>
+            <span>17/20 — 85%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill amber" style="width: 85%;"></div>
+          </div>
+        </div>
+        <div class="body-metrics">
+          <div class="body-metric">
+            <div class="val">92cm</div>
+            <div class="lbl">Cintura</div>
+          </div>
+          <div class="body-metric">
+            <div class="val">38cm</div>
+            <div class="lbl">Braço D</div>
+          </div>
+          <div class="body-metric">
+            <div class="val">58cm</div>
+            <div class="lbl">Coxa D</div>
+          </div>
+        </div>
+        <div style="margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid rgba(255,255,255,0.04);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md);">
+            <span style="font-size: 0.85rem; font-weight: 600;">Últimas atualizações</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--smoke); padding: var(--space-xs) 0; display: flex; justify-content: space-between;">
+            <span>Avaliação física atualizada</span>
+            <span style="color: var(--accent);">Há 3 dias</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--smoke); padding: var(--space-xs) 0; display: flex; justify-content: space-between;">
+            <span>Treino A atualizado — +2kg supino</span>
+            <span style="color: var(--accent);">Há 5 dias</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--smoke); padding: var(--space-xs) 0; display: flex; justify-content: space-between;">
+            <span>Fotos comparativas adicionadas</span>
+            <span style="color: var(--accent);">Há 1 semana</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LOCAL ===== -->
+<section id="local">
+  <div class="container">
+    <div class="location-content">
+      <div class="location-map">
+        <div class="map-placeholder">
+          <div class="icon">🗺️</div>
+          <p>Jurerê — Florianópolis, SC</p>
+        </div>
+      </div>
+      <div class="location-info">
+        <div class="section-tag">// LOCALIZAÇÃO</div>
+        <h3>JURERÊ, FLORIANÓPOLIS</h3>
+        <div class="location-detail">
+          <div class="icon">📍</div>
+          <div class="text">
+            <h4>Região de atendimento</h4>
+            <p>Jurerê Internacional, Jurerê Tradicional e região norte da ilha</p>
+          </div>
+        </div>
+        <div class="location-detail">
+          <div class="icon">🕐</div>
+          <div class="text">
+            <h4>Horários de atendimento</h4>
+            <p>Segunda a Sexta: 06:00 — 21:00<br>Sábado: 07:00 — 12:00</p>
+          </div>
+        </div>
+        <div class="location-detail">
+          <div class="icon">📱</div>
+          <div class="text">
+            <h4>Contato direto</h4>
+            <p>WhatsApp disponível para agendamentos e dúvidas</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section" id="contato">
+  <div class="container">
+    <h2>PRONTO PARA <span style="color: var(--accent);">COMEÇAR</span>?</h2>
+    <p>
+      Agende sua aula experimental gratuita e descubra como o treino
+      personalizado pode transformar seus resultados.
+    </p>
+    <div class="cta-actions">
+      <a href="https://wa.me/5548999999999?text=Olá Guilherme! Gostaria de agendar uma aula experimental." class="btn-cta" target="_blank" rel="noopener">
+        Falar no WhatsApp →
+      </a>
+      <a href="#sistema" class="btn-outline">Conhecer o sistema</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-mark">GA</div>
+          <div class="logo-text">GUILHERME <span>ALMEIDA</span></div>
+        </a>
+        <p>
+          Personal Trainer em Jurerê, Florianópolis. Treinamento personalizado
+          para todas as idades com foco em resultados reais e duradouros.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h4>NAVEGAÇÃO</h4>
+        <ul>
+          <li><a href="#sobre">Sobre</a></li>
+          <li><a href="#servicos">Serviços</a></li>
+          <li><a href="#sistema">Sistema</a></li>
+          <li><a href="#portal">Portal do Aluno</a></li>
+          <li><a href="#local">Localização</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>SERVIÇOS</h4>
+        <ul>
+          <li><a href="#servicos">Emagrecimento</a></li>
+          <li><a href="#servicos">Hipertrofia</a></li>
+          <li><a href="#servicos">Hybrid Training</a></li>
+          <li><a href="#servicos">Funcional</a></li>
+          <li><a href="#servicos">Melhor Idade</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>SISTEMA</h4>
+        <ul>
+          <li><a href="#sistema">Login Personal</a></li>
+          <li><a href="#portal">Portal do Aluno</a></li>
+          <li><a href="#funcionalidades">Funcionalidades</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 GA Personal — Guilherme Almeida. Todos os direitos reservados.</p>
+      <div class="footer-tech">
+        Powered by
+        <span>Elixir</span>
+        <span>Phoenix</span>
+        <span>Vue</span>
+        <span>PostgreSQL</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// Navbar scroll effect
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 50) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+});
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// Intersection Observer for scroll animations
+const observerOptions = {
+  root: null,
+  rootMargin: '0px',
+  threshold: 0.1
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, observerOptions);
+
+// Animate elements on scroll
+document.querySelectorAll('.service-card, .feature-card, .portal-card, .sys-stat-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(30px)';
+  el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+  observer.observe(el);
+});
+
+// Counter animation for hero stats
+function animateCounter(element, target, duration = 2000) {
+  let start = 0;
+  const increment = target / (duration / 16);
+  const isPercent = element.textContent.includes('%');
+  const hasPlus = element.textContent.includes('+');
+
+  function update() {
+    start += increment;
+    if (start >= target) {
+      start = target;
+    } else {
+      requestAnimationFrame(update);
+    }
+    let display = Math.floor(start);
+    element.textContent = (hasPlus ? '' : '') + display + (isPercent ? '%' : '+');
+  }
+  update();
+}
+
+// Mobile menu toggle
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('.nav-links');
+
+if (menuToggle) {
+  menuToggle.addEventListener('click', () => {
+    navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+  });
+}
+</script>
+
+</body>
+</html>

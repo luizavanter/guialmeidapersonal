@@ -1,0 +1,19 @@
+{
+  "name": "@ga-personal/site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs --port 3003",
+    "build": "vitepress build docs",
+    "preview": "vitepress preview docs"
+  },
+  "dependencies": {
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "vitepress": "^1.5.0",
+    "@vueuse/core": "^10.0.0",
+    "sass": "^1.70.0"
+  }
+}

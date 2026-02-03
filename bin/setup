@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e
+
+echo "🚀 GA Personal - Setup Script"
+echo "=============================="
+
+# Check if Elixir is installed
+if ! command -v elixir &> /dev/null; then
+    echo "❌ Elixir is not installed. Please install Elixir 1.15+ first."
+    exit 1
+fi
+
+echo "✅ Elixir found: $(elixir --version | grep Elixir)"
+
+# Install dependencies
+echo ""
+echo "📦 Installing dependencies..."
+mix deps.get
+
+# Compile project
+echo ""
+echo "🔨 Compiling project..."
+mix compile
+
+# Check if Docker is running
+if docker info &> /dev/null; then
+    echo ""
+    echo "🐳 Starting PostgreSQL and Redis with Docker..."
+    docker-compose up -d
+
+    # Wait for PostgreSQL to be ready
+    echo "⏳ Waiting for PostgreSQL to be ready..."
+    sleep 5
+else
+    echo ""
+    echo "⚠️  Docker is not running. Please ensure PostgreSQL is running locally."
+    echo "Update config/dev.exs with your database credentials if needed."
+fi
+
+# Setup database
+echo ""
+echo "🗄️  Setting up database..."
+mix ecto.setup
+
+echo ""
+echo "✅ Setup complete!"
+echo ""
+echo "🎯 Next steps:"
+echo "  1. Start the server: mix phx.server"
+echo "  2. API available at: http://localhost:4000"
+echo ""
+echo "📝 Default credentials:"
+echo "  Trainer: guilherme@gapersonal.com / trainer123"
+echo "  Student: maria.silva@example.com / student123"
+echo ""
+echo "📚 See README.md for more information"

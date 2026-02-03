@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-coal text-smoke font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-wide;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-coal-light;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-coal-lighter rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-lime;
+  }
+}
+
+@layer components {
+  /* Focus styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-lime focus:ring-offset-2 focus:ring-offset-coal;
+  }
+
+  /* Card styles */
+  .card {
+    @apply bg-coal-light border border-coal-lighter rounded-ga p-6;
+  }
+
+  /* Button base */
+  .btn-base {
+    @apply inline-flex items-center justify-center px-6 py-3 rounded-ga font-medium transition-all duration-200 focus-ring disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+}
+
+@layer utilities {
+  /* Text gradients */
+  .text-gradient-lime {
+    @apply bg-gradient-to-r from-lime to-lime-dark bg-clip-text text-transparent;
+  }
+
+  .text-gradient-ocean {
+    @apply bg-gradient-to-r from-ocean to-ocean-dark bg-clip-text text-transparent;
+  }
+
+  /* Animation utilities */
+  .animate-in {
+    @apply animate-fade-in;
+  }
+
+  /* Glass morphism */
+  .glass {
+    @apply bg-coal-light/50 backdrop-blur-sm border border-coal-lighter/50;
+  }
+}

@@ -1,0 +1,79 @@
+# Elixir / Phoenix
+/_build/
+/deps/
+/*.ez
+/doc/
+/.fetch
+erl_crash.dump
+*.beam
+*.plt
+*.plt.hash
+
+# Phoenix
+/priv/static/
+/priv/repo/migrations/*_migration.exs
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / NPM
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Frontend builds
+frontend/*/dist/
+frontend/*/build/
+frontend/*/.vite/
+frontend/*/.cache/
+
+# Frontend env
+frontend/*/.env
+frontend/*/.env.local
+frontend/*/.env.*.local
+
+# Test coverage
+cover/
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets
+config/prod.secret.exs
+secrets.yaml
+
+# Generated types
+frontend/shared/src/types/generated/
+
+# VitePress cache
+frontend/site/.vitepress/cache/
+frontend/site/.vitepress/dist/

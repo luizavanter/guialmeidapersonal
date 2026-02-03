@@ -1,0 +1,232 @@
+@import './variables.scss';
+
+:root {
+  --vp-c-brand: #{$lime};
+  --vp-c-brand-light: #{lighten($lime, 10%)};
+  --vp-c-brand-dark: #{darken($lime, 10%)};
+
+  --vp-c-bg: #{$coal};
+  --vp-c-bg-soft: #{lighten($coal, 5%)};
+  --vp-c-bg-mute: #{lighten($coal, 3%)};
+
+  --vp-c-text-1: #{$smoke};
+  --vp-c-text-2: #{rgba($smoke, 0.8)};
+  --vp-c-text-3: #{rgba($smoke, 0.6)};
+
+  --vp-font-family-base: #{$font-body};
+
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(135deg, #{$lime} 0%, #{$ocean} 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-body;
+  background-color: $coal;
+  color: $smoke;
+  line-height: 1.6;
+}
+
+.VPNav {
+  background-color: rgba($coal, 0.95) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba($smoke, 0.1);
+}
+
+.VPNavBar {
+  .title {
+    font-family: $font-display;
+    font-size: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+}
+
+// Display font for headings
+h1, h2, h3, .display-text {
+  font-family: $font-display;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  margin-bottom: $spacing-lg;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: $spacing-md;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: $spacing-sm;
+}
+
+// Button styles
+.btn {
+  font-family: $font-body;
+  font-weight: 600;
+  padding: $spacing-sm $spacing-lg;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+
+  &-primary {
+    background-color: $lime;
+    color: $coal;
+
+    &:hover {
+      background-color: lighten($lime, 10%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($lime, 0.3);
+    }
+  }
+
+  &-secondary {
+    background-color: transparent;
+    color: $smoke;
+    border: 2px solid $smoke;
+
+    &:hover {
+      background-color: $smoke;
+      color: $coal;
+    }
+  }
+
+  &-ocean {
+    background-color: $ocean;
+    color: white;
+
+    &:hover {
+      background-color: lighten($ocean, 10%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($ocean, 0.3);
+    }
+  }
+}
+
+// Card styles
+.card {
+  background-color: lighten($coal, 5%);
+  border: 1px solid rgba($smoke, 0.1);
+  border-radius: 12px;
+  padding: $spacing-lg;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba($lime, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Container
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+// Section spacing
+.section {
+  padding: $spacing-2xl 0;
+
+  @media (min-width: $breakpoint-md) {
+    padding: 4rem 0;
+  }
+}
+
+// Grid layouts
+.grid {
+  display: grid;
+  gap: $spacing-lg;
+
+  &-2 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  &-3 {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+// Accent line
+.accent-line {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, $lime, $ocean);
+  margin: $spacing-md 0;
+  border-radius: 2px;
+}
+
+// Text utilities
+.text-lime {
+  color: $lime;
+}
+
+.text-ocean {
+  color: $ocean;
+}
+
+.text-smoke {
+  color: $smoke;
+}
+
+.text-center {
+  text-align: center;
+}
+
+// Footer
+.VPFooter {
+  background-color: $coal;
+  border-top: 1px solid rgba($smoke, 0.1);
+}
+
+// Content area
+.vp-doc {
+  color: $smoke;
+
+  a {
+    color: $ocean;
+    text-decoration: none;
+
+    &:hover {
+      color: lighten($ocean, 10%);
+      text-decoration: underline;
+    }
+  }
+}
+
+// Responsive images
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: $coal;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $lime;
+  border-radius: 5px;
+
+  &:hover {
+    background: lighten($lime, 10%);
+  }
+}

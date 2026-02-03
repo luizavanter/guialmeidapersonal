@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-smoke/10;
+  }
+
+  body {
+    @apply font-body bg-coal text-smoke antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-lime text-coal hover:bg-lime/90;
+  }
+
+  .btn-secondary {
+    @apply bg-ocean text-white hover:bg-ocean/90;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent hover:bg-smoke/10;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 rounded-lg bg-coal border border-smoke/20 focus:border-lime focus:ring-2 focus:ring-lime/20 outline-none transition-all;
+  }
+
+  .card {
+    @apply bg-coal border border-smoke/10 rounded-xl p-6;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-success {
+    @apply bg-lime/20 text-lime;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-500/20 text-yellow-500;
+  }
+
+  .badge-error {
+    @apply bg-red-500/20 text-red-500;
+  }
+
+  .badge-info {
+    @apply bg-ocean/20 text-ocean;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

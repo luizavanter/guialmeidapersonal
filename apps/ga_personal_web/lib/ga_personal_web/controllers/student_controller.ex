@@ -1,0 +1,72 @@
+defmodule GaPersonalWeb.StudentController do
+  use GaPersonalWeb, :controller
+
+  alias GaPersonal.Accounts
+  alias GaPersonal.Guardian
+
+  action_fallback GaPersonalWeb.FallbackController
+
+  def index(conn, params) do
+    user = Guardian.Plug.current_resource(conn)
+    students = Accounts.list_students(user.id, params)
+
+    json(conn, %{data: Enum.map(students, &student_json/1)})
+  end
+
+  def show(conn, %{"id" => id}) do
+    student = Accounts.get_student!(id)
+    json(conn, %{data: student_json(student)})
+  end
+
+  def create(conn, %{"student" => student_params}) do
+    user = Guardian.Plug.current_resource(conn)
+
+    with {:ok, student} <- Accounts.create_student(user.id, student_params) do
+      conn
+      |> put_status(:created)
+      |> json(%{data: student_json(student)})
+    end
+  end
+
+  def update(conn, %{"id" => id, "student" => student_params}) do
+    student = Accounts.get_student!(id)
+
+    with {:ok, updated_student} <- Accounts.update_student_profile(student, student_params) do
+      json(conn, %{data: student_json(updated_student)})
+    end
+  end
+
+  def delete(conn, %{"id" => id}) do
+    student = Accounts.get_student!(id)
+
+    with {:ok, _} <- Accounts.deactivate_student(student) do
+      send_resp(conn, :no_content, "")
+    end
+  end
+
+  defp student_json(student) do
+    %{
+      id: student.id,
+      user_id: student.user_id,
+      trainer_id: student.trainer_id,
+      date_of_birth: student.date_of_birth,
+      gender: student.gender,
+      emergency_contact_name: student.emergency_contact_name,
+      emergency_contact_phone: student.emergency_contact_phone,
+      medical_conditions: student.medical_conditions,
+      goals_description: student.goals_description,
+      notes: student.notes,
+      status: student.status,
+      user: if(student.user, do: user_json(student.user), else: nil)
+    }
+  end
+
+  defp user_json(user) do
+    %{
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name,
+      phone: user.phone
+    }
+  end
+end
