@@ -103,26 +103,52 @@ else
 fi
 
 echo "Granting database permissions to user..."
-# Create SQL file with grant commands
-GRANT_SQL="/tmp/grant_permissions.sql"
-cat > "$GRANT_SQL" <<EOF
-GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
-\c $DB_NAME
-GRANT ALL PRIVILEGES ON SCHEMA public TO $DB_USER;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $DB_USER;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO $DB_USER;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO $DB_USER;
-EOF
 
-# Execute grant commands using Cloud SQL proxy connection
-gcloud sql connect $INSTANCE_NAME --user=postgres --project=$PROJECT_ID --quiet < "$GRANT_SQL" || {
-  echo "Warning: Could not grant permissions automatically. You may need to run these commands manually:"
-  cat "$GRANT_SQL"
+# Grant database-level permissions (requires postgres superuser)
+echo "Attempting to grant database-level permissions..."
+gcloud sql execute $INSTANCE_NAME \
+  --user=postgres \
+  --password="$DB_PASSWORD" \
+  --project=$PROJECT_ID \
+  --sql="GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;" 2>/dev/null || {
+    echo "Note: Database-level grant requires manual execution if above failed."
+    echo "This is expected on fresh instances and can be done after first deployment."
 }
 
-# Cleanup SQL file
-rm -f "$GRANT_SQL"
+# Grant schema and table permissions (can be executed with --database flag)
+echo "Granting schema and table permissions..."
+gcloud sql execute $INSTANCE_NAME \
+  --database=$DB_NAME \
+  --user=postgres \
+  --password="$DB_PASSWORD" \
+  --project=$PROJECT_ID \
+  --sql="GRANT ALL PRIVILEGES ON SCHEMA public TO $DB_USER; \
+         GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $DB_USER; \
+         GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $DB_USER; \
+         ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO $DB_USER; \
+         ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO $DB_USER;" || {
+  echo ""
+  echo "================================================================"
+  echo "WARNING: Automatic permission grants failed!"
+  echo "================================================================"
+  echo "You may need to run these SQL commands manually using Cloud SQL Proxy:"
+  echo ""
+  echo "1. Start Cloud SQL Proxy:"
+  echo "   cloud-sql-proxy $PROJECT_ID:$REGION:$INSTANCE_NAME"
+  echo ""
+  echo "2. Connect with psql (in another terminal):"
+  echo "   PGPASSWORD='<DB_PASSWORD>' psql -h 127.0.0.1 -U postgres -d $DB_NAME"
+  echo ""
+  echo "3. Run these commands:"
+  echo "   GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
+  echo "   GRANT ALL PRIVILEGES ON SCHEMA public TO $DB_USER;"
+  echo "   GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $DB_USER;"
+  echo "   GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;"
+  echo "   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO $DB_USER;"
+  echo "   ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON SEQUENCES TO $DB_USER;"
+  echo "================================================================"
+  echo ""
+}
 
 echo "Getting connection details..."
 CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --project=$PROJECT_ID --format="value(connectionName)")
@@ -137,14 +163,19 @@ echo "Private IP: $PRIVATE_IP"
 echo "Database: $DB_NAME"
 echo "User: $DB_USER"
 echo ""
-echo "!!! SECURITY WARNING !!!"
+echo "!!! CRITICAL - SAVE THIS PASSWORD !!!"
+echo "======================================"
 echo "Database Password: $DB_PASSWORD"
-echo "SAVE THIS PASSWORD SECURELY - You'll need it for Secret Manager"
-echo "After saving, delete the temp file: rm $PASSWORD_FILE"
+echo "======================================"
 echo ""
-echo "Database URL (save to Secret Manager):"
+echo "IMPORTANT SECURITY INSTRUCTIONS:"
+echo "1. Save this password to Secret Manager immediately"
+echo "2. Delete the temp file after saving: rm $PASSWORD_FILE"
+echo "3. NEVER commit this password to version control"
+echo ""
+echo "Database URL template (for Secret Manager):"
 echo "postgresql://$DB_USER:<PASSWORD>@$PRIVATE_IP:5432/$DB_NAME"
 echo ""
-echo "Full connection string for reference (DO NOT commit this):"
-echo "postgresql://$DB_USER:$DB_PASSWORD@$PRIVATE_IP:5432/$DB_NAME"
+echo "To test connection immediately (replace <PASSWORD> with actual password):"
+echo "PGPASSWORD='<PASSWORD>' psql -h $PRIVATE_IP -U $DB_USER -d $DB_NAME"
 echo "======================================"
