@@ -104,18 +104,6 @@ fi
 
 echo "Granting database permissions to user via Cloud Storage import..."
 
-# Create temporary SQL file with grant statements
-GRANTS_FILE="/tmp/ga-personal-grants-$$.sql"
-cat > "$GRANTS_FILE" <<EOF
-GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
-\c $DB_NAME
-GRANT ALL PRIVILEGES ON SCHEMA public TO $DB_USER;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO $DB_USER;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $DB_USER;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO $DB_USER;
-EOF
-
 # Create temporary GCS bucket for SQL import (if it doesn't exist)
 TEMP_BUCKET="gs://guialmeidapersonal-temp-sql"
 if ! gsutil ls -p $PROJECT_ID $TEMP_BUCKET &>/dev/null; then
@@ -123,33 +111,83 @@ if ! gsutil ls -p $PROJECT_ID $TEMP_BUCKET &>/dev/null; then
   gsutil mb -p $PROJECT_ID -l $REGION $TEMP_BUCKET
 fi
 
-# Upload grants file to GCS
-echo "Uploading grants file to Cloud Storage..."
-gsutil cp "$GRANTS_FILE" "$TEMP_BUCKET/grants-$$.sql"
+# Get Cloud SQL service account and grant GCS permissions
+echo "Granting Cloud SQL service account access to GCS bucket..."
+SQL_SA=$(gcloud sql instances describe $INSTANCE_NAME \
+  --format="value(serviceAccountEmailAddress)" \
+  --project=$PROJECT_ID)
 
-# Import SQL file (runs as postgres user, fully automated)
-echo "Executing grants via Cloud SQL import..."
-gcloud sql import sql $INSTANCE_NAME "$TEMP_BUCKET/grants-$$.sql" \
+gsutil iam ch serviceAccount:$SQL_SA:objectAdmin $TEMP_BUCKET
+
+# Create two separate SQL files (avoiding psql meta-commands)
+# File 1: Database-level grants (runs on postgres database)
+GRANTS_DB_FILE="/tmp/ga-personal-grants-db-$$.sql"
+cat > "$GRANTS_DB_FILE" <<EOF
+GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;
+EOF
+
+# File 2: Schema-level grants (runs on target database)
+GRANTS_SCHEMA_FILE="/tmp/ga-personal-grants-schema-$$.sql"
+cat > "$GRANTS_SCHEMA_FILE" <<EOF
+GRANT ALL PRIVILEGES ON SCHEMA public TO $DB_USER;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO $DB_USER;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO $DB_USER;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO $DB_USER;
+EOF
+
+# Upload both grant files to GCS
+echo "Uploading grants files to Cloud Storage..."
+gsutil cp "$GRANTS_DB_FILE" "$TEMP_BUCKET/grants-db-$$.sql"
+gsutil cp "$GRANTS_SCHEMA_FILE" "$TEMP_BUCKET/grants-schema-$$.sql"
+
+# Import 1: Database-level grants (on postgres database)
+echo "Executing database-level grants..."
+gcloud sql import sql $INSTANCE_NAME "$TEMP_BUCKET/grants-db-$$.sql" \
   --database=postgres \
   --user=postgres \
   --project=$PROJECT_ID || {
     echo ""
     echo "================================================================"
-    echo "WARNING: Automatic permission grants failed!"
+    echo "WARNING: Database-level permission grants failed!"
     echo "================================================================"
     echo "This may happen if the database is not fully ready."
     echo "You can retry the grants manually with:"
     echo ""
     echo "1. Upload the grants file:"
-    echo "   gsutil cp <grants.sql> $TEMP_BUCKET/grants.sql"
+    echo "   gsutil cp <grants-db.sql> $TEMP_BUCKET/grants-db.sql"
     echo ""
     echo "2. Run the import:"
-    echo "   gcloud sql import sql $INSTANCE_NAME $TEMP_BUCKET/grants.sql \\"
+    echo "   gcloud sql import sql $INSTANCE_NAME $TEMP_BUCKET/grants-db.sql \\"
     echo "     --database=postgres --user=postgres --project=$PROJECT_ID"
     echo ""
     echo "Or connect via Cloud SQL Proxy and run manually:"
     echo "   GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USER;"
-    echo "   \c $DB_NAME"
+    echo "================================================================"
+    echo ""
+}
+
+# Import 2: Schema-level grants (on target database)
+echo "Executing schema-level grants..."
+gcloud sql import sql $INSTANCE_NAME "$TEMP_BUCKET/grants-schema-$$.sql" \
+  --database=$DB_NAME \
+  --user=postgres \
+  --project=$PROJECT_ID || {
+    echo ""
+    echo "================================================================"
+    echo "WARNING: Schema-level permission grants failed!"
+    echo "================================================================"
+    echo "This may happen if the database is not fully ready."
+    echo "You can retry the grants manually with:"
+    echo ""
+    echo "1. Upload the grants file:"
+    echo "   gsutil cp <grants-schema.sql> $TEMP_BUCKET/grants-schema.sql"
+    echo ""
+    echo "2. Run the import:"
+    echo "   gcloud sql import sql $INSTANCE_NAME $TEMP_BUCKET/grants-schema.sql \\"
+    echo "     --database=$DB_NAME --user=postgres --project=$PROJECT_ID"
+    echo ""
+    echo "Or connect via Cloud SQL Proxy and run manually:"
     echo "   GRANT ALL PRIVILEGES ON SCHEMA public TO $DB_USER;"
     echo "   GRANT ALL ON ALL TABLES IN SCHEMA public TO $DB_USER;"
     echo "   GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO $DB_USER;"
@@ -161,8 +199,9 @@ gcloud sql import sql $INSTANCE_NAME "$TEMP_BUCKET/grants-$$.sql" \
 
 # Cleanup temporary files
 echo "Cleaning up temporary files..."
-rm -f "$GRANTS_FILE"
-gsutil rm "$TEMP_BUCKET/grants-$$.sql" 2>/dev/null || true
+rm -f "$GRANTS_DB_FILE" "$GRANTS_SCHEMA_FILE"
+gsutil rm "$TEMP_BUCKET/grants-db-$$.sql" 2>/dev/null || true
+gsutil rm "$TEMP_BUCKET/grants-schema-$$.sql" 2>/dev/null || true
 
 echo "Getting connection details..."
 CONNECTION_NAME=$(gcloud sql instances describe $INSTANCE_NAME --project=$PROJECT_ID --format="value(connectionName)")
