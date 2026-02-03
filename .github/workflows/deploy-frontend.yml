@@ -1,0 +1,73 @@
+name: Deploy Frontends to Cloud Storage
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+
+env:
+  PROJECT_ID: guialmeidapersonal
+  API_URL: https://api.guialmeidapersonal.esp.br
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: 'cicd-sa@guialmeidapersonal.iam.gserviceaccount.com'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and Deploy Trainer App
+        working-directory: ./frontend/trainer-app
+        run: |
+          npm ci
+          VITE_API_URL=${{ env.API_URL }} npm run build
+          gsutil -m rsync -r -d dist/ gs://admin-guialmeidapersonal/
+          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000, immutable" 'gs://admin-guialmeidapersonal/assets/**' || true
+          gsutil -m setmeta -h "Cache-Control:public, max-age=300" 'gs://admin-guialmeidapersonal/*.html' || true
+
+      - name: Build and Deploy Student App
+        working-directory: ./frontend/student-app
+        run: |
+          npm ci
+          VITE_API_URL=${{ env.API_URL }} npm run build
+          gsutil -m rsync -r -d dist/ gs://app-guialmeidapersonal/
+          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000, immutable" 'gs://app-guialmeidapersonal/assets/**' || true
+          gsutil -m setmeta -h "Cache-Control:public, max-age=300" 'gs://app-guialmeidapersonal/*.html' || true
+
+      - name: Build and Deploy Marketing Site
+        working-directory: ./frontend/site
+        run: |
+          npm ci
+          npm run build
+          gsutil -m rsync -r -d docs/.vitepress/dist/ gs://site-guialmeidapersonal/
+          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000, immutable" 'gs://site-guialmeidapersonal/assets/**' || true
+          gsutil -m setmeta -h "Cache-Control:public, max-age=300" 'gs://site-guialmeidapersonal/*.html' || true
+
+      - name: Invalidate CDN Cache
+        run: |
+          gcloud compute url-maps invalidate-cdn-cache ga-personal-lb \
+            --path="/*" \
+            --async \
+            --project=${{ env.PROJECT_ID }}
