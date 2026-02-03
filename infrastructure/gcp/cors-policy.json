@@ -1,0 +1,27 @@
+[
+  {
+    "origin": [
+      "https://admin.guialmeidapersonal.esp.br",
+      "https://app.guialmeidapersonal.esp.br",
+      "https://guialmeidapersonal.esp.br",
+      "https://www.guialmeidapersonal.esp.br"
+    ],
+    "method": [
+      "GET",
+      "HEAD",
+      "PUT",
+      "POST",
+      "DELETE",
+      "OPTIONS"
+    ],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Content-Disposition",
+      "Cache-Control",
+      "X-Requested-With",
+      "Authorization"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]
