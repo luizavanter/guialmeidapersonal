@@ -51,14 +51,19 @@ async function handleAddPlan() {
       ? newPlan.features.split('\n').filter(f => f.trim())
       : []
 
+    // Backend expects price_cents (integer cents) and duration_days
+    const durationDays = newPlan.durationType === 'months'
+      ? parseInt(newPlan.duration) * 30
+      : parseInt(newPlan.duration)
+
     await financeStore.createPlan({
       name: newPlan.name,
       description: newPlan.description || null,
-      price: parseFloat(newPlan.price),
-      duration: parseInt(newPlan.duration),
-      duration_type: newPlan.durationType,
+      price_cents: Math.round(parseFloat(newPlan.price) * 100),
+      currency: 'BRL',
+      duration_days: durationDays,
       features: features,
-      active: newPlan.active
+      is_active: newPlan.active
     })
     closeModal()
     await financeStore.fetchPlans()

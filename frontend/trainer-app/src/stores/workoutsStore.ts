@@ -30,10 +30,11 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     }
   }
 
-  async function createExercise(data: Partial<Exercise>) {
+  async function createExercise(data: Record<string, any>) {
     loading.value = true
     try {
-      const response = await api.post<Exercise>(API_ENDPOINTS.EXERCISES, data)
+      // Backend expects data wrapped in "exercise" key
+      const response = await api.post<Exercise>(API_ENDPOINTS.EXERCISES, { exercise: data })
       exercises.value.push(response)
       return response
     } catch (err: any) {
@@ -101,10 +102,11 @@ export const useWorkoutsStore = defineStore('workouts', () => {
     }
   }
 
-  async function createWorkoutPlan(data: Partial<WorkoutPlan>) {
+  async function createWorkoutPlan(data: Record<string, any>) {
     loading.value = true
     try {
-      const response = await api.post<WorkoutPlan>(API_ENDPOINTS.WORKOUT_PLANS, data)
+      // Backend expects data wrapped in "workout_plan" key
+      const response = await api.post<WorkoutPlan>(API_ENDPOINTS.WORKOUT_PLANS, { workout_plan: data })
       workoutPlans.value.push(response)
       return response
     } catch (err: any) {

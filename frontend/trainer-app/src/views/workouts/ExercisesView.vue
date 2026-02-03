@@ -60,11 +60,13 @@ async function handleAddExercise() {
   try {
     await workoutsStore.createExercise({
       name: newExercise.name,
-      muscle_group: newExercise.muscleGroup,
-      equipment: newExercise.equipment || null,
-      difficulty: newExercise.difficulty,
+      category: newExercise.muscleGroup,
+      muscle_groups: [newExercise.muscleGroup],
+      equipment_needed: newExercise.equipment || null,
+      difficulty_level: newExercise.difficulty,
       description: newExercise.description || null,
-      video_url: newExercise.videoUrl || null
+      video_url: newExercise.videoUrl || null,
+      is_public: false
     })
     closeModal()
     await workoutsStore.fetchExercises()

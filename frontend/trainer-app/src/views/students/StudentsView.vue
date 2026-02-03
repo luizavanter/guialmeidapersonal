@@ -73,14 +73,12 @@ async function handleAddStudent() {
   submitError.value = ''
 
   try {
+    // Backend expects flat structure: email, password, full_name, phone, status
     await studentsStore.createStudent({
-      user: {
-        email: newStudent.email,
-        password: newStudent.password || 'temp123456',
-        full_name: `${newStudent.firstName} ${newStudent.lastName}`,
-        phone: newStudent.phone,
-        role: 'student'
-      },
+      email: newStudent.email,
+      password: newStudent.password || 'temp123456',
+      full_name: `${newStudent.firstName} ${newStudent.lastName}`,
+      phone: newStudent.phone || null,
       status: newStudent.status
     })
     closeModal()

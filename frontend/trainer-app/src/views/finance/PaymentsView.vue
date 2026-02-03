@@ -60,12 +60,15 @@ async function handleAddPayment() {
   submitError.value = ''
 
   try {
+    // Backend expects amount_cents (integer cents)
     await financeStore.createPayment({
       student_id: newPayment.studentId,
-      amount: parseFloat(newPayment.amount),
+      amount_cents: Math.round(parseFloat(newPayment.amount) * 100),
+      currency: 'BRL',
       due_date: newPayment.dueDate,
       status: newPayment.status,
-      description: newPayment.description || null
+      notes: newPayment.description || null,
+      payment_method: 'pix'
     })
     closeModal()
     await financeStore.fetchPayments()

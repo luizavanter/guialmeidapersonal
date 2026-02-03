@@ -63,12 +63,13 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     }
   }
 
-  async function createAppointment(data: Partial<Appointment>) {
+  async function createAppointment(data: Record<string, any>) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.post<Appointment>(API_ENDPOINTS.APPOINTMENTS, data)
+      // Backend expects data wrapped in "appointment" key
+      const response = await api.post<Appointment>(API_ENDPOINTS.APPOINTMENTS, { appointment: data })
       appointments.value.push(response)
       return response
     } catch (err: any) {

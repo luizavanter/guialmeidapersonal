@@ -76,12 +76,18 @@ async function handleAddAppointment() {
   submitError.value = ''
 
   try {
+    // Calculate duration in minutes from start and end time
+    const [startHour, startMin] = newAppointment.startTime.split(':').map(Number)
+    const [endHour, endMin] = newAppointment.endTime.split(':').map(Number)
+    const durationMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin)
+
     await appointmentsStore.createAppointment({
       student_id: newAppointment.studentId,
-      start_time: `${newAppointment.date}T${newAppointment.startTime}:00`,
-      end_time: `${newAppointment.date}T${newAppointment.endTime}:00`,
+      scheduled_at: `${newAppointment.date}T${newAppointment.startTime}:00`,
+      duration_minutes: durationMinutes > 0 ? durationMinutes : 60,
       notes: newAppointment.notes,
-      status: newAppointment.status
+      status: newAppointment.status,
+      appointment_type: 'training'
     })
     closeModal()
     await appointmentsStore.fetchAppointments()

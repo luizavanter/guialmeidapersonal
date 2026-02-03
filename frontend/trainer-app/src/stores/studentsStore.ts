@@ -57,12 +57,13 @@ export const useStudentsStore = defineStore('students', () => {
     }
   }
 
-  async function createStudent(data: Partial<Student>) {
+  async function createStudent(data: Record<string, any>) {
     loading.value = true
     error.value = null
 
     try {
-      const response = await api.post<Student>(API_ENDPOINTS.STUDENTS, data)
+      // Backend expects data wrapped in "student" key
+      const response = await api.post<Student>(API_ENDPOINTS.STUDENTS, { student: data })
       students.value.push(response)
       return response
     } catch (err: any) {

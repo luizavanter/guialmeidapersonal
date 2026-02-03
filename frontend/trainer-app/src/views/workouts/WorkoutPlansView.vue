@@ -47,7 +47,8 @@ async function handleAddPlan() {
     await workoutsStore.createWorkoutPlan({
       name: newPlan.name,
       description: newPlan.description || null,
-      status: newPlan.status
+      status: newPlan.status,
+      is_template: true
     })
     closeModal()
     await workoutsStore.fetchWorkoutPlans()

@@ -55,10 +55,11 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
-  async function createPayment(data: Partial<Payment>) {
+  async function createPayment(data: Record<string, any>) {
     loading.value = true
     try {
-      const response = await api.post<Payment>(API_ENDPOINTS.PAYMENTS, data)
+      // Backend expects data wrapped in "payment" key
+      const response = await api.post<Payment>(API_ENDPOINTS.PAYMENTS, { payment: data })
       payments.value.push(response)
       return response
     } catch (err: any) {
@@ -99,10 +100,11 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
-  async function createSubscription(data: Partial<Subscription>) {
+  async function createSubscription(data: Record<string, any>) {
     loading.value = true
     try {
-      const response = await api.post<Subscription>(API_ENDPOINTS.SUBSCRIPTIONS, data)
+      // Backend expects data wrapped in "subscription" key
+      const response = await api.post<Subscription>(API_ENDPOINTS.SUBSCRIPTIONS, { subscription: data })
       subscriptions.value.push(response)
       return response
     } catch (err: any) {
@@ -128,10 +130,11 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
-  async function createPlan(data: Partial<Plan>) {
+  async function createPlan(data: Record<string, any>) {
     loading.value = true
     try {
-      const response = await api.post<Plan>(API_ENDPOINTS.PLANS, data)
+      // Backend expects data wrapped in "plan" key
+      const response = await api.post<Plan>(API_ENDPOINTS.PLANS, { plan: data })
       plans.value.push(response)
       return response
     } catch (err: any) {
