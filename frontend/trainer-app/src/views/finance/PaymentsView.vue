@@ -1,22 +1,87 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFinanceStore } from '@/stores/financeStore'
+import { useStudentsStore } from '@/stores/studentsStore'
 import { formatCurrency, formatDate } from '@ga-personal/shared'
 
 const { t } = useI18n()
 const financeStore = useFinanceStore()
+const studentsStore = useStudentsStore()
+
+const showAddModal = ref(false)
+const showViewModal = ref(false)
+const isSubmitting = ref(false)
+const submitError = ref('')
+const selectedPayment = ref<any>(null)
+
+const newPayment = reactive({
+  studentId: '',
+  amount: '',
+  dueDate: new Date().toISOString().split('T')[0],
+  status: 'pending',
+  description: ''
+})
 
 onMounted(async () => {
-  await financeStore.fetchPayments()
+  await Promise.all([
+    financeStore.fetchPayments(),
+    studentsStore.fetchStudents()
+  ])
 })
+
+function closeModal() {
+  showAddModal.value = false
+  submitError.value = ''
+  newPayment.studentId = ''
+  newPayment.amount = ''
+  newPayment.dueDate = new Date().toISOString().split('T')[0]
+  newPayment.status = 'pending'
+  newPayment.description = ''
+}
+
+function viewPayment(payment: any) {
+  selectedPayment.value = payment
+  showViewModal.value = true
+}
+
+function closeViewModal() {
+  showViewModal.value = false
+  selectedPayment.value = null
+}
+
+async function handleAddPayment() {
+  if (!newPayment.studentId || !newPayment.amount || !newPayment.dueDate) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    await financeStore.createPayment({
+      student_id: newPayment.studentId,
+      amount: parseFloat(newPayment.amount),
+      due_date: newPayment.dueDate,
+      status: newPayment.status,
+      description: newPayment.description || null
+    })
+    closeModal()
+    await financeStore.fetchPayments()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <h1 class="font-display text-4xl text-lime">{{ t('finance.payments') }}</h1>
-      <button class="btn btn-primary">
+      <button @click="showAddModal = true" class="btn btn-primary">
         {{ t('finance.addPayment') }}
       </button>
     </div>
@@ -55,11 +120,124 @@ onMounted(async () => {
                 </span>
               </td>
               <td class="py-3">
-                <button class="btn btn-ghost btn-sm">{{ t('common.view') }}</button>
+                <button @click="viewPayment(payment)" class="btn btn-ghost btn-sm">{{ t('common.view') }}</button>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <div v-if="financeStore.payments.length === 0" class="text-center py-12 text-smoke/40">
+        {{ t('finance.noPayments') }}
+      </div>
+    </div>
+
+    <!-- Add Payment Modal -->
+    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('finance.addPayment') }}</h2>
+          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleAddPayment" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('students.title') }} *</label>
+            <select v-model="newPayment.studentId" class="input w-full" required>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="student in studentsStore.students" :key="student.id" :value="student.id">
+                {{ student.user?.firstName }} {{ student.user?.lastName }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.amount') }} *</label>
+            <input v-model="newPayment.amount" type="number" step="0.01" min="0" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.dueDate') }} *</label>
+            <input v-model="newPayment.dueDate" type="date" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Status</label>
+            <select v-model="newPayment.status" class="input w-full">
+              <option value="pending">{{ t('finance.pending') }}</option>
+              <option value="paid">{{ t('finance.paid') }}</option>
+              <option value="overdue">{{ t('finance.overdue') }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.description') }}</label>
+            <textarea v-model="newPayment.description" class="input w-full" rows="2"></textarea>
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- View Payment Modal -->
+    <div v-if="showViewModal && selectedPayment" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeViewModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('finance.paymentDetails') }}</h2>
+          <button @click="closeViewModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <span class="text-smoke/60 text-sm">{{ t('students.title') }}</span>
+            <p class="font-medium">{{ selectedPayment.student?.user?.firstName }} {{ selectedPayment.student?.user?.lastName }}</p>
+          </div>
+          <div>
+            <span class="text-smoke/60 text-sm">{{ t('finance.amount') }}</span>
+            <p class="font-display text-2xl text-lime">{{ formatCurrency(selectedPayment.amount) }}</p>
+          </div>
+          <div>
+            <span class="text-smoke/60 text-sm">{{ t('finance.dueDate') }}</span>
+            <p>{{ formatDate(selectedPayment.dueDate) }}</p>
+          </div>
+          <div>
+            <span class="text-smoke/60 text-sm">Status</span>
+            <p>
+              <span :class="[
+                'badge',
+                selectedPayment.status === 'paid' ? 'badge-success' :
+                selectedPayment.status === 'pending' ? 'badge-warning' :
+                'badge-error'
+              ]">
+                {{ t(`finance.${selectedPayment.status}`) }}
+              </span>
+            </p>
+          </div>
+          <div v-if="selectedPayment.description">
+            <span class="text-smoke/60 text-sm">{{ t('common.description') }}</span>
+            <p>{{ selectedPayment.description }}</p>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-6">
+          <button @click="closeViewModal" class="btn btn-secondary">
+            {{ t('common.close') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

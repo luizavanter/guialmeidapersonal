@@ -1,17 +1,34 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppointmentsStore } from '@/stores/appointmentsStore'
+import { useStudentsStore } from '@/stores/studentsStore'
 import { formatDate, formatTime } from '@ga-personal/shared'
 
 const { t } = useI18n()
 const appointmentsStore = useAppointmentsStore()
+const studentsStore = useStudentsStore()
 
 const view = ref<'day' | 'week' | 'month'>('week')
 const currentDate = ref(new Date())
+const showAddModal = ref(false)
+const isSubmitting = ref(false)
+const submitError = ref('')
+
+const newAppointment = reactive({
+  studentId: '',
+  date: new Date().toISOString().split('T')[0],
+  startTime: '09:00',
+  endTime: '10:00',
+  notes: '',
+  status: 'scheduled'
+})
 
 onMounted(async () => {
-  await appointmentsStore.fetchAppointments()
+  await Promise.all([
+    appointmentsStore.fetchAppointments(),
+    studentsStore.fetchStudents()
+  ])
 })
 
 const displayDate = computed(() => {
@@ -37,6 +54,43 @@ function nextPeriod() {
 function today() {
   currentDate.value = new Date()
 }
+
+function closeModal() {
+  showAddModal.value = false
+  submitError.value = ''
+  newAppointment.studentId = ''
+  newAppointment.date = new Date().toISOString().split('T')[0]
+  newAppointment.startTime = '09:00'
+  newAppointment.endTime = '10:00'
+  newAppointment.notes = ''
+  newAppointment.status = 'scheduled'
+}
+
+async function handleAddAppointment() {
+  if (!newAppointment.studentId || !newAppointment.date || !newAppointment.startTime) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    await appointmentsStore.createAppointment({
+      student_id: newAppointment.studentId,
+      start_time: `${newAppointment.date}T${newAppointment.startTime}:00`,
+      end_time: `${newAppointment.date}T${newAppointment.endTime}:00`,
+      notes: newAppointment.notes,
+      status: newAppointment.status
+    })
+    closeModal()
+    await appointmentsStore.fetchAppointments()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -44,7 +98,7 @@ function today() {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <h1 class="font-display text-4xl text-lime">{{ t('agenda.title') }}</h1>
-      <button class="btn btn-primary">
+      <button @click="showAddModal = true" class="btn btn-primary">
         {{ t('agenda.createAppointment') }}
       </button>
     </div>
@@ -110,6 +164,63 @@ function today() {
 
       <div v-if="appointmentsStore.appointments.length === 0" class="text-center py-12 text-smoke/40">
         {{ t('agenda.noAppointments') }}
+      </div>
+    </div>
+
+    <!-- Add Appointment Modal -->
+    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('agenda.createAppointment') }}</h2>
+          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleAddAppointment" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('students.title') }} *</label>
+            <select v-model="newAppointment.studentId" class="input w-full" required>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="student in studentsStore.students" :key="student.id" :value="student.id">
+                {{ student.user?.firstName }} {{ student.user?.lastName }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('agenda.date') }} *</label>
+            <input v-model="newAppointment.date" type="date" class="input w-full" required />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ t('agenda.startTime') }} *</label>
+              <input v-model="newAppointment.startTime" type="time" class="input w-full" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ t('agenda.endTime') }} *</label>
+              <input v-model="newAppointment.endTime" type="time" class="input w-full" required />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.notes') }}</label>
+            <textarea v-model="newAppointment.notes" class="input w-full" rows="3"></textarea>
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

@@ -1,22 +1,73 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFinanceStore } from '@/stores/financeStore'
+import { useStudentsStore } from '@/stores/studentsStore'
 import { formatDate } from '@ga-personal/shared'
 
 const { t } = useI18n()
 const financeStore = useFinanceStore()
+const studentsStore = useStudentsStore()
+
+const showAddModal = ref(false)
+const isSubmitting = ref(false)
+const submitError = ref('')
+
+const newSubscription = reactive({
+  studentId: '',
+  planId: '',
+  startDate: new Date().toISOString().split('T')[0],
+  status: 'active'
+})
 
 onMounted(async () => {
-  await financeStore.fetchSubscriptions()
+  await Promise.all([
+    financeStore.fetchSubscriptions(),
+    financeStore.fetchPlans(),
+    studentsStore.fetchStudents()
+  ])
 })
+
+function closeModal() {
+  showAddModal.value = false
+  submitError.value = ''
+  newSubscription.studentId = ''
+  newSubscription.planId = ''
+  newSubscription.startDate = new Date().toISOString().split('T')[0]
+  newSubscription.status = 'active'
+}
+
+async function handleAddSubscription() {
+  if (!newSubscription.studentId || !newSubscription.planId || !newSubscription.startDate) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    await financeStore.createSubscription({
+      student_id: newSubscription.studentId,
+      plan_id: newSubscription.planId,
+      start_date: newSubscription.startDate,
+      status: newSubscription.status
+    })
+    closeModal()
+    await financeStore.fetchSubscriptions()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
       <h1 class="font-display text-4xl text-lime">{{ t('finance.subscriptions') }}</h1>
-      <button class="btn btn-primary">Add Subscription</button>
+      <button @click="showAddModal = true" class="btn btn-primary">{{ t('finance.addSubscription') }}</button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -41,6 +92,70 @@ onMounted(async () => {
           <p>Start: {{ formatDate(sub.startDate) }}</p>
           <p>End: {{ formatDate(sub.endDate) }}</p>
         </div>
+      </div>
+    </div>
+
+    <div v-if="financeStore.subscriptions.length === 0" class="card text-center py-12">
+      <p class="text-smoke/40">{{ t('finance.noSubscriptions') }}</p>
+    </div>
+
+    <!-- Add Subscription Modal -->
+    <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('finance.addSubscription') }}</h2>
+          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleAddSubscription" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('students.title') }} *</label>
+            <select v-model="newSubscription.studentId" class="input w-full" required>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="student in studentsStore.students" :key="student.id" :value="student.id">
+                {{ student.user?.firstName }} {{ student.user?.lastName }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.plan') }} *</label>
+            <select v-model="newSubscription.planId" class="input w-full" required>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="plan in financeStore.plans" :key="plan.id" :value="plan.id">
+                {{ plan.name }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.startDate') }} *</label>
+            <input v-model="newSubscription.startDate" type="date" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Status</label>
+            <select v-model="newSubscription.status" class="input w-full">
+              <option value="active">{{ t('finance.active') }}</option>
+              <option value="cancelled">{{ t('finance.cancelled') }}</option>
+              <option value="expired">{{ t('finance.expired') }}</option>
+            </select>
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
