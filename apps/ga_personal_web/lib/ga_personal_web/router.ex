@@ -3,7 +3,25 @@ defmodule GaPersonalWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
-    plug CORSPlug, origin: ["http://localhost:3001", "http://localhost:3002", "http://localhost:3003"]
+    plug CORSPlug,
+      origin: [
+        # Development
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        # Production - esp.br domain
+        "https://guialmeidapersonal.esp.br",
+        "https://www.guialmeidapersonal.esp.br",
+        "https://admin.guialmeidapersonal.esp.br",
+        "https://app.guialmeidapersonal.esp.br",
+        # Production - com.br domain (future)
+        "https://guialmeidapersonal.com.br",
+        "https://www.guialmeidapersonal.com.br",
+        "https://admin.guialmeidapersonal.com.br",
+        "https://app.guialmeidapersonal.com.br"
+      ],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      headers: ["Authorization", "Content-Type", "Accept", "Origin", "User-Agent", "X-Requested-With"]
   end
 
   pipeline :authenticated do
