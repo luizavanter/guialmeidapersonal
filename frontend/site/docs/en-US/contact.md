@@ -28,7 +28,7 @@ description: Get in touch to schedule your free assessment
       <div class="info-icon">📱</div>
       <div class="info-content">
         <h3>WhatsApp</h3>
-        <p><a href="https://wa.me/5548999999999">+55 (48) 99999-9999</a></p>
+        <p><a href="/en-US/contact">Contact us through the form</a></p>
       </div>
     </div>
 

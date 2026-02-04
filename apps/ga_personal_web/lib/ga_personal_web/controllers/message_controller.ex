@@ -2,36 +2,47 @@ defmodule GaPersonalWeb.MessageController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Messaging
-  alias GaPersonal.Guardian
 
   action_fallback GaPersonalWeb.FallbackController
 
   def index(conn, _params) do
-    user = Guardian.Plug.current_resource(conn)
-    messages = Messaging.list_messages(user.id)
+    user_id = conn.assigns.current_user_id
+    messages = Messaging.list_messages(user_id)
     json(conn, %{data: Enum.map(messages, &message_json/1)})
   end
 
   def inbox(conn, _params) do
-    user = Guardian.Plug.current_resource(conn)
-    messages = Messaging.list_inbox(user.id)
+    user_id = conn.assigns.current_user_id
+    messages = Messaging.list_inbox(user_id)
     json(conn, %{data: Enum.map(messages, &message_json/1)})
   end
 
   def sent(conn, _params) do
-    user = Guardian.Plug.current_resource(conn)
-    messages = Messaging.list_sent(user.id)
+    user_id = conn.assigns.current_user_id
+    messages = Messaging.list_sent(user_id)
     json(conn, %{data: Enum.map(messages, &message_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
+    user_id = conn.assigns.current_user_id
     message = Messaging.get_message!(id)
-    json(conn, %{data: message_json(message)})
+
+    # Users can only view messages they sent or received
+    if message.sender_id == user_id or message.recipient_id == user_id do
+      # Auto-mark as read if recipient is viewing
+      if message.recipient_id == user_id and not message.is_read do
+        Messaging.mark_as_read(message)
+      end
+
+      json(conn, %{data: message_json(message)})
+    else
+      {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"message" => message_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(message_params, "sender_id", user.id)
+    user_id = conn.assigns.current_user_id
+    params = Map.put(message_params, "sender_id", user_id)
 
     with {:ok, message} <- Messaging.create_message(params) do
       conn
@@ -41,10 +52,16 @@ defmodule GaPersonalWeb.MessageController do
   end
 
   def delete(conn, %{"id" => id}) do
+    user_id = conn.assigns.current_user_id
     message = Messaging.get_message!(id)
 
-    with {:ok, _} <- Messaging.delete_message(message) do
-      send_resp(conn, :no_content, "")
+    # Users can only delete messages they sent
+    if message.sender_id == user_id do
+      with {:ok, _} <- Messaging.delete_message(message) do
+        send_resp(conn, :no_content, "")
+      end
+    else
+      {:error, :forbidden}
     end
   end
 

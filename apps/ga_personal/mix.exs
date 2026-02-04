@@ -43,7 +43,11 @@ defmodule GaPersonal.MixProject do
       {:jason, "~> 1.2"},
       {:bcrypt_elixir, "~> 3.0"},
       {:guardian, "~> 2.3"},
-      {:gettext, "~> 0.24"}
+      {:gettext, "~> 0.24"},
+      # Email
+      {:swoosh, "~> 1.21"},
+      {:resend, "~> 0.4.0"},
+      {:finch, "~> 0.18"}
     ]
   end
 

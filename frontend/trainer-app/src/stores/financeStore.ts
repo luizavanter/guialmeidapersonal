@@ -145,6 +145,34 @@ export const useFinanceStore = defineStore('finance', () => {
     }
   }
 
+  async function updatePlan(id: string, data: Partial<Plan>) {
+    loading.value = true
+    try {
+      const response = await api.put<Plan>(API_ENDPOINTS.PLAN(id), { plan: data })
+      const index = plans.value.findIndex(p => p.id === id)
+      if (index > -1) plans.value[index] = response
+      return response
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deletePlan(id: string) {
+    loading.value = true
+    try {
+      await api.delete(API_ENDPOINTS.PLAN(id))
+      plans.value = plans.value.filter(p => p.id !== id)
+    } catch (err: any) {
+      error.value = err.message
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     payments,
     subscriptions,
@@ -161,5 +189,7 @@ export const useFinanceStore = defineStore('finance', () => {
     createSubscription,
     fetchPlans,
     createPlan,
+    updatePlan,
+    deletePlan,
   }
 })

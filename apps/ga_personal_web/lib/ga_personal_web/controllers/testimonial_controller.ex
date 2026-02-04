@@ -2,26 +2,33 @@ defmodule GaPersonalWeb.TestimonialController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Content
-  alias GaPersonal.Content.Testimonial
-  alias GaPersonal.Repo
-  alias GaPersonal.Guardian
 
   action_fallback GaPersonalWeb.FallbackController
 
   def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    testimonials = Content.list_testimonials(user.id, params)
+    trainer_id = conn.assigns.current_user_id
+    testimonials = Content.list_testimonials(trainer_id, params)
     json(conn, %{data: Enum.map(testimonials, &testimonial_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
-    testimonial = Repo.get!(Testimonial, id)
-    json(conn, %{data: testimonial_json(testimonial)})
+    trainer_id = conn.assigns.current_user_id
+
+    case Content.get_testimonial_for_trainer(id, trainer_id) do
+      {:ok, testimonial} ->
+        json(conn, %{data: testimonial_json(testimonial)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"testimonial" => testimonial_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(testimonial_params, "trainer_id", user.id)
+    trainer_id = conn.assigns.current_user_id
+    params = Map.put(testimonial_params, "trainer_id", trainer_id)
 
     with {:ok, testimonial} <- Content.create_testimonial(params) do
       conn
@@ -31,18 +38,36 @@ defmodule GaPersonalWeb.TestimonialController do
   end
 
   def update(conn, %{"id" => id, "testimonial" => testimonial_params}) do
-    testimonial = Repo.get!(Testimonial, id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated} <- Content.update_testimonial(testimonial, testimonial_params) do
-      json(conn, %{data: testimonial_json(updated)})
+    case Content.get_testimonial_for_trainer(id, trainer_id) do
+      {:ok, testimonial} ->
+        with {:ok, updated} <- Content.update_testimonial(testimonial, testimonial_params) do
+          json(conn, %{data: testimonial_json(updated)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    testimonial = Repo.get!(Testimonial, id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, _} <- Repo.delete(testimonial) do
-      send_resp(conn, :no_content, "")
+    case Content.get_testimonial_for_trainer(id, trainer_id) do
+      {:ok, testimonial} ->
+        with {:ok, _} <- Content.delete_testimonial(testimonial) do
+          send_resp(conn, :no_content, "")
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
@@ -51,10 +76,10 @@ defmodule GaPersonalWeb.TestimonialController do
       id: testimonial.id,
       trainer_id: testimonial.trainer_id,
       student_id: testimonial.student_id,
-      student_name: testimonial.student_name,
+      author_name: testimonial.author_name,
       content: testimonial.content,
       rating: testimonial.rating,
-      photo_url: testimonial.photo_url,
+      author_photo_url: testimonial.author_photo_url,
       is_approved: testimonial.is_approved,
       is_featured: testimonial.is_featured,
       approved_at: testimonial.approved_at,

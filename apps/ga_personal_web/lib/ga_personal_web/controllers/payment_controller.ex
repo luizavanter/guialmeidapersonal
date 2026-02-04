@@ -2,29 +2,35 @@ defmodule GaPersonalWeb.PaymentController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Finance
-  alias GaPersonal.Finance.Payment
-  alias GaPersonal.Repo
-  alias GaPersonal.Guardian
+  alias GaPersonal.Accounts
 
   action_fallback GaPersonalWeb.FallbackController
 
+  # Trainer actions
   def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    payments = Finance.list_payments(user.id, params)
+    trainer_id = conn.assigns.current_user_id
+    payments = Finance.list_payments(trainer_id, params)
     json(conn, %{data: Enum.map(payments, &payment_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
-    payment = Payment
-    |> Repo.get!(id)
-    |> Repo.preload([:student, :subscription])
+    trainer_id = conn.assigns.current_user_id
 
-    json(conn, %{data: payment_json(payment)})
+    case Finance.get_payment_for_trainer(id, trainer_id) do
+      {:ok, payment} ->
+        json(conn, %{data: payment_json(payment)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"payment" => payment_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(payment_params, "trainer_id", user.id)
+    trainer_id = conn.assigns.current_user_id
+    params = Map.put(payment_params, "trainer_id", trainer_id)
 
     with {:ok, payment} <- Finance.create_payment(params) do
       conn
@@ -34,10 +40,33 @@ defmodule GaPersonalWeb.PaymentController do
   end
 
   def update(conn, %{"id" => id, "payment" => payment_params}) do
-    payment = Repo.get!(Payment, id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated} <- Finance.update_payment(payment, payment_params) do
-      json(conn, %{data: payment_json(updated)})
+    case Finance.get_payment_for_trainer(id, trainer_id) do
+      {:ok, payment} ->
+        with {:ok, updated} <- Finance.update_payment(payment, payment_params) do
+          json(conn, %{data: payment_json(updated)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
+  end
+
+  # Student action - view their own payment history
+  def index_for_student(conn, params) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        payments = Finance.list_payments_for_student(student.id, params)
+        json(conn, %{data: Enum.map(payments, &payment_json/1)})
     end
   end
 
@@ -53,7 +82,7 @@ defmodule GaPersonalWeb.PaymentController do
       payment_method: payment.payment_method,
       payment_date: payment.payment_date,
       due_date: payment.due_date,
-      external_reference: payment.external_reference,
+      reference_number: payment.reference_number,
       notes: payment.notes,
       inserted_at: payment.inserted_at,
       updated_at: payment.updated_at,

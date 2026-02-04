@@ -15,11 +15,25 @@ const showAddModal = ref(false)
 const isSubmitting = ref(false)
 const submitError = ref('')
 
+const showEditModal = ref(false)
+const showDeleteConfirm = ref(false)
+const selectedAppointment = ref<any>(null)
+
 const newAppointment = reactive({
   studentId: '',
   date: new Date().toISOString().split('T')[0],
   startTime: '09:00',
   endTime: '10:00',
+  notes: '',
+  status: 'scheduled'
+})
+
+const editAppointment = reactive({
+  id: '',
+  studentId: '',
+  date: '',
+  startTime: '',
+  endTime: '',
   notes: '',
   status: 'scheduled'
 })
@@ -97,6 +111,89 @@ async function handleAddAppointment() {
     isSubmitting.value = false
   }
 }
+
+function openEditModal(appointment: any) {
+  selectedAppointment.value = appointment
+  editAppointment.id = appointment.id
+  editAppointment.studentId = appointment.studentId || appointment.student?.id || ''
+  // Parse scheduled_at or startTime
+  const dateTime = appointment.scheduledAt || appointment.startTime || ''
+  if (dateTime) {
+    const dt = new Date(dateTime)
+    editAppointment.date = dt.toISOString().split('T')[0]
+    editAppointment.startTime = dt.toTimeString().slice(0, 5)
+    // Calculate end time from duration
+    const endDt = new Date(dt.getTime() + (appointment.durationMinutes || 60) * 60000)
+    editAppointment.endTime = endDt.toTimeString().slice(0, 5)
+  }
+  editAppointment.notes = appointment.notes || ''
+  editAppointment.status = appointment.status || 'scheduled'
+  showEditModal.value = true
+}
+
+function closeEditModal() {
+  showEditModal.value = false
+  submitError.value = ''
+  selectedAppointment.value = null
+}
+
+async function handleEditAppointment() {
+  if (!editAppointment.studentId || !editAppointment.date || !editAppointment.startTime) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    const [startHour, startMin] = editAppointment.startTime.split(':').map(Number)
+    const [endHour, endMin] = editAppointment.endTime.split(':').map(Number)
+    const durationMinutes = (endHour * 60 + endMin) - (startHour * 60 + startMin)
+
+    await appointmentsStore.updateAppointment(editAppointment.id, {
+      appointment: {
+        student_id: editAppointment.studentId,
+        scheduled_at: `${editAppointment.date}T${editAppointment.startTime}:00`,
+        duration_minutes: durationMinutes > 0 ? durationMinutes : 60,
+        notes: editAppointment.notes,
+        status: editAppointment.status
+      }
+    })
+    closeEditModal()
+    await appointmentsStore.fetchAppointments()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+function openDeleteConfirm(appointment: any) {
+  selectedAppointment.value = appointment
+  showDeleteConfirm.value = true
+}
+
+function closeDeleteConfirm() {
+  showDeleteConfirm.value = false
+  selectedAppointment.value = null
+}
+
+async function handleDeleteAppointment() {
+  if (!selectedAppointment.value) return
+
+  isSubmitting.value = true
+
+  try {
+    await appointmentsStore.deleteAppointment(selectedAppointment.value.id)
+    closeDeleteConfirm()
+    await appointmentsStore.fetchAppointments()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -159,12 +256,32 @@ async function handleAddAppointment() {
               <p class="text-sm text-smoke/60">{{ appointment.notes || '-' }}</p>
             </div>
           </div>
-          <span :class="[
-            'badge',
-            appointment.status === 'completed' ? 'badge-success' : 'badge-info'
-          ]">
-            {{ t(`appointments.${appointment.status}`) }}
-          </span>
+          <div class="flex items-center space-x-3">
+            <span :class="[
+              'badge',
+              appointment.status === 'completed' ? 'badge-success' : 'badge-info'
+            ]">
+              {{ t(`appointments.${appointment.status}`) }}
+            </span>
+            <button
+              @click="openEditModal(appointment)"
+              class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+              :title="t('common.edit')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+            <button
+              @click="openDeleteConfirm(appointment)"
+              class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+              :title="t('common.delete')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -227,6 +344,102 @@ async function handleAddAppointment() {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Edit Appointment Modal -->
+    <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('agenda.editAppointment') }}</h2>
+          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleEditAppointment" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('students.title') }} *</label>
+            <select v-model="editAppointment.studentId" class="input w-full" required>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="student in studentsStore.students" :key="student.id" :value="student.id">
+                {{ student.user?.firstName }} {{ student.user?.lastName }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('agenda.date') }} *</label>
+            <input v-model="editAppointment.date" type="date" class="input w-full" required />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ t('agenda.startTime') }} *</label>
+              <input v-model="editAppointment.startTime" type="time" class="input w-full" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ t('agenda.endTime') }} *</label>
+              <input v-model="editAppointment.endTime" type="time" class="input w-full" required />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Status</label>
+            <select v-model="editAppointment.status" class="input w-full">
+              <option value="scheduled">{{ t('appointments.scheduled') }}</option>
+              <option value="confirmed">{{ t('appointments.confirmed') }}</option>
+              <option value="completed">{{ t('appointments.completed') }}</option>
+              <option value="cancelled">{{ t('appointments.cancelled') }}</option>
+              <option value="no_show">{{ t('appointments.noShow') }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.notes') }}</label>
+            <textarea v-model="editAppointment.notes" class="input w-full" rows="3"></textarea>
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeEditModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-red-500">{{ t('agenda.deleteAppointment') }}</h2>
+          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <p class="text-smoke/80 mb-6">
+          {{ t('agenda.deleteConfirmation') || 'Are you sure you want to delete this appointment?' }}
+          <strong class="block mt-2 text-smoke">
+            {{ selectedAppointment?.student?.user?.firstName }} {{ selectedAppointment?.student?.user?.lastName }}
+            - {{ formatDate(selectedAppointment?.startTime) }}
+          </strong>
+        </p>
+
+        <div class="flex justify-end space-x-3">
+          <button @click="closeDeleteConfirm" class="btn btn-secondary">
+            {{ t('common.cancel') }}
+          </button>
+          <button @click="handleDeleteAppointment" :disabled="isSubmitting" class="btn bg-red-600 hover:bg-red-700 text-white">
+            {{ isSubmitting ? t('common.loading') : t('common.delete') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

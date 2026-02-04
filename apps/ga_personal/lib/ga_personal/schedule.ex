@@ -19,6 +19,22 @@ defmodule GaPersonal.Schedule do
 
   def get_time_slot!(id), do: Repo.get!(TimeSlot, id)
 
+  @doc """
+  Gets a time slot with ownership verification.
+  """
+  def get_time_slot_for_trainer(id, trainer_id) do
+    case Repo.get(TimeSlot, id) do
+      nil -> {:error, :not_found}
+      %TimeSlot{trainer_id: ^trainer_id} = slot -> {:ok, slot}
+      %TimeSlot{} -> {:error, :unauthorized}
+    end
+  end
+
+  def get_time_slot_for_trainer!(id, trainer_id) do
+    slot = get_time_slot!(id)
+    if slot.trainer_id == trainer_id, do: slot, else: raise(Ecto.NoResultsError, queryable: TimeSlot)
+  end
+
   def create_time_slot(attrs \\ %{}) do
     %TimeSlot{}
     |> TimeSlot.changeset(attrs)
@@ -73,6 +89,64 @@ defmodule GaPersonal.Schedule do
     |> Repo.preload([:trainer, :student])
   end
 
+  @doc """
+  Gets an appointment with ownership verification.
+  Returns {:ok, appointment} if the appointment belongs to the trainer,
+  {:error, :not_found} if appointment doesn't exist,
+  or {:error, :unauthorized} if appointment belongs to another trainer.
+  """
+  def get_appointment_for_trainer(id, trainer_id) do
+    case get_appointment!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %Appointment{trainer_id: ^trainer_id} = appointment ->
+        {:ok, appointment}
+
+      %Appointment{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
+
+  def get_appointment_for_trainer!(id, trainer_id) do
+    appointment = get_appointment!(id)
+    if appointment.trainer_id == trainer_id, do: appointment, else: raise(Ecto.NoResultsError, queryable: Appointment)
+  end
+
+  @doc """
+  Gets an appointment for a student (read-only access).
+  """
+  def get_appointment_for_student(id, student_id) do
+    case get_appointment!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %Appointment{student_id: ^student_id} = appointment ->
+        {:ok, appointment}
+
+      %Appointment{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
+
+  @doc """
+  Lists appointments for a specific student.
+  """
+  def list_appointments_for_student(student_id, filters \\ %{}) do
+    query = from a in Appointment,
+      where: a.student_id == ^student_id,
+      preload: [:trainer],
+      order_by: [desc: a.scheduled_at]
+
+    query
+    |> apply_appointment_filters(filters)
+    |> Repo.all()
+  end
+
   def create_appointment(attrs \\ %{}) do
     %Appointment{}
     |> Appointment.changeset(attrs)
@@ -95,5 +169,17 @@ defmodule GaPersonal.Schedule do
       cancellation_reason: reason,
       cancelled_at: DateTime.utc_now()
     })
+  end
+
+  @doc """
+  Find an appointment by searching for text in the notes field.
+  Used for Cal.com integration to find appointments by their Cal.com UID.
+  """
+  def find_appointment_by_notes_containing(text) when is_binary(text) do
+    from(a in Appointment,
+      where: ilike(a.notes, ^"%#{text}%"),
+      limit: 1
+    )
+    |> Repo.one()
   end
 end

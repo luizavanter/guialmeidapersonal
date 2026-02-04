@@ -2,26 +2,33 @@ defmodule GaPersonalWeb.FAQController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Content
-  alias GaPersonal.Content.FAQ
-  alias GaPersonal.Repo
-  alias GaPersonal.Guardian
 
   action_fallback GaPersonalWeb.FallbackController
 
   def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    faqs = Content.list_faqs(user.id, params)
+    trainer_id = conn.assigns.current_user_id
+    faqs = Content.list_faqs(trainer_id, params)
     json(conn, %{data: Enum.map(faqs, &faq_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
-    faq = Repo.get!(FAQ, id)
-    json(conn, %{data: faq_json(faq)})
+    trainer_id = conn.assigns.current_user_id
+
+    case Content.get_faq_for_trainer(id, trainer_id) do
+      {:ok, faq} ->
+        json(conn, %{data: faq_json(faq)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"faq" => faq_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(faq_params, "trainer_id", user.id)
+    trainer_id = conn.assigns.current_user_id
+    params = Map.put(faq_params, "trainer_id", trainer_id)
 
     with {:ok, faq} <- Content.create_faq(params) do
       conn
@@ -31,18 +38,36 @@ defmodule GaPersonalWeb.FAQController do
   end
 
   def update(conn, %{"id" => id, "faq" => faq_params}) do
-    faq = Repo.get!(FAQ, id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated} <- Content.update_faq(faq, faq_params) do
-      json(conn, %{data: faq_json(updated)})
+    case Content.get_faq_for_trainer(id, trainer_id) do
+      {:ok, faq} ->
+        with {:ok, updated} <- Content.update_faq(faq, faq_params) do
+          json(conn, %{data: faq_json(updated)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    faq = Repo.get!(FAQ, id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, _} <- Content.delete_faq(faq) do
-      send_resp(conn, :no_content, "")
+    case Content.get_faq_for_trainer(id, trainer_id) do
+      {:ok, faq} ->
+        with {:ok, _} <- Content.delete_faq(faq) do
+          send_resp(conn, :no_content, "")
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 

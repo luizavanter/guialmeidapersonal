@@ -2,24 +2,33 @@ defmodule GaPersonalWeb.PlanController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Finance
-  alias GaPersonal.Guardian
 
   action_fallback GaPersonalWeb.FallbackController
 
   def index(conn, _params) do
-    user = Guardian.Plug.current_resource(conn)
-    plans = Finance.list_plans(user.id)
+    trainer_id = conn.assigns.current_user_id
+    plans = Finance.list_plans(trainer_id)
     json(conn, %{data: Enum.map(plans, &plan_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
-    plan = Finance.get_plan!(id)
-    json(conn, %{data: plan_json(plan)})
+    trainer_id = conn.assigns.current_user_id
+
+    case Finance.get_plan_for_trainer(id, trainer_id) do
+      {:ok, plan} ->
+        json(conn, %{data: plan_json(plan)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"plan" => plan_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(plan_params, "trainer_id", user.id)
+    trainer_id = conn.assigns.current_user_id
+    params = Map.put(plan_params, "trainer_id", trainer_id)
 
     with {:ok, plan} <- Finance.create_plan(params) do
       conn
@@ -29,18 +38,36 @@ defmodule GaPersonalWeb.PlanController do
   end
 
   def update(conn, %{"id" => id, "plan" => plan_params}) do
-    plan = Finance.get_plan!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated} <- Finance.update_plan(plan, plan_params) do
-      json(conn, %{data: plan_json(updated)})
+    case Finance.get_plan_for_trainer(id, trainer_id) do
+      {:ok, plan} ->
+        with {:ok, updated} <- Finance.update_plan(plan, plan_params) do
+          json(conn, %{data: plan_json(updated)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    plan = Finance.get_plan!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, _} <- Finance.delete_plan(plan) do
-      send_resp(conn, :no_content, "")
+    case Finance.get_plan_for_trainer(id, trainer_id) do
+      {:ok, plan} ->
+        with {:ok, _} <- Finance.delete_plan(plan) do
+          send_resp(conn, :no_content, "")
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 

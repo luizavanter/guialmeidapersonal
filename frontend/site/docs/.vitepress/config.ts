@@ -45,20 +45,7 @@ const enUSConfig = {
       { text: 'Blog', link: '/en-US/blog/' },
       { text: 'Contact', link: '/en-US/contact' }
     ],
-    sidebar: {
-      '/en-US/blog/': [
-        {
-          text: 'Recent Posts',
-          items: [
-            { text: 'Hybrid Training: Best of Both Worlds', link: '/en-US/blog/hybrid-training' },
-            { text: '5 Common Weight Loss Mistakes', link: '/en-US/blog/weight-loss-mistakes' },
-            { text: 'Building Muscle After 40', link: '/en-US/blog/muscle-gain-over-40' },
-            { text: 'The Importance of Nutrition in Training', link: '/en-US/blog/nutrition-importance' },
-            { text: 'How to Stay Consistent with Training', link: '/en-US/blog/training-consistency' }
-          ]
-        }
-      ]
-    },
+    sidebar: {},
     footer: {
       message: 'GA Personal - Transforming lives through fitness',
       copyright: 'Copyright © 2026 Guilherme Almeida Personal Trainer'
@@ -70,7 +57,7 @@ export default defineConfig({
   title: 'GA Personal',
   description: 'Treinamento personalizado em Jurerê, Florianópolis/SC',
   head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
     ['meta', { name: 'theme-color', content: '#C4F53A' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:locale', content: 'pt_BR' }],

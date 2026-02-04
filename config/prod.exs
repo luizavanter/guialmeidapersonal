@@ -17,5 +17,10 @@ config :ga_personal_web, GaPersonalWeb.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Configure Mailer for production (Resend)
+# API key is loaded from environment variable in runtime.exs
+config :ga_personal, GaPersonal.Mailer,
+  adapter: Resend.Swoosh.Adapter
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.

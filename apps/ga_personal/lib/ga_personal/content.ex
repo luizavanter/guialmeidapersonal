@@ -36,6 +36,27 @@ defmodule GaPersonal.Content do
 
   def get_blog_post_by_slug!(slug), do: Repo.get_by!(BlogPost, slug: slug)
 
+  @doc """
+  Gets a blog post with ownership verification.
+  """
+  def get_blog_post_for_trainer(id, trainer_id) do
+    case Repo.get(BlogPost, id) do
+      nil ->
+        {:error, :not_found}
+
+      %BlogPost{trainer_id: ^trainer_id} = post ->
+        {:ok, post}
+
+      %BlogPost{} ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def get_blog_post_for_trainer!(id, trainer_id) do
+    post = get_blog_post!(id)
+    if post.trainer_id == trainer_id, do: post, else: raise(Ecto.NoResultsError, queryable: BlogPost)
+  end
+
   def create_blog_post(attrs \\ %{}) do
     %BlogPost{}
     |> BlogPost.changeset(attrs)
@@ -62,6 +83,29 @@ defmodule GaPersonal.Content do
     query
     |> apply_testimonial_filters(filters)
     |> Repo.all()
+  end
+
+  def get_testimonial!(id), do: Repo.get!(Testimonial, id)
+
+  @doc """
+  Gets a testimonial with ownership verification.
+  """
+  def get_testimonial_for_trainer(id, trainer_id) do
+    case Repo.get(Testimonial, id) do
+      nil ->
+        {:error, :not_found}
+
+      %Testimonial{trainer_id: ^trainer_id} = testimonial ->
+        {:ok, testimonial}
+
+      %Testimonial{} ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def get_testimonial_for_trainer!(id, trainer_id) do
+    testimonial = get_testimonial!(id)
+    if testimonial.trainer_id == trainer_id, do: testimonial, else: raise(Ecto.NoResultsError, queryable: Testimonial)
   end
 
   defp apply_testimonial_filters(query, filters) do
@@ -93,6 +137,10 @@ defmodule GaPersonal.Content do
     update_testimonial(testimonial, %{is_approved: true, approved_at: DateTime.utc_now()})
   end
 
+  def delete_testimonial(%Testimonial{} = testimonial) do
+    Repo.delete(testimonial)
+  end
+
   ## FAQ functions
 
   def list_faqs(trainer_id, filters \\ %{}) do
@@ -103,6 +151,29 @@ defmodule GaPersonal.Content do
     query
     |> apply_faq_filters(filters)
     |> Repo.all()
+  end
+
+  def get_faq!(id), do: Repo.get!(FAQ, id)
+
+  @doc """
+  Gets a FAQ with ownership verification.
+  """
+  def get_faq_for_trainer(id, trainer_id) do
+    case Repo.get(FAQ, id) do
+      nil ->
+        {:error, :not_found}
+
+      %FAQ{trainer_id: ^trainer_id} = faq ->
+        {:ok, faq}
+
+      %FAQ{} ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def get_faq_for_trainer!(id, trainer_id) do
+    faq = get_faq!(id)
+    if faq.trainer_id == trainer_id, do: faq, else: raise(Ecto.NoResultsError, queryable: FAQ)
   end
 
   defp apply_faq_filters(query, filters) do

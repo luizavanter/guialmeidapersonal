@@ -128,6 +128,38 @@ defmodule GaPersonal.Accounts do
   end
 
   @doc """
+  Gets a student profile with ownership verification.
+  Returns {:ok, student} if the student belongs to the trainer,
+  {:error, :not_found} if student doesn't exist,
+  or {:error, :unauthorized} if student belongs to another trainer.
+  """
+  def get_student_for_trainer(id, trainer_id) do
+    case get_student(id) do
+      nil ->
+        {:error, :not_found}
+
+      %StudentProfile{trainer_id: ^trainer_id} = student ->
+        {:ok, student}
+
+      %StudentProfile{} ->
+        {:error, :unauthorized}
+    end
+  end
+
+  @doc """
+  Gets a student profile with ownership verification, raises if not found or unauthorized.
+  """
+  def get_student_for_trainer!(id, trainer_id) do
+    student = get_student!(id)
+
+    if student.trainer_id == trainer_id do
+      student
+    else
+      raise Ecto.NoResultsError, queryable: StudentProfile
+    end
+  end
+
+  @doc """
   Gets a student profile by user_id.
   """
   def get_student_by_user_id(user_id) do

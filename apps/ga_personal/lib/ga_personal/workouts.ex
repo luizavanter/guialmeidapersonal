@@ -19,6 +19,36 @@ defmodule GaPersonal.Workouts do
 
   def get_exercise!(id), do: Repo.get!(Exercise, id)
 
+  @doc """
+  Gets an exercise with ownership verification.
+  Public exercises are accessible to all trainers.
+  Private exercises are only accessible to their owner.
+  """
+  def get_exercise_for_trainer(id, trainer_id) do
+    case Repo.get(Exercise, id) do
+      nil ->
+        {:error, :not_found}
+
+      %Exercise{is_public: true} = exercise ->
+        {:ok, exercise}
+
+      %Exercise{trainer_id: ^trainer_id} = exercise ->
+        {:ok, exercise}
+
+      %Exercise{} ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def get_exercise_for_trainer!(id, trainer_id) do
+    exercise = get_exercise!(id)
+    if exercise.is_public or exercise.trainer_id == trainer_id do
+      exercise
+    else
+      raise Ecto.NoResultsError, queryable: Exercise
+    end
+  end
+
   def create_exercise(attrs \\ %{}) do
     %Exercise{}
     |> Exercise.changeset(attrs)
@@ -68,6 +98,85 @@ defmodule GaPersonal.Workouts do
     WorkoutPlan
     |> Repo.get!(id)
     |> Repo.preload([:student, workout_exercises: :exercise])
+  end
+
+  @doc """
+  Gets a workout plan with ownership verification.
+  """
+  def get_workout_plan_for_trainer(id, trainer_id) do
+    case get_workout_plan!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %WorkoutPlan{trainer_id: ^trainer_id} = plan ->
+        {:ok, plan}
+
+      %WorkoutPlan{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
+
+  def get_workout_plan_for_trainer!(id, trainer_id) do
+    plan = get_workout_plan!(id)
+    if plan.trainer_id == trainer_id, do: plan, else: raise(Ecto.NoResultsError, queryable: WorkoutPlan)
+  end
+
+  @doc """
+  Gets a workout plan for a student (read-only access).
+  """
+  def get_workout_plan_for_student(id, student_id) do
+    case get_workout_plan!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %WorkoutPlan{student_id: ^student_id} = plan ->
+        {:ok, plan}
+
+      %WorkoutPlan{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
+
+  @doc """
+  Lists workout plans for a specific student.
+  """
+  def list_workout_plans_for_student(student_id, filters \\ %{}) do
+    query = from wp in WorkoutPlan,
+      where: wp.student_id == ^student_id,
+      preload: [workout_exercises: :exercise],
+      order_by: [desc: wp.inserted_at]
+
+    query
+    |> apply_plan_filters(filters)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a workout log with student ownership verification.
+  """
+  def get_workout_log!(id) do
+    WorkoutLog
+    |> Repo.get!(id)
+    |> Repo.preload([:exercise, :workout_plan])
+  end
+
+  def get_workout_log_for_student(id, student_id) do
+    case get_workout_log!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %WorkoutLog{student_id: ^student_id} = log ->
+        {:ok, log}
+
+      %WorkoutLog{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
   end
 
   def create_workout_plan(attrs \\ %{}) do

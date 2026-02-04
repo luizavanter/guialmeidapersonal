@@ -82,4 +82,17 @@ if config_env() == :prod do
   # Check `Plug.SSL` for all available options in `force_ssl`.
 
   config :ga_personal, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
+
+  # Configure Resend API key for email delivery
+  # The API key is stored in GCP Secret Manager and injected as environment variable
+  if resend_api_key = System.get_env("RESEND_API_KEY") do
+    config :ga_personal, GaPersonal.Mailer,
+      adapter: Resend.Swoosh.Adapter,
+      api_key: resend_api_key
+  end
+
+  # Configure mailer from address (can be overridden via environment)
+  config :ga_personal, :mailer_from,
+    email: System.get_env("MAILER_FROM_EMAIL", "noreply@guialmeidapersonal.esp.br"),
+    name: System.get_env("MAILER_FROM_NAME", "GA Personal")
 end

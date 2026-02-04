@@ -121,6 +121,7 @@ import { ref, computed, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useMessagesStore } from '@/stores/messages'
+import { useProfileStore } from '@/stores/profile'
 import { useToast } from '@/composables/useToast'
 import { formatRelativeTime } from '@/utils/date'
 import Card from '@/components/ui/Card.vue'
@@ -129,6 +130,7 @@ import Button from '@/components/ui/Button.vue'
 const { t } = useI18n()
 const authStore = useAuthStore()
 const messagesStore = useMessagesStore()
+const profileStore = useProfileStore()
 const toast = useToast()
 
 const isSubmitting = ref(false)
@@ -155,10 +157,14 @@ const handleSendMessage = async () => {
   isSubmitting.value = true
 
   try {
-    // Get trainer ID from user profile (assuming student has a trainerId)
-    // For now, we'll send to a default receiver
+    const trainerId = profileStore.profile?.trainerId
+    if (!trainerId) {
+      messageErrors.general = t('messages.noTrainerAssigned')
+      return
+    }
+
     await messagesStore.sendMessage({
-      receiverId: 'trainer-id', // This should come from student profile
+      receiverId: trainerId,
       content: messageForm.content,
     })
 
@@ -176,6 +182,11 @@ const handleMarkAllRead = async () => {
 }
 
 onMounted(async () => {
+  // Ensure profile is loaded to get trainerId
+  if (!profileStore.profile) {
+    await profileStore.fetchProfile()
+  }
+
   await messagesStore.fetchMessages()
 
   // Mark messages as read when viewing

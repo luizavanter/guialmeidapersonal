@@ -108,6 +108,8 @@
     "searchStudents": "Search students...",
     "noStudentsFound": "No students found",
     "confirmDelete": "Are you sure you want to delete this student?",
+    "deleteConfirmation": "Are you sure you want to delete this student?",
+    "emailCannotChange": "Email cannot be changed",
     "passwordHint": "Leave empty for default password"
   },
   "appointments": {
@@ -143,7 +145,10 @@
     "viewWeek": "Week View",
     "viewMonth": "Month View",
     "noAppointments": "No appointments scheduled",
-    "createAppointment": "Create Appointment"
+    "createAppointment": "Create Appointment",
+    "editAppointment": "Edit Appointment",
+    "deleteAppointment": "Delete Appointment",
+    "deleteConfirmation": "Are you sure you want to delete this appointment?"
   },
   "workouts": {
     "title": "Workouts",
@@ -178,6 +183,8 @@
     "noExercisesFound": "No exercises found",
     "noPlansFound": "No plans found",
     "confirmDelete": "Are you sure you want to delete?",
+    "deleteExerciseConfirmation": "Are you sure you want to delete this exercise?",
+    "deletePlanConfirmation": "Are you sure you want to delete this workout plan?",
     "bodyweight": "Bodyweight",
     "active": "Active",
     "inactive": "Inactive",
@@ -286,7 +293,9 @@
     "endDate": "End Date",
     "active": "Active",
     "cancelled": "Cancelled",
-    "expired": "Expired"
+    "expired": "Expired",
+    "studentCannotChange": "Student cannot be changed",
+    "deletePlanConfirmation": "Are you sure you want to delete this pricing plan?"
   },
   "messages": {
     "title": "Messages",

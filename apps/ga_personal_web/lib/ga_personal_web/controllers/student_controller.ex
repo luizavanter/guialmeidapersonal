@@ -2,26 +2,35 @@ defmodule GaPersonalWeb.StudentController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Accounts
-  alias GaPersonal.Guardian
 
   action_fallback GaPersonalWeb.FallbackController
 
   def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    students = Accounts.list_students(user.id, params)
+    trainer_id = conn.assigns.current_user_id
+    students = Accounts.list_students(trainer_id, params)
 
     json(conn, %{data: Enum.map(students, &student_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
-    student = Accounts.get_student!(id)
-    json(conn, %{data: student_json(student)})
+    trainer_id = conn.assigns.current_user_id
+
+    case Accounts.get_student_for_trainer(id, trainer_id) do
+      {:ok, student} ->
+        json(conn, %{data: student_json(student)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"student" => student_params}) do
-    user = Guardian.Plug.current_resource(conn)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, student} <- Accounts.create_student(user.id, student_params) do
+    with {:ok, student} <- Accounts.create_student(trainer_id, student_params) do
       conn
       |> put_status(:created)
       |> json(%{data: student_json(student)})
@@ -29,18 +38,36 @@ defmodule GaPersonalWeb.StudentController do
   end
 
   def update(conn, %{"id" => id, "student" => student_params}) do
-    student = Accounts.get_student!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated_student} <- Accounts.update_student_profile(student, student_params) do
-      json(conn, %{data: student_json(updated_student)})
+    case Accounts.get_student_for_trainer(id, trainer_id) do
+      {:ok, student} ->
+        with {:ok, updated_student} <- Accounts.update_student_profile(student, student_params) do
+          json(conn, %{data: student_json(updated_student)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    student = Accounts.get_student!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, _} <- Accounts.deactivate_student(student) do
-      send_resp(conn, :no_content, "")
+    case Accounts.get_student_for_trainer(id, trainer_id) do
+      {:ok, student} ->
+        with {:ok, _} <- Accounts.deactivate_student(student) do
+          send_resp(conn, :no_content, "")
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 

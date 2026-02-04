@@ -2,46 +2,136 @@ defmodule GaPersonalWeb.BodyAssessmentController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Evolution
-  alias GaPersonal.Guardian
+  alias GaPersonal.Accounts
 
   action_fallback GaPersonalWeb.FallbackController
 
-  def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    student_id = Map.get(params, "student_id", user.id)
-    assessments = Evolution.list_body_assessments(student_id)
-    json(conn, %{data: Enum.map(assessments, &body_assessment_json/1)})
+  # Trainer actions - manage assessments for their students
+  def index(conn, %{"student_id" => student_id}) do
+    trainer_id = conn.assigns.current_user_id
+
+    # Verify the student belongs to this trainer
+    case Accounts.get_student_for_trainer(student_id, trainer_id) do
+      {:ok, _student} ->
+        assessments = Evolution.list_body_assessments(student_id)
+        json(conn, %{data: Enum.map(assessments, &body_assessment_json/1)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
+  end
+
+  def index(conn, _params) do
+    {:error, :bad_request, "student_id is required"}
   end
 
   def show(conn, %{"id" => id}) do
-    assessment = Evolution.get_body_assessment!(id)
-    json(conn, %{data: body_assessment_json(assessment)})
+    trainer_id = conn.assigns.current_user_id
+
+    case Evolution.get_body_assessment_for_trainer(id, trainer_id) do
+      {:ok, assessment} ->
+        json(conn, %{data: body_assessment_json(assessment)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"body_assessment" => assessment_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(assessment_params, "assessor_id", user.id)
+    trainer_id = conn.assigns.current_user_id
+    student_id = Map.get(assessment_params, "student_id")
 
-    with {:ok, assessment} <- Evolution.create_body_assessment(params) do
-      conn
-      |> put_status(:created)
-      |> json(%{data: body_assessment_json(assessment)})
+    # Verify the student belongs to this trainer
+    case Accounts.get_student_for_trainer(student_id, trainer_id) do
+      {:ok, _student} ->
+        params = Map.put(assessment_params, "assessor_id", trainer_id)
+
+        with {:ok, assessment} <- Evolution.create_body_assessment(params) do
+          conn
+          |> put_status(:created)
+          |> json(%{data: body_assessment_json(assessment)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def update(conn, %{"id" => id, "body_assessment" => assessment_params}) do
-    assessment = Evolution.get_body_assessment!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated} <- Evolution.update_body_assessment(assessment, assessment_params) do
-      json(conn, %{data: body_assessment_json(updated)})
+    case Evolution.get_body_assessment_for_trainer(id, trainer_id) do
+      {:ok, assessment} ->
+        with {:ok, updated} <- Evolution.update_body_assessment(assessment, assessment_params) do
+          json(conn, %{data: body_assessment_json(updated)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    assessment = Evolution.get_body_assessment!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, _} <- Evolution.delete_body_assessment(assessment) do
-      send_resp(conn, :no_content, "")
+    case Evolution.get_body_assessment_for_trainer(id, trainer_id) do
+      {:ok, assessment} ->
+        with {:ok, _} <- Evolution.delete_body_assessment(assessment) do
+          send_resp(conn, :no_content, "")
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
+  end
+
+  # Student actions (read-only)
+  def index_for_student(conn, _params) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        assessments = Evolution.list_body_assessments(student.id)
+        json(conn, %{data: Enum.map(assessments, &body_assessment_json/1)})
+    end
+  end
+
+  def show_for_student(conn, %{"id" => id}) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        case Evolution.get_body_assessment_for_student(id, student.id) do
+          {:ok, assessment} ->
+            json(conn, %{data: body_assessment_json(assessment)})
+
+          {:error, :not_found} ->
+            {:error, :not_found}
+
+          {:error, :unauthorized} ->
+            {:error, :forbidden}
+        end
     end
   end
 

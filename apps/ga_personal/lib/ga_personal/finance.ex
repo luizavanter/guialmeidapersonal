@@ -19,6 +19,27 @@ defmodule GaPersonal.Finance do
 
   def get_plan!(id), do: Repo.get!(Plan, id)
 
+  @doc """
+  Gets a plan with ownership verification.
+  """
+  def get_plan_for_trainer(id, trainer_id) do
+    case Repo.get(Plan, id) do
+      nil ->
+        {:error, :not_found}
+
+      %Plan{trainer_id: ^trainer_id} = plan ->
+        {:ok, plan}
+
+      %Plan{} ->
+        {:error, :unauthorized}
+    end
+  end
+
+  def get_plan_for_trainer!(id, trainer_id) do
+    plan = get_plan!(id)
+    if plan.trainer_id == trainer_id, do: plan, else: raise(Ecto.NoResultsError, queryable: Plan)
+  end
+
   def create_plan(attrs \\ %{}) do
     %Plan{}
     |> Plan.changeset(attrs)
@@ -67,6 +88,56 @@ defmodule GaPersonal.Finance do
     |> Repo.preload([:student, :plan, :payments])
   end
 
+  @doc """
+  Gets a subscription with ownership verification.
+  """
+  def get_subscription_for_trainer(id, trainer_id) do
+    case get_subscription!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %Subscription{trainer_id: ^trainer_id} = subscription ->
+        {:ok, subscription}
+
+      %Subscription{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
+
+  def get_subscription_for_trainer!(id, trainer_id) do
+    subscription = get_subscription!(id)
+    if subscription.trainer_id == trainer_id, do: subscription, else: raise(Ecto.NoResultsError, queryable: Subscription)
+  end
+
+  @doc """
+  Gets the current subscription for a student.
+  """
+  def get_subscription_for_student(student_id) do
+    from(s in Subscription,
+      where: s.student_id == ^student_id and s.status == "active",
+      preload: [:plan],
+      order_by: [desc: s.start_date],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Lists subscriptions for a specific student.
+  """
+  def list_subscriptions_for_student(student_id, filters \\ %{}) do
+    query = from s in Subscription,
+      where: s.student_id == ^student_id,
+      preload: [:plan],
+      order_by: [desc: s.start_date]
+
+    query
+    |> apply_subscription_filters(filters)
+    |> Repo.all()
+  end
+
   def create_subscription(attrs \\ %{}) do
     %Subscription{}
     |> Subscription.changeset(attrs)
@@ -93,6 +164,49 @@ defmodule GaPersonal.Finance do
     query = from p in Payment,
       where: p.trainer_id == ^trainer_id,
       preload: [:student, :subscription],
+      order_by: [desc: p.payment_date]
+
+    query
+    |> apply_payment_filters(filters)
+    |> Repo.all()
+  end
+
+  def get_payment!(id) do
+    Payment
+    |> Repo.get!(id)
+    |> Repo.preload([:student, :subscription])
+  end
+
+  @doc """
+  Gets a payment with ownership verification.
+  """
+  def get_payment_for_trainer(id, trainer_id) do
+    case get_payment!(id) do
+      nil ->
+        {:error, :not_found}
+
+      %Payment{trainer_id: ^trainer_id} = payment ->
+        {:ok, payment}
+
+      %Payment{} ->
+        {:error, :unauthorized}
+    end
+  rescue
+    Ecto.NoResultsError -> {:error, :not_found}
+  end
+
+  def get_payment_for_trainer!(id, trainer_id) do
+    payment = get_payment!(id)
+    if payment.trainer_id == trainer_id, do: payment, else: raise(Ecto.NoResultsError, queryable: Payment)
+  end
+
+  @doc """
+  Lists payments for a specific student.
+  """
+  def list_payments_for_student(student_id, filters \\ %{}) do
+    query = from p in Payment,
+      where: p.student_id == ^student_id,
+      preload: [:subscription],
       order_by: [desc: p.payment_date]
 
     query

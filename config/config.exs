@@ -46,6 +46,19 @@ config :ga_personal, GaPersonal.Gettext,
   default_locale: "pt_BR",
   locales: ~w(pt_BR en_US)
 
+# Configure Mailer (Swoosh)
+# Default adapter for development - emails are logged to console
+config :ga_personal, GaPersonal.Mailer,
+  adapter: Swoosh.Adapters.Local
+
+# Configure Swoosh API client for async email delivery
+config :swoosh, :api_client, Swoosh.ApiClient.Finch
+
+# Default from email address
+config :ga_personal, :mailer_from,
+  email: "noreply@guialmeidapersonal.esp.br",
+  name: "GA Personal"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

@@ -8,10 +8,23 @@ const workoutsStore = useWorkoutsStore()
 
 const searchQuery = ref('')
 const showAddModal = ref(false)
+const showEditModal = ref(false)
+const showDeleteConfirm = ref(false)
 const isSubmitting = ref(false)
 const submitError = ref('')
+const selectedExercise = ref<any>(null)
 
 const newExercise = reactive({
+  name: '',
+  muscleGroup: '',
+  equipment: '',
+  difficulty: 'beginner',
+  description: '',
+  videoUrl: ''
+})
+
+const editExercise = reactive({
+  id: '',
   name: '',
   muscleGroup: '',
   equipment: '',
@@ -76,6 +89,80 @@ async function handleAddExercise() {
     isSubmitting.value = false
   }
 }
+
+function openEditModal(exercise: any) {
+  selectedExercise.value = exercise
+  editExercise.id = exercise.id
+  editExercise.name = exercise.name || ''
+  editExercise.muscleGroup = exercise.muscleGroup || exercise.category || ''
+  editExercise.equipment = exercise.equipment || exercise.equipmentNeeded || ''
+  editExercise.difficulty = exercise.difficulty || exercise.difficultyLevel || 'beginner'
+  editExercise.description = exercise.description || ''
+  editExercise.videoUrl = exercise.videoUrl || ''
+  showEditModal.value = true
+}
+
+function closeEditModal() {
+  showEditModal.value = false
+  submitError.value = ''
+  selectedExercise.value = null
+}
+
+async function handleEditExercise() {
+  if (!editExercise.name || !editExercise.muscleGroup) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    await workoutsStore.updateExercise(editExercise.id, {
+      exercise: {
+        name: editExercise.name,
+        category: editExercise.muscleGroup,
+        muscle_groups: [editExercise.muscleGroup],
+        equipment_needed: editExercise.equipment || null,
+        difficulty_level: editExercise.difficulty,
+        description: editExercise.description || null,
+        video_url: editExercise.videoUrl || null
+      }
+    })
+    closeEditModal()
+    await workoutsStore.fetchExercises()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+function openDeleteConfirm(exercise: any) {
+  selectedExercise.value = exercise
+  showDeleteConfirm.value = true
+}
+
+function closeDeleteConfirm() {
+  showDeleteConfirm.value = false
+  selectedExercise.value = null
+}
+
+async function handleDeleteExercise() {
+  if (!selectedExercise.value) return
+
+  isSubmitting.value = true
+
+  try {
+    await workoutsStore.deleteExercise(selectedExercise.value.id)
+    closeDeleteConfirm()
+    await workoutsStore.fetchExercises()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -111,8 +198,30 @@ async function handleAddExercise() {
           <p class="text-sm text-smoke/60">{{ exercise.muscleGroup }}</p>
         </div>
         <div class="flex items-center justify-between">
-          <span class="badge badge-info">{{ exercise.equipment || 'Body weight' }}</span>
-          <span class="badge badge-warning">{{ t(`workouts.${exercise.difficulty}`) }}</span>
+          <div class="flex space-x-2">
+            <span class="badge badge-info">{{ exercise.equipment || 'Body weight' }}</span>
+            <span class="badge badge-warning">{{ t(`workouts.${exercise.difficulty}`) }}</span>
+          </div>
+          <div class="flex space-x-2">
+            <button
+              @click="openEditModal(exercise)"
+              class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+              :title="t('common.edit')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+            <button
+              @click="openDeleteConfirm(exercise)"
+              class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+              :title="t('common.delete')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -183,6 +292,96 @@ async function handleAddExercise() {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Edit Exercise Modal -->
+    <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('workouts.editExercise') }}</h2>
+          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleEditExercise" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.name') }} *</label>
+            <input v-model="editExercise.name" type="text" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('workouts.muscleGroup') }} *</label>
+            <select v-model="editExercise.muscleGroup" class="input w-full" required>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="group in muscleGroups" :key="group" :value="group">
+                {{ t(`workouts.muscles.${group}`) || group }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('workouts.equipment') }}</label>
+            <input v-model="editExercise.equipment" type="text" class="input w-full" :placeholder="t('workouts.bodyweight')" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('workouts.difficulty') }}</label>
+            <select v-model="editExercise.difficulty" class="input w-full">
+              <option v-for="level in difficultyLevels" :key="level" :value="level">
+                {{ t(`workouts.${level}`) }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.description') }}</label>
+            <textarea v-model="editExercise.description" class="input w-full" rows="3"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('workouts.videoUrl') }}</label>
+            <input v-model="editExercise.videoUrl" type="url" class="input w-full" placeholder="https://..." />
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeEditModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-red-500">{{ t('workouts.deleteExercise') }}</h2>
+          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <p class="text-smoke/80 mb-6">
+          {{ t('workouts.deleteExerciseConfirmation') || 'Are you sure you want to delete this exercise?' }}
+          <strong class="block mt-2 text-smoke">{{ selectedExercise?.name }}</strong>
+        </p>
+
+        <div class="flex justify-end space-x-3">
+          <button @click="closeDeleteConfirm" class="btn btn-secondary">
+            {{ t('common.cancel') }}
+          </button>
+          <button @click="handleDeleteExercise" :disabled="isSubmitting" class="btn bg-red-600 hover:bg-red-700 text-white">
+            {{ isSubmitting ? t('common.loading') : t('common.delete') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

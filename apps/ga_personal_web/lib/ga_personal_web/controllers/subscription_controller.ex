@@ -2,24 +2,35 @@ defmodule GaPersonalWeb.SubscriptionController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Finance
-  alias GaPersonal.Guardian
+  alias GaPersonal.Accounts
 
   action_fallback GaPersonalWeb.FallbackController
 
+  # Trainer actions
   def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    subscriptions = Finance.list_subscriptions(user.id, params)
+    trainer_id = conn.assigns.current_user_id
+    subscriptions = Finance.list_subscriptions(trainer_id, params)
     json(conn, %{data: Enum.map(subscriptions, &subscription_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
-    subscription = Finance.get_subscription!(id)
-    json(conn, %{data: subscription_json(subscription)})
+    trainer_id = conn.assigns.current_user_id
+
+    case Finance.get_subscription_for_trainer(id, trainer_id) do
+      {:ok, subscription} ->
+        json(conn, %{data: subscription_json(subscription)})
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
   end
 
   def create(conn, %{"subscription" => subscription_params}) do
-    user = Guardian.Plug.current_resource(conn)
-    params = Map.put(subscription_params, "trainer_id", user.id)
+    trainer_id = conn.assigns.current_user_id
+    params = Map.put(subscription_params, "trainer_id", trainer_id)
 
     with {:ok, subscription} <- Finance.create_subscription(params) do
       conn
@@ -29,19 +40,57 @@ defmodule GaPersonalWeb.SubscriptionController do
   end
 
   def update(conn, %{"id" => id, "subscription" => subscription_params}) do
-    subscription = Finance.get_subscription!(id)
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, updated} <- Finance.update_subscription(subscription, subscription_params) do
-      json(conn, %{data: subscription_json(updated)})
+    case Finance.get_subscription_for_trainer(id, trainer_id) do
+      {:ok, subscription} ->
+        with {:ok, updated} <- Finance.update_subscription(subscription, subscription_params) do
+          json(conn, %{data: subscription_json(updated)})
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def delete(conn, %{"id" => id}) do
-    subscription = Finance.get_subscription!(id)
-    reason = "Deleted by trainer"
+    trainer_id = conn.assigns.current_user_id
 
-    with {:ok, _} <- Finance.cancel_subscription(subscription, reason) do
-      send_resp(conn, :no_content, "")
+    case Finance.get_subscription_for_trainer(id, trainer_id) do
+      {:ok, subscription} ->
+        reason = "Cancelled by trainer"
+
+        with {:ok, _} <- Finance.cancel_subscription(subscription, reason) do
+          send_resp(conn, :no_content, "")
+        end
+
+      {:error, :not_found} ->
+        {:error, :not_found}
+
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
+    end
+  end
+
+  # Student action - view their own subscription
+  def show_for_student(conn, _params) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        case Finance.get_subscription_for_student(student.id) do
+          nil ->
+            {:error, :not_found}
+
+          subscription ->
+            json(conn, %{data: subscription_json(subscription)})
+        end
     end
   end
 

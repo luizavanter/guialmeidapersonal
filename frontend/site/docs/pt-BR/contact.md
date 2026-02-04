@@ -28,7 +28,7 @@ description: Entre em contato para agendar sua avaliação gratuita
       <div class="info-icon">📱</div>
       <div class="info-content">
         <h3>WhatsApp</h3>
-        <p><a href="https://wa.me/5548999999999">(48) 99999-9999</a></p>
+        <p><a href="/pt-BR/contact">Entre em contato pelo formulario</a></p>
       </div>
     </div>
 

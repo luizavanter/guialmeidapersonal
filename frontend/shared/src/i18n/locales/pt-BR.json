@@ -108,6 +108,8 @@
     "searchStudents": "Pesquisar alunos...",
     "noStudentsFound": "Nenhum aluno encontrado",
     "confirmDelete": "Tem certeza que deseja excluir este aluno?",
+    "deleteConfirmation": "Tem certeza que deseja excluir este aluno?",
+    "emailCannotChange": "O e-mail não pode ser alterado",
     "passwordHint": "Deixe vazio para senha padrão"
   },
   "appointments": {
@@ -143,7 +145,10 @@
     "viewWeek": "Visualizar Semana",
     "viewMonth": "Visualizar Mês",
     "noAppointments": "Nenhum compromisso agendado",
-    "createAppointment": "Criar Compromisso"
+    "createAppointment": "Criar Compromisso",
+    "editAppointment": "Editar Compromisso",
+    "deleteAppointment": "Excluir Compromisso",
+    "deleteConfirmation": "Tem certeza que deseja excluir este compromisso?"
   },
   "workouts": {
     "title": "Treinos",
@@ -178,6 +183,8 @@
     "noExercisesFound": "Nenhum exercício encontrado",
     "noPlansFound": "Nenhum plano encontrado",
     "confirmDelete": "Tem certeza que deseja excluir?",
+    "deleteExerciseConfirmation": "Tem certeza que deseja excluir este exercício?",
+    "deletePlanConfirmation": "Tem certeza que deseja excluir este plano de treino?",
     "bodyweight": "Peso corporal",
     "active": "Ativo",
     "inactive": "Inativo",
@@ -286,7 +293,9 @@
     "endDate": "Data de Término",
     "active": "Ativa",
     "cancelled": "Cancelada",
-    "expired": "Expirada"
+    "expired": "Expirada",
+    "studentCannotChange": "O aluno não pode ser alterado",
+    "deletePlanConfirmation": "Tem certeza que deseja excluir este plano de preços?"
   },
   "messages": {
     "title": "Mensagens",

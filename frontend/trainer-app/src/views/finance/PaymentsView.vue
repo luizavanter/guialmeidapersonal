@@ -11,6 +11,7 @@ const studentsStore = useStudentsStore()
 
 const showAddModal = ref(false)
 const showViewModal = ref(false)
+const showEditModal = ref(false)
 const isSubmitting = ref(false)
 const submitError = ref('')
 const selectedPayment = ref<any>(null)
@@ -19,6 +20,15 @@ const newPayment = reactive({
   studentId: '',
   amount: '',
   dueDate: new Date().toISOString().split('T')[0],
+  status: 'pending',
+  description: ''
+})
+
+const editPayment = reactive({
+  id: '',
+  studentId: '',
+  amount: '',
+  dueDate: '',
   status: 'pending',
   description: ''
 })
@@ -48,6 +58,50 @@ function viewPayment(payment: any) {
 function closeViewModal() {
   showViewModal.value = false
   selectedPayment.value = null
+}
+
+function openEditModal(payment: any) {
+  selectedPayment.value = payment
+  editPayment.id = payment.id
+  editPayment.studentId = payment.studentId || payment.student?.id || ''
+  editPayment.amount = payment.amount ? (payment.amount / 100).toString() : ''
+  editPayment.dueDate = payment.dueDate ? payment.dueDate.split('T')[0] : ''
+  editPayment.status = payment.status || 'pending'
+  editPayment.description = payment.description || payment.notes || ''
+  showEditModal.value = true
+}
+
+function closeEditModal() {
+  showEditModal.value = false
+  submitError.value = ''
+  selectedPayment.value = null
+}
+
+async function handleEditPayment() {
+  if (!editPayment.amount || !editPayment.dueDate) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    await financeStore.updatePayment(editPayment.id, {
+      payment: {
+        amount_cents: Math.round(parseFloat(editPayment.amount) * 100),
+        due_date: editPayment.dueDate,
+        status: editPayment.status,
+        notes: editPayment.description || null
+      }
+    })
+    closeEditModal()
+    await financeStore.fetchPayments()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 async function handleAddPayment() {
@@ -123,7 +177,18 @@ async function handleAddPayment() {
                 </span>
               </td>
               <td class="py-3">
-                <button @click="viewPayment(payment)" class="btn btn-ghost btn-sm">{{ t('common.view') }}</button>
+                <div class="flex space-x-2">
+                  <button @click="viewPayment(payment)" class="btn btn-ghost btn-sm">{{ t('common.view') }}</button>
+                  <button
+                    @click="openEditModal(payment)"
+                    class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+                    :title="t('common.edit')"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -241,6 +306,68 @@ async function handleAddPayment() {
             {{ t('common.close') }}
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Edit Payment Modal -->
+    <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('finance.editPayment') }}</h2>
+          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleEditPayment" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('students.title') }}</label>
+            <select v-model="editPayment.studentId" class="input w-full" disabled>
+              <option value="">{{ t('common.select') }}</option>
+              <option v-for="student in studentsStore.students" :key="student.id" :value="student.id">
+                {{ student.user?.firstName }} {{ student.user?.lastName }}
+              </option>
+            </select>
+            <p class="text-xs text-smoke/40 mt-1">{{ t('finance.studentCannotChange') || 'Student cannot be changed' }}</p>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.amount') }} *</label>
+            <input v-model="editPayment.amount" type="number" step="0.01" min="0" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.dueDate') }} *</label>
+            <input v-model="editPayment.dueDate" type="date" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Status</label>
+            <select v-model="editPayment.status" class="input w-full">
+              <option value="pending">{{ t('finance.pending') }}</option>
+              <option value="paid">{{ t('finance.paid') }}</option>
+              <option value="overdue">{{ t('finance.overdue') }}</option>
+              <option value="cancelled">{{ t('finance.cancelled') }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.description') }}</label>
+            <textarea v-model="editPayment.description" class="input w-full" rows="2"></textarea>
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeEditModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

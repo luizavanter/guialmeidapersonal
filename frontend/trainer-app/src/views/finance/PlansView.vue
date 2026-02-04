@@ -8,10 +8,24 @@ const { t } = useI18n()
 const financeStore = useFinanceStore()
 
 const showAddModal = ref(false)
+const showEditModal = ref(false)
+const showDeleteConfirm = ref(false)
 const isSubmitting = ref(false)
 const submitError = ref('')
+const selectedPlan = ref<any>(null)
 
 const newPlan = reactive({
+  name: '',
+  description: '',
+  price: '',
+  duration: '1',
+  durationType: 'months',
+  features: '',
+  active: true
+})
+
+const editPlan = reactive({
+  id: '',
   name: '',
   description: '',
   price: '',
@@ -73,6 +87,98 @@ async function handleAddPlan() {
     isSubmitting.value = false
   }
 }
+
+function openEditModal(plan: any) {
+  selectedPlan.value = plan
+  editPlan.id = plan.id
+  editPlan.name = plan.name || ''
+  editPlan.description = plan.description || ''
+  editPlan.price = plan.price ? (plan.price / 100).toString() : ''
+  // Calculate duration from durationDays
+  if (plan.durationDays) {
+    if (plan.durationDays >= 30 && plan.durationDays % 30 === 0) {
+      editPlan.duration = (plan.durationDays / 30).toString()
+      editPlan.durationType = 'months'
+    } else {
+      editPlan.duration = plan.durationDays.toString()
+      editPlan.durationType = 'days'
+    }
+  } else {
+    editPlan.duration = plan.duration?.toString() || '1'
+    editPlan.durationType = plan.durationType || 'months'
+  }
+  editPlan.features = Array.isArray(plan.features) ? plan.features.join('\n') : ''
+  editPlan.active = plan.active !== false && plan.isActive !== false
+  showEditModal.value = true
+}
+
+function closeEditModal() {
+  showEditModal.value = false
+  submitError.value = ''
+  selectedPlan.value = null
+}
+
+async function handleEditPlan() {
+  if (!editPlan.name || !editPlan.price) {
+    submitError.value = t('common.requiredFields')
+    return
+  }
+
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    const features = editPlan.features
+      ? editPlan.features.split('\n').filter(f => f.trim())
+      : []
+
+    const durationDays = editPlan.durationType === 'months'
+      ? parseInt(editPlan.duration) * 30
+      : parseInt(editPlan.duration)
+
+    await financeStore.updatePlan(editPlan.id, {
+      name: editPlan.name,
+      description: editPlan.description || null,
+      price_cents: Math.round(parseFloat(editPlan.price) * 100),
+      currency: 'BRL',
+      duration_days: durationDays,
+      features: features,
+      is_active: editPlan.active
+    })
+    closeEditModal()
+    await financeStore.fetchPlans()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+function openDeleteConfirm(plan: any) {
+  selectedPlan.value = plan
+  showDeleteConfirm.value = true
+}
+
+function closeDeleteConfirm() {
+  showDeleteConfirm.value = false
+  selectedPlan.value = null
+}
+
+async function handleDeletePlan() {
+  if (!selectedPlan.value) return
+
+  isSubmitting.value = true
+
+  try {
+    await financeStore.deletePlan(selectedPlan.value.id)
+    closeDeleteConfirm()
+    await financeStore.fetchPlans()
+  } catch (err: any) {
+    submitError.value = err.message || t('common.error')
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -84,7 +190,29 @@ async function handleAddPlan() {
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="plan in financeStore.plans" :key="plan.id" class="card">
-        <h3 class="font-display text-2xl mb-4">{{ plan.name }}</h3>
+        <div class="flex items-start justify-between mb-4">
+          <h3 class="font-display text-2xl">{{ plan.name }}</h3>
+          <div class="flex space-x-2">
+            <button
+              @click="openEditModal(plan)"
+              class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+              :title="t('common.edit')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+            </button>
+            <button
+              @click="openDeleteConfirm(plan)"
+              class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+              :title="t('common.delete')"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
         <p class="text-smoke/60 mb-4">{{ plan.description }}</p>
         <div class="mb-4">
           <span class="font-display text-3xl text-lime">
@@ -170,6 +298,97 @@ async function handleAddPlan() {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Edit Plan Modal -->
+    <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('finance.editPlan') }}</h2>
+          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <form @submit.prevent="handleEditPlan" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.name') }} *</label>
+            <input v-model="editPlan.name" type="text" class="input w-full" required />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('common.description') }}</label>
+            <textarea v-model="editPlan.description" class="input w-full" rows="2"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.price') }} *</label>
+            <input v-model="editPlan.price" type="number" step="0.01" min="0" class="input w-full" required />
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ t('finance.duration') }}</label>
+              <input v-model="editPlan.duration" type="number" min="1" class="input w-full" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">{{ t('finance.durationType') }}</label>
+              <select v-model="editPlan.durationType" class="input w-full">
+                <option value="days">{{ t('finance.durationDays') }}</option>
+                <option value="months">{{ t('finance.durationMonths') }}</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.features') }}</label>
+            <textarea v-model="editPlan.features" class="input w-full" rows="4" :placeholder="t('finance.featuresPlaceholder')"></textarea>
+            <p class="text-xs text-smoke/40 mt-1">{{ t('finance.oneFeaturePerLine') }}</p>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <input type="checkbox" v-model="editPlan.active" id="editActive" class="w-4 h-4" />
+            <label for="editActive" class="text-sm">{{ t('finance.activeStatus') }}</label>
+          </div>
+
+          <div v-if="submitError" class="p-3 bg-red-500/20 text-red-400 rounded-lg text-sm">
+            {{ submitError }}
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button type="button" @click="closeEditModal" class="btn btn-secondary">
+              {{ t('common.cancel') }}
+            </button>
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary">
+              {{ isSubmitting ? t('common.loading') : t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
+      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-red-500">{{ t('finance.deletePlan') }}</h2>
+          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+        </div>
+
+        <p class="text-smoke/80 mb-6">
+          {{ t('finance.deletePlanConfirmation') || 'Are you sure you want to delete this pricing plan?' }}
+          <strong class="block mt-2 text-smoke">{{ selectedPlan?.name }}</strong>
+        </p>
+
+        <div class="flex justify-end space-x-3">
+          <button @click="closeDeleteConfirm" class="btn btn-secondary">
+            {{ t('common.cancel') }}
+          </button>
+          <button @click="handleDeletePlan" :disabled="isSubmitting" class="btn bg-red-600 hover:bg-red-700 text-white">
+            {{ isSubmitting ? t('common.loading') : t('common.delete') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

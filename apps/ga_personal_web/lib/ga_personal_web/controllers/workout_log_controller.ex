@@ -2,31 +2,61 @@ defmodule GaPersonalWeb.WorkoutLogController do
   use GaPersonalWeb, :controller
 
   alias GaPersonal.Workouts
-  alias GaPersonal.Repo
-  alias GaPersonal.Guardian
+  alias GaPersonal.Accounts
 
   action_fallback GaPersonalWeb.FallbackController
 
+  # Student actions - students can only access their own workout logs
   def index(conn, params) do
-    user = Guardian.Plug.current_resource(conn)
-    student_id = Map.get(params, "student_id", user.id)
-    workout_logs = Workouts.list_workout_logs(student_id, params)
-    json(conn, %{data: Enum.map(workout_logs, &workout_log_json/1)})
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        workout_logs = Workouts.list_workout_logs(student.id, params)
+        json(conn, %{data: Enum.map(workout_logs, &workout_log_json/1)})
+    end
   end
 
   def show(conn, %{"id" => id}) do
-    workout_log = Workouts.WorkoutLog
-    |> Repo.get!(id)
-    |> Repo.preload([:exercise, :workout_plan])
+    user = conn.assigns.current_user
 
-    json(conn, %{data: workout_log_json(workout_log)})
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        case Workouts.get_workout_log_for_student(id, student.id) do
+          {:ok, workout_log} ->
+            json(conn, %{data: workout_log_json(workout_log)})
+
+          {:error, :not_found} ->
+            {:error, :not_found}
+
+          {:error, :unauthorized} ->
+            {:error, :forbidden}
+        end
+    end
   end
 
   def create(conn, %{"workout_log" => workout_log_params}) do
-    with {:ok, workout_log} <- Workouts.create_workout_log(workout_log_params) do
-      conn
-      |> put_status(:created)
-      |> json(%{data: workout_log_json(workout_log)})
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        # Ensure the student can only create logs for themselves
+        params = Map.put(workout_log_params, "student_id", student.id)
+
+        with {:ok, workout_log} <- Workouts.create_workout_log(params) do
+          conn
+          |> put_status(:created)
+          |> json(%{data: workout_log_json(workout_log)})
+        end
     end
   end
 

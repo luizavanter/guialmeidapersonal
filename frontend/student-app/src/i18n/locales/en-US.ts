@@ -116,6 +116,7 @@ export default {
     markAllRead: 'Mark all as read',
     messageSent: 'Message sent!',
     messageError: 'Error sending message',
+    noTrainerAssigned: 'You are not assigned to a personal trainer',
   },
   profile: {
     title: 'Profile',

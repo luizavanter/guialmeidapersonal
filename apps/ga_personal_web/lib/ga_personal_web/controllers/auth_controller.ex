@@ -46,7 +46,7 @@ defmodule GaPersonalWeb.AuthController do
   end
 
   def me(conn, _params) do
-    user = Guardian.Plug.current_resource(conn)
+    user = conn.assigns.current_user
     json(conn, %{data: user_json(user)})
   end
 
