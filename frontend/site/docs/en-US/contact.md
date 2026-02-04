@@ -81,14 +81,17 @@ description: Get in touch to schedule your free assessment
         message: 'Tell me about your routine, exercise experience and what you expect from training...'
       }"
       :goalOptions="[
-        { value: 'weight-loss', label: 'Weight Loss' },
-        { value: 'muscle-gain', label: 'Muscle Gain' },
+        { value: 'weight_loss', label: 'Weight Loss' },
+        { value: 'muscle_gain', label: 'Muscle Gain' },
         { value: 'hybrid', label: 'Hybrid Training' },
         { value: 'conditioning', label: 'Physical Conditioning' },
         { value: 'other', label: 'Other' }
       ]"
       submitText="Send Request"
       successMessage="Thank you! Your request has been sent. I will contact you soon."
+      loadingText="Sending..."
+      errorText="Failed to send message. Please try again."
+      locale="en"
     />
   </div>
 </div>

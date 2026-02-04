@@ -118,9 +118,28 @@ function goBack() {
           </div>
         </div>
 
-        <!-- Other tabs -->
-        <div v-else class="text-center py-12 text-smoke/40">
-          {{ tab.label }} - {{ t('common.noData') }}
+        <!-- Workouts Tab -->
+        <div v-else-if="activeTab === 'workouts'" class="text-center py-12 text-smoke/40">
+          <div class="text-4xl mb-4">💪</div>
+          <p>{{ t('students.workoutPlans') }} - {{ t('common.noData') }}</p>
+        </div>
+
+        <!-- Evolution Tab -->
+        <div v-else-if="activeTab === 'evolution'" class="text-center py-12 text-smoke/40">
+          <div class="text-4xl mb-4">📈</div>
+          <p>{{ t('evolution.title') }} - {{ t('common.noData') }}</p>
+        </div>
+
+        <!-- Payments Tab -->
+        <div v-else-if="activeTab === 'payments'" class="text-center py-12 text-smoke/40">
+          <div class="text-4xl mb-4">💰</div>
+          <p>{{ t('finance.payments') }} - {{ t('common.noData') }}</p>
+        </div>
+
+        <!-- History Tab -->
+        <div v-else-if="activeTab === 'history'" class="text-center py-12 text-smoke/40">
+          <div class="text-4xl mb-4">📋</div>
+          <p>{{ t('students.activityHistory') }} - {{ t('common.noData') }}</p>
         </div>
       </div>
     </div>

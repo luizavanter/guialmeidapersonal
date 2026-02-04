@@ -81,14 +81,17 @@ description: Entre em contato para agendar sua avaliação gratuita
         message: 'Conte um pouco sobre sua rotina, experiência com exercícios e o que espera do treinamento...'
       }"
       :goalOptions="[
-        { value: 'weight-loss', label: 'Emagrecimento' },
-        { value: 'muscle-gain', label: 'Ganho de Massa Muscular' },
-        { value: 'hybrid', label: 'Treinamento Híbrido' },
-        { value: 'conditioning', label: 'Condicionamento Físico' },
+        { value: 'weight_loss', label: 'Emagrecimento' },
+        { value: 'muscle_gain', label: 'Ganho de Massa Muscular' },
+        { value: 'hybrid', label: 'Treinamento Hibrido' },
+        { value: 'conditioning', label: 'Condicionamento Fisico' },
         { value: 'other', label: 'Outro' }
       ]"
-      submitText="Enviar Solicitação"
-      successMessage="Obrigado! Sua solicitação foi enviada. Entrarei em contato em breve."
+      submitText="Enviar Solicitacao"
+      successMessage="Obrigado! Sua solicitacao foi enviada. Entrarei em contato em breve."
+      loadingText="Enviando..."
+      errorText="Erro ao enviar mensagem. Tente novamente."
+      locale="pt"
     />
   </div>
 </div>

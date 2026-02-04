@@ -34,6 +34,9 @@ defmodule GaPersonalWeb.Router do
     post "/auth/register", AuthController, :register
     post "/auth/login", AuthController, :login
 
+    # Public routes - Contact form (marketing website)
+    post "/contact", ContactController, :create
+
     # Webhooks - external integrations (no auth required, signature verified)
     post "/webhooks/calcom", WebhookController, :calcom
   end
