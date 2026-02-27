@@ -76,19 +76,19 @@ const badgeClasses = computed(() => {
   } else {
     switch (props.variant) {
       case 'default':
-        classes.push('bg-coal-lighter', 'text-smoke-dark')
+        classes.push('bg-surface-3', 'text-stone')
         break
       case 'primary':
         classes.push('bg-lime', 'text-coal')
         break
       case 'success':
-        classes.push('bg-green-600', 'text-white')
+        classes.push('bg-green-500/10', 'text-green-400')
         break
       case 'warning':
-        classes.push('bg-yellow-600', 'text-white')
+        classes.push('bg-yellow-500/10', 'text-yellow-400')
         break
       case 'danger':
-        classes.push('bg-red-600', 'text-white')
+        classes.push('bg-red-500/10', 'text-red-400')
         break
       case 'info':
         classes.push('bg-ocean', 'text-white')

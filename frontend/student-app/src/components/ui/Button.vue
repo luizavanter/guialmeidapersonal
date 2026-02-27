@@ -46,7 +46,7 @@ const buttonClasses = computed(() => {
   const variants = {
     primary: 'bg-lime text-coal hover:bg-lime/90 focus:ring-lime',
     secondary: 'bg-ocean text-white hover:bg-ocean/90 focus:ring-ocean',
-    ghost: 'bg-transparent text-smoke hover:bg-smoke/10 focus:ring-smoke',
+    ghost: 'bg-transparent text-smoke hover:bg-surface-3 focus:ring-smoke',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-600',
   }
 

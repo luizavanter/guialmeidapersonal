@@ -6,17 +6,17 @@
   --vp-c-brand-dark: #{darken($lime, 10%)};
 
   --vp-c-bg: #{$coal};
-  --vp-c-bg-soft: #{lighten($coal, 5%)};
-  --vp-c-bg-mute: #{lighten($coal, 3%)};
+  --vp-c-bg-soft: #{$surface-1};
+  --vp-c-bg-mute: #{$surface-2};
 
   --vp-c-text-1: #{$smoke};
   --vp-c-text-2: #{rgba($smoke, 0.8)};
-  --vp-c-text-3: #{rgba($smoke, 0.6)};
+  --vp-c-text-3: #{$stone};
 
   --vp-font-family-base: #{$font-body};
 
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(135deg, #{$lime} 0%, #{$ocean} 100%);
+  --vp-home-hero-name-background: linear-gradient(135deg, #{$lime} 0%, #{lighten($lime, 15%)} 100%);
 }
 
 * {
@@ -32,38 +32,39 @@ body {
 
 .VPNav {
   background-color: rgba($coal, 0.95) !important;
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba($smoke, 0.1);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid $surface-3;
 }
 
 .VPNavBar {
   .title {
     font-family: $font-display;
-    font-size: 1.5rem;
-    letter-spacing: 0.05em;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
   }
 }
 
-// Display font for headings
+// Display font for headings — no more all-caps
 h1, h2, h3, .display-text {
   font-family: $font-display;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
   margin-bottom: $spacing-lg;
 }
 
 h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   margin-bottom: $spacing-md;
 }
 
 h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
   margin-bottom: $spacing-sm;
 }
 
@@ -72,33 +73,33 @@ h3 {
   font-family: $font-body;
   font-weight: 600;
   padding: $spacing-sm $spacing-lg;
-  border-radius: 8px;
+  border-radius: 0.75rem;
   text-decoration: none;
   display: inline-block;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   cursor: pointer;
   border: none;
-  font-size: 1rem;
+  font-size: 0.9375rem;
 
   &-primary {
     background-color: $lime;
     color: $coal;
 
     &:hover {
-      background-color: lighten($lime, 10%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba($lime, 0.3);
+      background-color: lighten($lime, 8%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba($lime, 0.2);
     }
   }
 
   &-secondary {
     background-color: transparent;
     color: $smoke;
-    border: 2px solid $smoke;
+    border: 1px solid $surface-3;
 
     &:hover {
-      background-color: $smoke;
-      color: $coal;
+      background-color: $surface-2;
+      border-color: $stone;
     }
   }
 
@@ -107,25 +108,25 @@ h3 {
     color: white;
 
     &:hover {
-      background-color: lighten($ocean, 10%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba($ocean, 0.3);
+      background-color: lighten($ocean, 8%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba($ocean, 0.2);
     }
   }
 }
 
 // Card styles
 .card {
-  background-color: lighten($coal, 5%);
-  border: 1px solid rgba($smoke, 0.1);
-  border-radius: 12px;
+  background-color: $surface-1;
+  border: 1px solid $surface-3;
+  border-radius: 1rem;
   padding: $spacing-lg;
-  transition: all 0.3s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    border-color: rgba($lime, 0.3);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: rgba($lime, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -141,7 +142,7 @@ h3 {
   padding: $spacing-2xl 0;
 
   @media (min-width: $breakpoint-md) {
-    padding: 4rem 0;
+    padding: 5rem 0;
   }
 }
 
@@ -159,15 +160,6 @@ h3 {
   }
 }
 
-// Accent line
-.accent-line {
-  width: 60px;
-  height: 4px;
-  background: linear-gradient(90deg, $lime, $ocean);
-  margin: $spacing-md 0;
-  border-radius: 2px;
-}
-
 // Text utilities
 .text-lime {
   color: $lime;
@@ -181,6 +173,10 @@ h3 {
   color: $smoke;
 }
 
+.text-stone {
+  color: $stone;
+}
+
 .text-center {
   text-align: center;
 }
@@ -188,7 +184,7 @@ h3 {
 // Footer
 .VPFooter {
   background-color: $coal;
-  border-top: 1px solid rgba($smoke, 0.1);
+  border-top: 1px solid $surface-3;
 }
 
 // Content area
@@ -210,23 +206,23 @@ h3 {
 img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
+  border-radius: 0.75rem;
 }
 
 // Custom scrollbar
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: $coal;
+  background: $surface-1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: $lime;
-  border-radius: 5px;
+  background: $surface-3;
+  border-radius: 3px;
 
   &:hover {
-    background: lighten($lime, 10%);
+    background: $stone;
   }
 }

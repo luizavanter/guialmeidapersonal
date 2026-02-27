@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { useStudentsStore } from '@/stores/studentsStore'
 import type { Student } from '@ga-personal/shared'
 
+import { Pencil, Trash2 } from 'lucide-vue-next'
+
 const { t } = useI18n()
 const router = useRouter()
 const studentsStore = useStudentsStore()
@@ -179,8 +181,8 @@ async function handleDeleteStudent() {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="font-display text-4xl text-lime mb-2">{{ t('students.title') }}</h1>
-        <p class="text-smoke/60">
+        <h1 class="text-display-md text-smoke mb-2">{{ t('students.title') }}</h1>
+        <p class="text-stone">
           {{ studentsStore.totalStudents }} {{ t('students.title').toLowerCase() }}
         </p>
       </div>
@@ -227,8 +229,8 @@ async function handleDeleteStudent() {
             <h3 class="font-medium text-lg truncate">
               {{ student.user?.firstName }} {{ student.user?.lastName }}
             </h3>
-            <p class="text-sm text-smoke/60 truncate">{{ student.user?.email }}</p>
-            <p class="text-sm text-smoke/60 truncate">{{ student.user?.phone }}</p>
+            <p class="text-sm text-stone truncate">{{ student.user?.email }}</p>
+            <p class="text-sm text-stone truncate">{{ student.user?.phone }}</p>
 
             <div class="flex items-center justify-between mt-3">
               <span :class="[
@@ -242,20 +244,18 @@ async function handleDeleteStudent() {
               <div class="flex space-x-2">
                 <button
                   @click="openEditModal(student, $event)"
-                  class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+                  class="p-2 text-stone hover:text-lime hover:bg-surface-3 rounded-lg transition-colors"
                   :title="t('common.edit')"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <Pencil class="w-4 h-4" />
                   </svg>
                 </button>
                 <button
                   @click="openDeleteConfirm(student, $event)"
-                  class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+                  class="p-2 text-stone hover:text-red-500 hover:bg-surface-3 rounded-lg transition-colors"
                   :title="t('common.delete')"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <Trash2 class="w-4 h-4" />
                   </svg>
                 </button>
               </div>
@@ -267,7 +267,7 @@ async function handleDeleteStudent() {
 
     <!-- Empty State -->
     <div v-if="filteredStudents.length === 0" class="card text-center py-12">
-      <p class="text-smoke/40 text-lg">{{ t('students.noStudentsFound') }}</p>
+      <p class="text-stone text-lg">{{ t('students.noStudentsFound') }}</p>
     </div>
 
     <!-- Add Student Modal -->
@@ -276,10 +276,10 @@ async function handleDeleteStudent() {
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
 
       <!-- Modal -->
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('students.addStudent') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddStudent" class="space-y-4">
@@ -302,7 +302,7 @@ async function handleDeleteStudent() {
           <div>
             <label class="block text-sm font-medium mb-2">{{ t('auth.password') }}</label>
             <input v-model="newStudent.password" type="password" class="input w-full" placeholder="temp123456" />
-            <p class="text-xs text-smoke/40 mt-1">{{ t('students.passwordHint') || 'Deixe vazio para senha padrão' }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('students.passwordHint') || 'Deixe vazio para senha padrão' }}</p>
           </div>
 
           <div>
@@ -337,10 +337,10 @@ async function handleDeleteStudent() {
     <!-- Edit Student Modal -->
     <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('students.editStudent') }}</h2>
-          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeEditModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleEditStudent" class="space-y-4">
@@ -358,7 +358,7 @@ async function handleDeleteStudent() {
           <div>
             <label class="block text-sm font-medium mb-2">{{ t('auth.email') }}</label>
             <input v-model="editStudent.email" type="email" class="input w-full" disabled />
-            <p class="text-xs text-smoke/40 mt-1">{{ t('students.emailCannotChange') || 'Email cannot be changed' }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('students.emailCannotChange') || 'Email cannot be changed' }}</p>
           </div>
 
           <div>
@@ -394,13 +394,13 @@ async function handleDeleteStudent() {
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-red-500">{{ t('students.deleteStudent') }}</h2>
-          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeDeleteConfirm" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
-        <p class="text-smoke/80 mb-6">
+        <p class="text-smoke/90 mb-6">
           {{ t('students.deleteConfirmation') || 'Are you sure you want to delete this student?' }}
           <strong class="block mt-2 text-smoke">
             {{ selectedStudent?.user?.firstName }} {{ selectedStudent?.user?.lastName }}

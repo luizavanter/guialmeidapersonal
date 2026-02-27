@@ -12,7 +12,6 @@ category: Treinamento
   <span>Por Guilherme Almeida</span> • <span>Janeiro 2026</span> • <span class="reading-time">5 min de leitura</span>
 </div>
 
-<div class="accent-line"></div>
 
 Durante anos, o mundo do fitness foi dividido entre dois grupos: os que faziam musculação e os que faziam cardio. Como se você tivesse que escolher um lado. Mas e se eu te disser que **combinar os dois pode ser a chave para resultados extraordinários**?
 
@@ -145,17 +144,17 @@ Se você está cansado de escolher entre ser forte OU ter condicionamento, talve
 }
 
 .reading-time {
-  color: #C4F53A;
+  color: #CDFA3E;
 }
 
 h2 {
-  color: #C4F53A;
+  color: #CDFA3E;
   margin-top: 3rem;
   margin-bottom: 1rem;
 }
 
 h3 {
-  color: #0EA5E9;
+  color: #8A8578;
   margin-top: 2rem;
   margin-bottom: 1rem;
 }
@@ -173,7 +172,7 @@ p {
 }
 
 strong {
-  color: #C4F53A;
+  color: #CDFA3E;
   font-weight: 600;
 }
 
@@ -191,13 +190,13 @@ pre {
   background: rgba(245, 245, 240, 0.05);
   padding: 1.5rem;
   border-radius: 8px;
-  border-left: 4px solid #C4F53A;
+  border-left: 4px solid #CDFA3E;
   overflow-x: auto;
   margin: 2rem 0;
 }
 
 code {
-  color: #C4F53A;
+  color: #CDFA3E;
   font-family: 'Courier New', monospace;
 }
 
@@ -205,12 +204,12 @@ code {
   background: rgba(196, 245, 58, 0.05);
   padding: 1.5rem;
   border-radius: 8px;
-  border-left: 4px solid #C4F53A;
+  border-left: 4px solid #CDFA3E;
   margin-top: 3rem;
   color: rgba(245, 245, 240, 0.85);
 }
 
 .author-bio strong {
-  color: #C4F53A;
+  color: #CDFA3E;
 }
 </style>

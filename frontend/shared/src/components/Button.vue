@@ -82,9 +82,9 @@ const buttonClasses = computed(() => {
         'bg-transparent',
         'text-smoke',
         'border',
-        'border-coal-lighter',
-        'hover:bg-coal-light',
-        'hover:border-lime'
+        'border-surface-3',
+        'hover:bg-surface-2',
+        'hover:border-stone'
       )
       break
     case 'danger':

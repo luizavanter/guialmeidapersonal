@@ -173,7 +173,6 @@ const handleSubmit = async () => {
 
 .contact-form-wrapper {
   max-width: 600px;
-  margin: 0 auto;
 }
 
 .contact-form {
@@ -188,36 +187,47 @@ const handleSubmit = async () => {
   gap: $spacing-xs;
 
   label {
+    font-family: $font-display;
     font-weight: 600;
-    color: $smoke;
-    font-size: 0.95rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: $stone;
   }
 
   input,
   textarea,
   select {
     padding: $spacing-sm;
-    border: 2px solid rgba($smoke, 0.2);
-    border-radius: 8px;
-    background-color: lighten($coal, 5%);
+    border: 1px solid $surface-3;
+    border-radius: 0.75rem;
+    background-color: $surface-1;
     color: $smoke;
     font-family: $font-body;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    font-size: 0.9375rem;
+    transition: border-color 0.2s ease;
 
     &:focus {
       outline: none;
-      border-color: $lime;
+      border-color: rgba($lime, 0.4);
     }
 
     &::placeholder {
-      color: rgba($smoke, 0.4);
+      color: $stone;
     }
 
     &:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
     }
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A8578' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
   }
 
   textarea {
@@ -228,23 +238,23 @@ const handleSubmit = async () => {
 
 .btn-block {
   width: 100%;
-  padding: $spacing-md;
-  font-size: 1.1rem;
-  margin-top: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  font-size: 1rem;
+  margin-top: $spacing-xs;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 
   &:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 }
 
 .loading-spinner {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border: 2px solid transparent;
   border-top-color: currentColor;
   border-radius: 50%;
@@ -260,22 +270,24 @@ const handleSubmit = async () => {
 .success-message {
   margin-top: $spacing-lg;
   padding: $spacing-md;
-  background-color: rgba($lime, 0.1);
-  border: 2px solid $lime;
-  border-radius: 8px;
+  background-color: rgba($lime, 0.08);
+  border: 1px solid rgba($lime, 0.2);
+  border-radius: 0.75rem;
   color: $lime;
   text-align: center;
   font-weight: 600;
+  font-size: 0.9375rem;
 }
 
 .error-message {
   margin-top: $spacing-lg;
   padding: $spacing-md;
-  background-color: rgba(#ef4444, 0.1);
-  border: 2px solid #ef4444;
-  border-radius: 8px;
+  background-color: rgba(#ef4444, 0.08);
+  border: 1px solid rgba(#ef4444, 0.2);
+  border-radius: 0.75rem;
   color: #ef4444;
   text-align: center;
   font-weight: 600;
+  font-size: 0.9375rem;
 }
 </style>

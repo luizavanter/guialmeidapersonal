@@ -9,11 +9,11 @@
         <div class="flex min-h-full items-center justify-center p-4">
           <div
             :class="modalClasses"
-            class="relative bg-coal border border-smoke/20 rounded-lg shadow-xl transform transition-all"
+            class="relative bg-surface-1 border border-surface-3 rounded-ga-lg shadow-xl transform transition-all"
             @click.stop
           >
             <!-- Header -->
-            <div v-if="$slots.header || title" class="px-6 py-4 border-b border-smoke/10">
+            <div v-if="$slots.header || title" class="px-6 py-4 border-b border-surface-3">
               <div class="flex items-center justify-between">
                 <slot name="header">
                   <h3 class="text-xl font-semibold text-smoke">{{ title }}</h3>
@@ -21,7 +21,7 @@
                 <button
                   v-if="closeButton"
                   type="button"
-                  class="text-smoke/60 hover:text-smoke transition-colors"
+                  class="text-stone hover:text-smoke transition-colors"
                   @click="close"
                 >
                   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +37,7 @@
             </div>
 
             <!-- Footer -->
-            <div v-if="$slots.footer" class="px-6 py-4 border-t border-smoke/10">
+            <div v-if="$slots.footer" class="px-6 py-4 border-t border-surface-3">
               <slot name="footer" />
             </div>
           </div>

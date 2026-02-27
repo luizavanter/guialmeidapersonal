@@ -1,12 +1,11 @@
 <template>
   <div class="hero-section">
+    <div class="hero-bg"></div>
     <div class="container">
       <div class="hero-grid">
         <div class="hero-content">
-          <h1 class="hero-title">
-            <span class="display-text">{{ title }}</span>
-          </h1>
-          <div class="accent-line"></div>
+          <p class="hero-label">Personal Trainer | Jurerê, Florianópolis</p>
+          <h1 class="hero-title">{{ title }}</h1>
           <p class="hero-subtitle">{{ subtitle }}</p>
           <div class="hero-cta">
             <a :href="primaryCtaLink" class="btn btn-primary">{{ primaryCta }}</a>
@@ -14,7 +13,9 @@
           </div>
         </div>
         <div class="hero-image">
-          <img :src="image" :alt="imageAlt" />
+          <div class="hero-image-frame">
+            <img :src="image" :alt="imageAlt" />
+          </div>
         </div>
       </div>
     </div>
@@ -38,24 +39,19 @@ defineProps<{
 @import '../styles/variables.scss';
 
 .hero-section {
-  min-height: 80vh;
+  min-height: 85vh;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, $coal 0%, lighten($coal, 8%) 100%);
   position: relative;
   overflow: hidden;
-  padding: $spacing-2xl 0;
+  padding: 6rem 0 $spacing-2xl;
+}
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: radial-gradient(circle at top right, rgba($lime, 0.1), transparent 70%);
-    pointer-events: none;
-  }
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 70% 40%, rgba($lime, 0.04), transparent 70%);
+  pointer-events: none;
 }
 
 .hero-grid {
@@ -65,7 +61,8 @@ defineProps<{
   align-items: center;
 
   @media (min-width: $breakpoint-md) {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem;
   }
 }
 
@@ -73,19 +70,31 @@ defineProps<{
   z-index: 1;
 }
 
+.hero-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: $lime;
+  margin-bottom: $spacing-md;
+}
+
 .hero-title {
-  background: linear-gradient(135deg, $lime 0%, $ocean 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: $font-display;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 5.5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: $smoke;
   margin-bottom: $spacing-md;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  color: rgba($smoke, 0.9);
-  margin-bottom: $spacing-lg;
-  line-height: 1.6;
+  font-size: 1.125rem;
+  color: $stone;
+  margin-bottom: $spacing-xl;
+  line-height: 1.7;
+  max-width: 520px;
 }
 
 .hero-cta {
@@ -98,12 +107,30 @@ defineProps<{
   position: relative;
   z-index: 1;
 
+  @media (max-width: $breakpoint-md) {
+    display: none;
+  }
+}
+
+.hero-image-frame {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba($lime, 0.15);
+    border-radius: 1rem;
+    pointer-events: none;
+  }
+
   img {
     width: 100%;
     height: auto;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    border: 2px solid rgba($lime, 0.3);
+    display: block;
+    border-radius: 1rem;
   }
 }
 </style>

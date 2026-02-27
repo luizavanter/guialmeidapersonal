@@ -68,10 +68,10 @@ const defaultOptions: ChartOptions = {
       },
     },
     tooltip: {
-      backgroundColor: '#1A1A1A', // coal-light
+      backgroundColor: '#111111', // surface-1
       titleColor: '#F5F5F0', // smoke
       bodyColor: '#E5E5E0', // smoke-dark
-      borderColor: '#2A2A2A', // coal-lighter
+      borderColor: '#1C1C1C', // surface-3
       borderWidth: 1,
       padding: 12,
       cornerRadius: 8,
@@ -89,7 +89,7 @@ const defaultOptions: ChartOptions = {
   scales: {
     x: {
       grid: {
-        color: '#2A2A2A', // coal-lighter
+        color: '#1C1C1C', // surface-3
         drawOnChartArea: true,
       },
       ticks: {
@@ -102,7 +102,7 @@ const defaultOptions: ChartOptions = {
     },
     y: {
       grid: {
-        color: '#2A2A2A', // coal-lighter
+        color: '#1C1C1C', // surface-3
         drawOnChartArea: true,
       },
       ticks: {

@@ -17,59 +17,54 @@ description: Personalized training with Guilherme Almeida. Over 20 years transfo
 
 <div class="section">
 <div class="container">
-<div class="text-center">
-<h2>Why Choose GA Personal?</h2>
-<div class="accent-line" style="margin: 1.5rem auto;"></div>
-<p style="max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; color: rgba(245, 245, 240, 0.8);">With over 20 years of experience, I combine scientific methodology with a personalized approach to ensure real and sustainable results.</p>
+
+<div class="stats-row">
+<div class="stat-item">
+<span class="stat-number">20+</span>
+<span class="stat-label">Years of Experience</span>
 </div>
-<div class="grid grid-3">
-<div class="card text-center">
-<div style="font-size: 3rem; margin-bottom: 1rem;">🏆</div>
-<h3>20+ Years</h3>
-<p>Of experience transforming lives through fitness</p>
+<div class="stat-divider"></div>
+<div class="stat-item">
+<span class="stat-number">500+</span>
+<span class="stat-label">Lives Transformed</span>
 </div>
-<div class="card text-center">
-<div style="font-size: 3rem; margin-bottom: 1rem;">💪</div>
-<h3>Proven Results</h3>
-<p>Hundreds of students have achieved their goals</p>
-</div>
-<div class="card text-center">
-<div style="font-size: 3rem; margin-bottom: 1rem;">📍</div>
-<h3>Premium Location</h3>
-<p>Service in Jurerê, Florianópolis/SC</p>
-</div>
-</div>
+<div class="stat-divider"></div>
+<div class="stat-item">
+<span class="stat-number">98%</span>
+<span class="stat-label">Satisfaction Rate</span>
 </div>
 </div>
 
-<div class="section" style="background-color: rgba(196, 245, 58, 0.05);">
+</div>
+</div>
+
+<div class="section section-alt">
 <div class="container">
-<div class="text-center">
-<h2>Personalized Services</h2>
-<div class="accent-line" style="margin: 1.5rem auto;"></div>
-<p style="max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; color: rgba(245, 245, 240, 0.8);">Programs developed specifically for your needs and goals</p>
+<div class="split-layout">
+<div class="split-content">
+<p class="section-label">Services</p>
+<h2>Programs Designed For You</h2>
+<p class="section-text">Each program is created specifically for your needs, goals, and routine. Nothing is generic — everything is designed for your results.</p>
+<a href="/en-US/services" class="btn btn-primary" style="margin-top: 1.5rem;">View All Services</a>
 </div>
-<div class="grid grid-3">
+<div class="split-cards">
 
-<ServiceCard icon="🔥" title="Hybrid Training" description="Combine strength and cardio for maximum results" :features="['Weight Training + HIIT', 'Smart periodization', 'Adapted to your level', 'Constant evolution']" link="/en-US/services#hybrid" linkText="Learn more" />
+<ServiceCard title="Hybrid Training" description="Combine strength and cardio for maximum results" :features="['Weight Training + HIIT', 'Smart periodization', 'Adapted to your level']" link="/en-US/services#hybrid" linkText="Learn more" />
 
-<ServiceCard icon="⚖️" title="Weight Loss" description="Lose weight in a healthy and sustainable way" :features="['Personalized training', 'Nutritional guidance', 'Weekly monitoring', 'Guaranteed results']" link="/en-US/services#weight-loss" linkText="Learn more" />
+<ServiceCard title="Weight Loss" description="Lose weight in a healthy and sustainable way" :features="['Personalized training', 'Nutritional guidance', 'Weekly monitoring']" link="/en-US/services#weight-loss" linkText="Learn more" />
 
-<ServiceCard icon="💪" title="Muscle Gain" description="Build muscle and define your body" :features="['Hypertrophy training', 'Load progression', 'Advanced techniques', 'Detailed monitoring']" link="/en-US/services#muscle-gain" linkText="Learn more" />
+<ServiceCard title="Muscle Gain" description="Build muscle and define your body" :features="['Hypertrophy training', 'Load progression', 'Advanced techniques']" link="/en-US/services#muscle-gain" linkText="Learn more" />
 
 </div>
-<div class="text-center" style="margin-top: 3rem;">
-<a href="/en-US/services" class="btn btn-primary">View All Services</a>
 </div>
 </div>
 </div>
 
 <div class="section">
 <div class="container">
-<div class="text-center">
+<div class="text-center" style="margin-bottom: 3rem;">
+<p class="section-label" style="text-align: center;">Testimonials</p>
 <h2>What My Students Say</h2>
-<div class="accent-line" style="margin: 1.5rem auto;"></div>
-<p style="max-width: 700px; margin: 0 auto 3rem; font-size: 1.1rem; color: rgba(245, 245, 240, 0.8);">Real results from real people</p>
 </div>
 <div class="grid grid-3">
 
@@ -83,14 +78,125 @@ description: Personalized training with Guilherme Almeida. Over 20 years transfo
 </div>
 </div>
 
-<div class="section" style="background: linear-gradient(135deg, #0A0A0A 0%, #1a1a1a 100%);">
+<div class="section cta-section">
 <div class="container text-center">
-<h2>Ready to Get Started?</h2>
-<div class="accent-line" style="margin: 1.5rem auto;"></div>
-<p style="max-width: 600px; margin: 0 auto 2rem; font-size: 1.2rem; color: rgba(245, 245, 240, 0.9);">Schedule a free assessment and discover how I can help you achieve your goals</p>
+<h2 style="color: #F5F5F0;">Ready to Get Started?</h2>
+<p style="max-width: 600px; margin: 0 auto 2rem; font-size: 1.125rem; color: rgba(245, 245, 240, 0.8);">Schedule a free assessment and discover how I can help you achieve your goals</p>
 <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-<a href="/en-US/contact" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Schedule Free Assessment</a>
-<a href="/en-US/about" class="btn btn-secondary" style="font-size: 1.1rem; padding: 1rem 2rem;">Meet Guilherme</a>
+<a href="/en-US/contact" class="btn btn-primary" style="font-size: 1.05rem; padding: 0.875rem 2rem;">Schedule Free Assessment</a>
+<a href="/en-US/about" class="btn btn-secondary" style="font-size: 1.05rem; padding: 0.875rem 2rem;">Meet Guilherme</a>
 </div>
 </div>
 </div>
+
+<style scoped>
+.section {
+  padding: 5rem 0;
+}
+
+.section-alt {
+  background-color: rgba(17, 17, 17, 0.6);
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #CDFA3E;
+  margin-bottom: 0.75rem;
+}
+
+.section-text {
+  font-size: 1.125rem;
+  color: rgba(245, 245, 240, 0.7);
+  line-height: 1.7;
+  max-width: 440px;
+}
+
+/* Stats Row */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  padding: 3rem 0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stat-number {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: #CDFA3E;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #8A8578;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #1C1C1C, transparent);
+}
+
+/* Split Layout */
+.split-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.split-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* CTA Section */
+.cta-section {
+  background: linear-gradient(135deg, #0A0A0A 0%, #111111 100%);
+  border-top: 1px solid #1C1C1C;
+}
+
+@media (min-width: 768px) {
+  .split-layout {
+    grid-template-columns: 1fr 1.2fr;
+    gap: 4rem;
+  }
+
+  .split-content {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-row {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .stat-divider {
+    width: 48px;
+    height: 1px;
+  }
+
+  .section {
+    padding: 3rem 0;
+  }
+}
+</style>

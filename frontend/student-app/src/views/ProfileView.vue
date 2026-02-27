@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="mb-8">
-      <h1 class="text-3xl font-display text-lime mb-2">{{ t('profile.title') }}</h1>
+      <h1 class="text-display-md text-smoke mb-2">{{ t('profile.title') }}</h1>
     </div>
 
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-smoke/60">{{ t('common.loading') }}</p>
+      <p class="text-stone">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else class="max-w-3xl">
@@ -46,7 +46,7 @@
             </div>
 
             <!-- Emergency Contact -->
-            <div class="pt-4 border-t border-smoke/10">
+            <div class="pt-4 border-t border-surface-3">
               <h3 class="text-lg font-semibold text-smoke mb-4">Contato de Emergência</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
@@ -64,7 +64,7 @@
             </div>
 
             <!-- Health Info -->
-            <div class="pt-4 border-t border-smoke/10">
+            <div class="pt-4 border-t border-surface-3">
               <h3 class="text-lg font-semibold text-smoke mb-4">Informações de Saúde</h3>
               <div class="space-y-4">
                 <div>
@@ -74,7 +74,7 @@
                   <textarea
                     v-model="form.healthConditions"
                     rows="3"
-                    class="block w-full rounded-lg bg-coal/50 border border-smoke/20 px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
+                    class="block w-full rounded-lg bg-surface-1 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
                     placeholder="Alergias, lesões, condições crônicas, etc."
                   ></textarea>
                 </div>
@@ -86,7 +86,7 @@
                   <textarea
                     v-model="form.goals"
                     rows="3"
-                    class="block w-full rounded-lg bg-coal/50 border border-smoke/20 px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
+                    class="block w-full rounded-lg bg-surface-1 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
                     placeholder="Seus objetivos com o treinamento"
                   ></textarea>
                 </div>

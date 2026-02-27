@@ -76,11 +76,11 @@ const inputClasses = computed(() => {
     'w-full',
     'px-4',
     'py-3',
-    'bg-coal-light',
+    'bg-surface-1',
     'border',
     'rounded-ga',
     'text-smoke',
-    'placeholder-smoke-dark/50',
+    'placeholder-stone/50',
     'transition-all',
     'duration-200',
     'focus-ring',
@@ -89,7 +89,7 @@ const inputClasses = computed(() => {
   if (props.error) {
     classes.push('border-red-500', 'focus:border-red-500')
   } else {
-    classes.push('border-coal-lighter', 'focus:border-lime')
+    classes.push('border-surface-3', 'focus:border-lime')
   }
 
   if (props.disabled) {
@@ -141,11 +141,11 @@ defineExpose({
 }
 
 .input-icon-left {
-  @apply absolute left-3 text-smoke-dark pointer-events-none;
+  @apply absolute left-3 text-stone pointer-events-none;
 }
 
 .input-icon-right {
-  @apply absolute right-3 text-smoke-dark;
+  @apply absolute right-3 text-stone;
 }
 
 .input-container:has(.input-icon-left) .input-base {
@@ -161,6 +161,6 @@ defineExpose({
 }
 
 .input-hint {
-  @apply text-sm text-smoke-dark;
+  @apply text-sm text-stone;
 }
 </style>

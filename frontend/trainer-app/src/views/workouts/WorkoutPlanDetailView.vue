@@ -22,10 +22,10 @@ onMounted(async () => {
         ← {{ t('common.back') }}
       </button>
       <div class="flex-1">
-        <h1 class="font-display text-4xl text-lime">
+        <h1 class="text-display-md text-smoke">
           {{ workoutsStore.currentPlan?.name }}
         </h1>
-        <p class="text-smoke/60">{{ workoutsStore.currentPlan?.description }}</p>
+        <p class="text-stone">{{ workoutsStore.currentPlan?.description }}</p>
       </div>
       <button class="btn btn-primary">
         {{ t('workouts.addExerciseToPlan') }}
@@ -38,7 +38,7 @@ onMounted(async () => {
         <div
           v-for="(workoutEx, index) in workoutsStore.currentPlan?.exercises"
           :key="workoutEx.id"
-          class="flex items-center justify-between p-4 bg-smoke/5 rounded-lg"
+          class="flex items-center justify-between p-4 bg-surface-2 rounded-lg"
         >
           <div class="flex items-center space-x-4">
             <span class="w-8 h-8 flex items-center justify-center bg-lime text-coal rounded-full font-bold">
@@ -46,7 +46,7 @@ onMounted(async () => {
             </span>
             <div>
               <p class="font-medium">{{ workoutEx.exercise?.name }}</p>
-              <p class="text-sm text-smoke/60">
+              <p class="text-sm text-stone">
                 {{ workoutEx.sets }} sets × {{ workoutEx.reps }} reps
                 <span v-if="workoutEx.rest"> • {{ workoutEx.rest }}s rest</span>
               </p>

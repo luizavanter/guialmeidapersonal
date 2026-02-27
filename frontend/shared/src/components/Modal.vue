@@ -57,7 +57,7 @@ const emit = defineEmits<{
 const modalClasses = computed(() => {
   const classes = [
     'modal-content',
-    'bg-coal-light',
+    'bg-surface-1',
     'rounded-ga',
     'shadow-coal',
     'relative',
@@ -116,7 +116,7 @@ watch(() => props.modelValue, (isOpen) => {
 }
 
 .modal-header {
-  @apply flex items-center justify-between px-6 py-4 border-b border-coal-lighter;
+  @apply flex items-center justify-between px-6 py-4 border-b border-surface-3;
 }
 
 .modal-title {
@@ -124,7 +124,7 @@ watch(() => props.modelValue, (isOpen) => {
 }
 
 .modal-close {
-  @apply text-smoke-dark hover:text-lime transition-colors p-1 rounded-lg hover:bg-coal-lighter;
+  @apply text-stone hover:text-smoke transition-colors p-1 rounded-lg hover:bg-surface-2;
 }
 
 .modal-body {
@@ -132,7 +132,7 @@ watch(() => props.modelValue, (isOpen) => {
 }
 
 .modal-footer {
-  @apply px-6 py-4 border-t border-coal-lighter flex items-center justify-end gap-3;
+  @apply px-6 py-4 border-t border-surface-3 flex items-center justify-end gap-3;
 }
 
 /* Transitions */

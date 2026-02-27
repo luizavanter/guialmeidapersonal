@@ -66,7 +66,7 @@ const textareaClasses = computed(() => {
     'w-full',
     'px-4',
     'py-3',
-    'bg-coal-light',
+    'bg-surface-1',
     'border',
     'rounded-ga',
     'text-smoke',
@@ -80,7 +80,7 @@ const textareaClasses = computed(() => {
   if (props.error) {
     classes.push('border-red-500', 'focus:border-red-500')
   } else {
-    classes.push('border-coal-lighter', 'focus:border-lime')
+    classes.push('border-surface-3', 'focus:border-lime')
   }
 
   if (props.disabled) {

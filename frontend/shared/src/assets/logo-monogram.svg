@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="brand" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D0FF40"/>
+      <stop offset="100%" stop-color="#A8D32E"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="88" fill="#0A0A0A"/>
+
+  <!-- G — geometric C-shape with crossbar, lime gradient -->
+  <path d="
+    M224 88
+    C128 88, 52 164, 52 256
+    C52 348, 128 424, 224 424
+    L248 424
+    L248 372
+    L224 372
+    C158 372, 104 320, 104 256
+    C104 192, 158 140, 224 140
+    L264 140
+    L264 88
+    Z
+  " fill="url(#brand)"/>
+
+  <!-- G crossbar -->
+  <rect x="180" y="232" width="96" height="52" rx="4" fill="url(#brand)"/>
+
+  <!-- A — solid geometric triangle with counter, white -->
+  <path d="
+    M288 424
+    L364 88
+    L376 88
+    L460 424
+    L404 424
+    L384 348
+    L324 348
+    L308 424
+    Z
+  " fill="#F5F5F0"/>
+
+  <!-- A counter (hole) -->
+  <path d="
+    M340 302
+    L370 302
+    L356 224
+    Z
+  " fill="#0A0A0A"/>
+</svg>

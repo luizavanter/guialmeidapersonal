@@ -11,7 +11,7 @@
               :class="[
                 'table-header-cell',
                 column.align ? `text-${column.align}` : 'text-left',
-                column.sortable ? 'cursor-pointer select-none hover:bg-coal-lighter' : ''
+                column.sortable ? 'cursor-pointer select-none hover:bg-surface-3' : ''
               ]"
               @click="column.sortable ? handleSort(column.key as string) : null"
             >
@@ -59,7 +59,7 @@
             v-for="(row, index) in data"
             :key="index"
             class="table-row"
-            :class="{ 'cursor-pointer hover:bg-coal-lighter': clickable }"
+            :class="{ 'cursor-pointer hover:bg-surface-3': clickable }"
             @click="clickable ? handleRowClick(row) : null"
           >
             <td
@@ -143,7 +143,7 @@ const handleRowClick = (row: T) => {
 
 <style scoped>
 .table-wrapper {
-  @apply w-full overflow-hidden rounded-ga border border-coal-lighter;
+  @apply w-full overflow-hidden rounded-ga border border-surface-3;
 }
 
 .table-container {
@@ -155,7 +155,7 @@ const handleRowClick = (row: T) => {
 }
 
 .table-header {
-  @apply bg-coal-light border-b border-coal-lighter;
+  @apply bg-surface-1 border-b border-surface-3;
 }
 
 .table-header-cell {
@@ -163,7 +163,7 @@ const handleRowClick = (row: T) => {
 }
 
 .table-body {
-  @apply divide-y divide-coal-lighter;
+  @apply divide-y divide-surface-3;
 }
 
 .table-row {

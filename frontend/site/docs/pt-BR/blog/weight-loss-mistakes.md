@@ -12,7 +12,6 @@ category: Emagrecimento
   <span>Por Guilherme Almeida</span> • <span>Janeiro 2026</span> • <span class="reading-time">6 min de leitura</span>
 </div>
 
-<div class="accent-line"></div>
 
 Em mais de 20 anos ajudando pessoas a emagrecerem, identifiquei padrões claros de erros que sabotam resultados. A boa notícia? Todos são evitáveis quando você sabe o que procurar.
 

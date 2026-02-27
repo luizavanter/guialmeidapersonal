@@ -35,10 +35,10 @@ const props = withDefaults(defineProps<CardProps>(), {
 const cardClasses = computed(() => {
   const classes = [
     'card',
-    'bg-coal-light',
+    'bg-surface-1',
     'border',
-    'border-coal-lighter',
-    'rounded-ga',
+    'border-surface-3',
+    'rounded-ga-lg',
     'transition-all',
     'duration-200',
   ]
@@ -61,7 +61,7 @@ const cardClasses = computed(() => {
 }
 
 .card-header {
-  @apply px-6 py-4 border-b border-coal-lighter;
+  @apply px-6 py-4 border-b border-surface-3;
 }
 
 .card-title {
@@ -73,7 +73,7 @@ const cardClasses = computed(() => {
 }
 
 .card-footer {
-  @apply px-6 py-4 border-t border-coal-lighter;
+  @apply px-6 py-4 border-t border-surface-3;
 }
 
 .card[data-padding="none"] .card-body {

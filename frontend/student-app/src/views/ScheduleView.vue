@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="mb-8">
-      <h1 class="text-3xl font-display text-lime mb-2">{{ t('schedule.title') }}</h1>
+      <h1 class="text-display-md text-smoke mb-2">{{ t('schedule.title') }}</h1>
     </div>
 
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-smoke/60">{{ t('common.loading') }}</p>
+      <p class="text-stone">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else class="space-y-6">
@@ -15,23 +15,19 @@
           <div
             v-for="appointment in upcomingAppointments"
             :key="appointment.id"
-            class="p-4 bg-coal/50 rounded-lg border border-smoke/10 hover:border-lime/30 transition-colors"
+            class="p-4 bg-surface-2 rounded-lg border border-surface-3 hover:border-lime/30 transition-colors"
           >
             <div class="flex items-start justify-between mb-3">
               <div class="flex-1">
                 <div class="flex items-center gap-2 text-lime mb-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
+                  <CalendarIcon class="w-5 h-5" />
                   <span class="font-mono text-lg">{{ formatDate(appointment.appointmentDate) }}</span>
                 </div>
                 <div class="flex items-center gap-2 text-smoke">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+                  <Clock class="w-4 h-4" />
                   <span class="font-mono">{{ formatTime(appointment.startTime) }} - {{ formatTime(appointment.endTime) }}</span>
                 </div>
-                <p v-if="appointment.notes" class="text-sm text-smoke/60 mt-2 italic">
+                <p v-if="appointment.notes" class="text-sm text-stone mt-2 italic">
                   {{ appointment.notes }}
                 </p>
               </div>
@@ -45,7 +41,7 @@
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-8 text-smoke/60">
+        <div v-else class="text-center py-8 text-stone">
           {{ t('schedule.noUpcoming') }}
         </div>
       </Card>
@@ -56,11 +52,11 @@
           <div
             v-for="appointment in pastAppointments.slice(0, 10)"
             :key="appointment.id"
-            class="p-4 bg-coal/50 rounded-lg border border-smoke/10"
+            class="p-4 bg-surface-2 rounded-lg border border-surface-3"
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="flex items-center gap-2 text-smoke/60 mb-1">
+                <div class="flex items-center gap-2 text-stone mb-1">
                   <span class="font-mono">{{ formatDate(appointment.appointmentDate) }}</span>
                   <span>•</span>
                   <span class="font-mono">{{ formatTime(appointment.startTime) }}</span>
@@ -75,7 +71,7 @@
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-8 text-smoke/60">
+        <div v-else class="text-center py-8 text-stone">
           Nenhuma sessão anterior
         </div>
       </Card>
@@ -85,8 +81,8 @@
     <Modal v-model="showChangeModal" :title="t('schedule.requestChange')" size="md">
       <form id="change-request-form" @submit.prevent="handleChangeRequest">
         <div class="space-y-4">
-          <div v-if="selectedAppointment" class="p-3 bg-coal/50 rounded-lg border border-smoke/10">
-            <p class="text-sm text-smoke/60 mb-1">Sessão atual:</p>
+          <div v-if="selectedAppointment" class="p-3 bg-surface-2 rounded-lg border border-surface-3">
+            <p class="text-sm text-stone mb-1">Sessão atual:</p>
             <p class="text-smoke font-mono">
               {{ formatDate(selectedAppointment.appointmentDate) }} às {{ formatTime(selectedAppointment.startTime) }}
             </p>
@@ -99,7 +95,7 @@
             <textarea
               v-model="changeForm.reason"
               rows="3"
-              class="block w-full rounded-lg bg-coal/50 border border-smoke/20 px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
+              class="block w-full rounded-lg bg-surface-2 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
               :placeholder="t('schedule.changeReason')"
               required
             ></textarea>
@@ -148,6 +144,7 @@ import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Input from '@/components/ui/Input.vue'
 import Modal from '@/components/ui/Modal.vue'
+import { Calendar as CalendarIcon, Clock } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const scheduleStore = useScheduleStore()
@@ -177,7 +174,7 @@ const getStatusClass = (status: string) => {
     cancelled: 'bg-red-500/20 text-red-500',
     no_show: 'bg-yellow-500/20 text-yellow-600',
   }
-  return classes[status as keyof typeof classes] || 'bg-smoke/20 text-smoke'
+  return classes[status as keyof typeof classes] || 'bg-surface-3 text-stone'
 }
 
 const openChangeRequestModal = (appointment: Appointment) => {

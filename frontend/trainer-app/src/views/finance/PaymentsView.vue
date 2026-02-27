@@ -5,6 +5,8 @@ import { useFinanceStore } from '@/stores/financeStore'
 import { useStudentsStore } from '@/stores/studentsStore'
 import { formatCurrency, formatDate } from '@ga-personal/shared'
 
+import { Pencil } from 'lucide-vue-next'
+
 const { t } = useI18n()
 const financeStore = useFinanceStore()
 const studentsStore = useStudentsStore()
@@ -137,7 +139,7 @@ async function handleAddPayment() {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="font-display text-4xl text-lime">{{ t('finance.payments') }}</h1>
+      <h1 class="text-display-md text-smoke">{{ t('finance.payments') }}</h1>
       <button @click="showAddModal = true" class="btn btn-primary">
         {{ t('finance.addPayment') }}
       </button>
@@ -147,7 +149,7 @@ async function handleAddPayment() {
       <div class="overflow-x-auto">
         <table class="w-full">
           <thead>
-            <tr class="border-b border-smoke/10">
+            <tr class="border-b border-surface-3">
               <th class="text-left py-3">{{ t('students.title') }}</th>
               <th class="text-left py-3">{{ t('finance.amount') }}</th>
               <th class="text-left py-3">{{ t('finance.dueDate') }}</th>
@@ -159,7 +161,7 @@ async function handleAddPayment() {
             <tr
               v-for="payment in financeStore.payments"
               :key="payment.id"
-              class="border-b border-smoke/5 hover:bg-smoke/5"
+              class="border-b border-smoke/5 hover:bg-surface-2"
             >
               <td class="py-3">
                 {{ payment.student?.user?.firstName }} {{ payment.student?.user?.lastName }}
@@ -181,11 +183,10 @@ async function handleAddPayment() {
                   <button @click="viewPayment(payment)" class="btn btn-ghost btn-sm">{{ t('common.view') }}</button>
                   <button
                     @click="openEditModal(payment)"
-                    class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+                    class="p-2 text-stone hover:text-lime hover:bg-surface-3 rounded-lg transition-colors"
                     :title="t('common.edit')"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <Pencil class="w-4 h-4" />
                     </svg>
                   </button>
                 </div>
@@ -195,7 +196,7 @@ async function handleAddPayment() {
         </table>
       </div>
 
-      <div v-if="financeStore.payments.length === 0" class="text-center py-12 text-smoke/40">
+      <div v-if="financeStore.payments.length === 0" class="text-center py-12 text-stone">
         {{ t('finance.noPayments') }}
       </div>
     </div>
@@ -203,10 +204,10 @@ async function handleAddPayment() {
     <!-- Add Payment Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('finance.addPayment') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddPayment" class="space-y-4">
@@ -263,27 +264,27 @@ async function handleAddPayment() {
     <!-- View Payment Modal -->
     <div v-if="showViewModal && selectedPayment" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeViewModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('finance.paymentDetails') }}</h2>
-          <button @click="closeViewModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeViewModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <div class="space-y-4">
           <div>
-            <span class="text-smoke/60 text-sm">{{ t('students.title') }}</span>
+            <span class="text-stone text-sm">{{ t('students.title') }}</span>
             <p class="font-medium">{{ selectedPayment.student?.user?.firstName }} {{ selectedPayment.student?.user?.lastName }}</p>
           </div>
           <div>
-            <span class="text-smoke/60 text-sm">{{ t('finance.amount') }}</span>
+            <span class="text-stone text-sm">{{ t('finance.amount') }}</span>
             <p class="font-display text-2xl text-lime">{{ formatCurrency(selectedPayment.amount) }}</p>
           </div>
           <div>
-            <span class="text-smoke/60 text-sm">{{ t('finance.dueDate') }}</span>
+            <span class="text-stone text-sm">{{ t('finance.dueDate') }}</span>
             <p>{{ formatDate(selectedPayment.dueDate) }}</p>
           </div>
           <div>
-            <span class="text-smoke/60 text-sm">Status</span>
+            <span class="text-stone text-sm">Status</span>
             <p>
               <span :class="[
                 'badge',
@@ -296,7 +297,7 @@ async function handleAddPayment() {
             </p>
           </div>
           <div v-if="selectedPayment.description">
-            <span class="text-smoke/60 text-sm">{{ t('common.description') }}</span>
+            <span class="text-stone text-sm">{{ t('common.description') }}</span>
             <p>{{ selectedPayment.description }}</p>
           </div>
         </div>
@@ -312,10 +313,10 @@ async function handleAddPayment() {
     <!-- Edit Payment Modal -->
     <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('finance.editPayment') }}</h2>
-          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeEditModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleEditPayment" class="space-y-4">
@@ -327,7 +328,7 @@ async function handleAddPayment() {
                 {{ student.user?.firstName }} {{ student.user?.lastName }}
               </option>
             </select>
-            <p class="text-xs text-smoke/40 mt-1">{{ t('finance.studentCannotChange') || 'Student cannot be changed' }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('finance.studentCannotChange') || 'Student cannot be changed' }}</p>
           </div>
 
           <div>

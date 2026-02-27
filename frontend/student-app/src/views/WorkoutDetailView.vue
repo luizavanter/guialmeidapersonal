@@ -9,13 +9,13 @@
     </div>
 
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-smoke/60">{{ t('common.loading') }}</p>
+      <p class="text-stone">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else-if="currentPlan">
       <div class="mb-6">
-        <h1 class="text-3xl font-display text-lime mb-2">{{ currentPlan.name }}</h1>
-        <p v-if="currentPlan.description" class="text-smoke/60">{{ currentPlan.description }}</p>
+        <h1 class="text-display-md text-smoke mb-2">{{ currentPlan.name }}</h1>
+        <p v-if="currentPlan.description" class="text-stone">{{ currentPlan.description }}</p>
       </div>
 
       <!-- Exercises grouped by day -->
@@ -26,14 +26,14 @@
               <div
                 v-for="exercise in day.exercises"
                 :key="exercise.id"
-                class="p-4 bg-coal/50 rounded-lg border border-smoke/10"
+                class="p-4 bg-surface-2 rounded-lg border border-surface-3"
               >
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex-1">
                     <h3 class="text-lg font-semibold text-smoke">
                       {{ exercise.exercise?.name }}
                     </h3>
-                    <p v-if="exercise.exercise?.description" class="text-sm text-smoke/60 mt-1">
+                    <p v-if="exercise.exercise?.description" class="text-sm text-stone mt-1">
                       {{ exercise.exercise.description }}
                     </p>
                   </div>
@@ -48,20 +48,20 @@
 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                   <div>
-                    <span class="text-smoke/60">{{ t('workouts.sets') }}:</span>
+                    <span class="text-stone">{{ t('workouts.sets') }}:</span>
                     <span class="text-smoke font-mono ml-2">{{ exercise.sets }}</span>
                   </div>
                   <div>
-                    <span class="text-smoke/60">{{ t('workouts.reps') }}:</span>
+                    <span class="text-stone">{{ t('workouts.reps') }}:</span>
                     <span class="text-smoke font-mono ml-2">{{ exercise.reps }}</span>
                   </div>
                   <div v-if="exercise.restSeconds">
-                    <span class="text-smoke/60">Descanso:</span>
+                    <span class="text-stone">Descanso:</span>
                     <span class="text-smoke font-mono ml-2">{{ exercise.restSeconds }}s</span>
                   </div>
                 </div>
 
-                <p v-if="exercise.notes" class="text-sm text-smoke/60 mt-3 italic">
+                <p v-if="exercise.notes" class="text-sm text-stone mt-3 italic">
                   {{ exercise.notes }}
                 </p>
               </div>
@@ -79,7 +79,7 @@
             <h4 class="text-lg font-semibold text-smoke mb-2">
               {{ selectedExercise?.exercise?.name }}
             </h4>
-            <p class="text-sm text-smoke/60">
+            <p class="text-sm text-stone">
               {{ selectedExercise?.sets }} séries × {{ selectedExercise?.reps }} reps
             </p>
           </div>
@@ -159,7 +159,7 @@
             <textarea
               v-model="logForm.notes"
               rows="3"
-              class="block w-full rounded-lg bg-coal/50 border border-smoke/20 px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
+              class="block w-full rounded-lg bg-surface-2 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
               :placeholder="t('workouts.notes')"
             ></textarea>
           </div>

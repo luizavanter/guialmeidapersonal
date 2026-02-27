@@ -12,7 +12,6 @@ category: Hipertrofia
   <span>Por Guilherme Almeida</span> • <span>Janeiro 2026</span> • <span class="reading-time">7 min de leitura</span>
 </div>
 
-<div class="accent-line"></div>
 
 "Já passou da idade para ganhar músculos." Essa é uma das maiores mentiras que ouço no mundo do fitness. A verdade? **Ganhar massa muscular após os 40 não só é possível como é ESSENCIAL para qualidade de vida.**
 

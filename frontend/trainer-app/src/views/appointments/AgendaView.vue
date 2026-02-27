@@ -5,6 +5,8 @@ import { useAppointmentsStore } from '@/stores/appointmentsStore'
 import { useStudentsStore } from '@/stores/studentsStore'
 import { formatDate, formatTime } from '@ga-personal/shared'
 
+import { Pencil, Trash2 } from 'lucide-vue-next'
+
 const { t } = useI18n()
 const appointmentsStore = useAppointmentsStore()
 const studentsStore = useStudentsStore()
@@ -200,7 +202,7 @@ async function handleDeleteAppointment() {
   <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h1 class="font-display text-4xl text-lime">{{ t('agenda.title') }}</h1>
+      <h1 class="text-display-md text-smoke">{{ t('agenda.title') }}</h1>
       <button @click="showAddModal = true" class="btn btn-primary">
         {{ t('agenda.createAppointment') }}
       </button>
@@ -238,14 +240,14 @@ async function handleDeleteAppointment() {
         <div
           v-for="appointment in appointmentsStore.appointments"
           :key="appointment.id"
-          class="flex items-center justify-between p-4 bg-smoke/5 rounded-lg hover:bg-smoke/10 transition-colors"
+          class="flex items-center justify-between p-4 bg-surface-2 rounded-lg hover:bg-surface-3 transition-colors"
         >
           <div class="flex items-center space-x-4">
             <div class="text-center">
               <div class="font-display text-2xl text-lime">
                 {{ formatTime(appointment.startTime) }}
               </div>
-              <div class="text-sm text-smoke/60">
+              <div class="text-sm text-stone">
                 {{ formatTime(appointment.endTime) }}
               </div>
             </div>
@@ -253,7 +255,7 @@ async function handleDeleteAppointment() {
               <p class="font-medium">
                 {{ appointment.student?.user?.firstName }} {{ appointment.student?.user?.lastName }}
               </p>
-              <p class="text-sm text-smoke/60">{{ appointment.notes || '-' }}</p>
+              <p class="text-sm text-stone">{{ appointment.notes || '-' }}</p>
             </div>
           </div>
           <div class="flex items-center space-x-3">
@@ -265,27 +267,25 @@ async function handleDeleteAppointment() {
             </span>
             <button
               @click="openEditModal(appointment)"
-              class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+              class="p-2 text-stone hover:text-lime hover:bg-surface-3 rounded-lg transition-colors"
               :title="t('common.edit')"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <Pencil class="w-4 h-4" />
               </svg>
             </button>
             <button
               @click="openDeleteConfirm(appointment)"
-              class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+              class="p-2 text-stone hover:text-red-500 hover:bg-surface-3 rounded-lg transition-colors"
               :title="t('common.delete')"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <Trash2 class="w-4 h-4" />
               </svg>
             </button>
           </div>
         </div>
       </div>
 
-      <div v-if="appointmentsStore.appointments.length === 0" class="text-center py-12 text-smoke/40">
+      <div v-if="appointmentsStore.appointments.length === 0" class="text-center py-12 text-stone">
         {{ t('agenda.noAppointments') }}
       </div>
     </div>
@@ -293,10 +293,10 @@ async function handleDeleteAppointment() {
     <!-- Add Appointment Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('agenda.createAppointment') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddAppointment" class="space-y-4">
@@ -350,10 +350,10 @@ async function handleDeleteAppointment() {
     <!-- Edit Appointment Modal -->
     <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('agenda.editAppointment') }}</h2>
-          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeEditModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleEditAppointment" class="space-y-4">
@@ -418,13 +418,13 @@ async function handleDeleteAppointment() {
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-red-500">{{ t('agenda.deleteAppointment') }}</h2>
-          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeDeleteConfirm" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
-        <p class="text-smoke/80 mb-6">
+        <p class="text-smoke/90 mb-6">
           {{ t('agenda.deleteConfirmation') || 'Are you sure you want to delete this appointment?' }}
           <strong class="block mt-2 text-smoke">
             {{ selectedAppointment?.student?.user?.firstName }} {{ selectedAppointment?.student?.user?.lastName }}

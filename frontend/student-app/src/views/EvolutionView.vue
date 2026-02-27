@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="mb-8">
-      <h1 class="text-3xl font-display text-lime mb-2">{{ t('evolution.title') }}</h1>
+      <h1 class="text-display-md text-smoke mb-2">{{ t('evolution.title') }}</h1>
     </div>
 
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-smoke/60">{{ t('common.loading') }}</p>
+      <p class="text-stone">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else class="space-y-6">
@@ -16,7 +16,7 @@
           <div v-if="weightHistory.length > 0" class="h-64">
             <Line :data="weightChartData" :options="chartOptions" />
           </div>
-          <div v-else class="h-64 flex items-center justify-center text-smoke/60">
+          <div v-else class="h-64 flex items-center justify-center text-stone">
             {{ t('evolution.noAssessments') }}
           </div>
         </Card>
@@ -26,7 +26,7 @@
           <div v-if="bodyFatHistory.length > 0" class="h-64">
             <Line :data="bodyFatChartData" :options="chartOptions" />
           </div>
-          <div v-else class="h-64 flex items-center justify-center text-smoke/60">
+          <div v-else class="h-64 flex items-center justify-center text-stone">
             {{ t('evolution.noAssessments') }}
           </div>
         </Card>
@@ -38,7 +38,7 @@
           <div
             v-for="assessment in bodyAssessments.slice(0, 5)"
             :key="assessment.id"
-            class="p-4 bg-coal/50 rounded-lg border border-smoke/10"
+            class="p-4 bg-surface-2 rounded-lg border border-surface-3"
           >
             <div class="flex items-start justify-between mb-3">
               <div>
@@ -50,29 +50,29 @@
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               <div v-if="assessment.weight">
-                <span class="text-smoke/60">{{ t('evolution.weight') }}:</span>
+                <span class="text-stone">{{ t('evolution.weight') }}:</span>
                 <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.weight) }}</span>
               </div>
               <div v-if="assessment.bodyFat">
-                <span class="text-smoke/60">{{ t('evolution.bodyFat') }}:</span>
+                <span class="text-stone">{{ t('evolution.bodyFat') }}:</span>
                 <span class="text-smoke font-mono ml-2">{{ formatPercentage(assessment.bodyFat) }}</span>
               </div>
               <div v-if="assessment.muscleMass">
-                <span class="text-smoke/60">{{ t('evolution.muscleMass') }}:</span>
+                <span class="text-stone">{{ t('evolution.muscleMass') }}:</span>
                 <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.muscleMass) }}</span>
               </div>
               <div v-if="assessment.bmr">
-                <span class="text-smoke/60">TMB:</span>
+                <span class="text-stone">TMB:</span>
                 <span class="text-smoke font-mono ml-2">{{ assessment.bmr }} kcal</span>
               </div>
             </div>
 
-            <p v-if="assessment.notes" class="text-sm text-smoke/60 mt-3 italic">
+            <p v-if="assessment.notes" class="text-sm text-stone mt-3 italic">
               {{ assessment.notes }}
             </p>
           </div>
         </div>
-        <div v-else class="text-center py-8 text-smoke/60">
+        <div v-else class="text-center py-8 text-stone">
           {{ t('evolution.noAssessments') }}
         </div>
       </Card>
@@ -83,7 +83,7 @@
           <div
             v-for="goal in goals"
             :key="goal.id"
-            class="p-4 bg-coal/50 rounded-lg border border-smoke/10"
+            class="p-4 bg-surface-2 rounded-lg border border-surface-3"
           >
             <div class="flex items-start justify-between mb-2">
               <h3 class="text-lg font-semibold text-smoke">{{ goal.title }}</h3>
@@ -95,11 +95,11 @@
               </span>
             </div>
 
-            <p v-if="goal.description" class="text-sm text-smoke/60 mb-3">
+            <p v-if="goal.description" class="text-sm text-stone mb-3">
               {{ goal.description }}
             </p>
 
-            <div class="flex flex-wrap gap-4 text-sm text-smoke/60 mb-3">
+            <div class="flex flex-wrap gap-4 text-sm text-stone mb-3">
               <div v-if="goal.targetDate">
                 <span>Data alvo:</span>
                 <span class="text-smoke ml-1">{{ formatDate(goal.targetDate) }}</span>
@@ -107,23 +107,23 @@
             </div>
 
             <div v-if="goal.targetValue && goal.currentValue" class="space-y-2">
-              <div class="flex justify-between text-sm text-smoke/60">
+              <div class="flex justify-between text-sm text-stone">
                 <span>{{ t('evolution.current') }}: {{ goal.currentValue }} {{ goal.targetUnit }}</span>
                 <span>{{ t('evolution.target') }}: {{ goal.targetValue }} {{ goal.targetUnit }}</span>
               </div>
-              <div class="w-full bg-coal/50 rounded-full h-3 overflow-hidden">
+              <div class="w-full bg-surface-3 rounded-full h-3 overflow-hidden">
                 <div
                   class="h-full bg-gradient-to-r from-lime to-ocean transition-all"
                   :style="{ width: `${getGoalProgress(goal)}%` }"
                 ></div>
               </div>
-              <p class="text-xs text-center text-smoke/60">
+              <p class="text-xs text-center text-stone">
                 {{ getGoalProgress(goal) }}% completo
               </p>
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-8 text-smoke/60">
+        <div v-else class="text-center py-8 text-stone">
           {{ t('evolution.noGoals') }}
         </div>
       </Card>
@@ -134,20 +134,20 @@
           <div
             v-for="photo in evolutionPhotos"
             :key="photo.id"
-            class="relative aspect-square rounded-lg overflow-hidden bg-coal/50 border border-smoke/10 hover:border-lime/30 transition-colors group cursor-pointer"
+            class="relative aspect-square rounded-lg overflow-hidden bg-surface-2 border border-surface-3 hover:border-lime/30 transition-colors group cursor-pointer"
           >
             <img
               :src="photo.photoUrl"
               :alt="`${photo.photoType} - ${formatDate(photo.photoDate)}`"
               class="w-full h-full object-cover"
             />
-            <div class="absolute inset-0 bg-coal/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
+            <div class="absolute inset-0 bg-surface-1/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
               <p class="text-xs text-smoke font-semibold">{{ photo.photoType }}</p>
-              <p class="text-xs text-smoke/60">{{ formatDate(photo.photoDate) }}</p>
+              <p class="text-xs text-stone">{{ formatDate(photo.photoDate) }}</p>
             </div>
           </div>
         </div>
-        <div v-else class="text-center py-8 text-smoke/60">
+        <div v-else class="text-center py-8 text-stone">
           {{ t('evolution.noPhotos') }}
         </div>
       </Card>
@@ -223,7 +223,7 @@ const weightChartData = computed(() => ({
     {
       label: t('evolution.weight'),
       data: weightHistory.value.map((d) => d.value),
-      borderColor: '#C4F53A',
+      borderColor: '#CDFA3E',
       backgroundColor: 'rgba(196, 245, 58, 0.1)',
       tension: 0.4,
     },

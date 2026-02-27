@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useFinanceStore } from '@/stores/financeStore'
 import { formatCurrency } from '@ga-personal/shared'
 
+import { Pencil, Trash2 } from 'lucide-vue-next'
+
 const { t } = useI18n()
 const financeStore = useFinanceStore()
 
@@ -184,7 +186,7 @@ async function handleDeletePlan() {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="font-display text-4xl text-lime">{{ t('finance.plans') }}</h1>
+      <h1 class="text-display-sm text-smoke">{{ t('finance.plans') }}</h1>
       <button @click="showAddModal = true" class="btn btn-primary">{{ t('finance.addPlan') }}</button>
     </div>
 
@@ -195,34 +197,32 @@ async function handleDeletePlan() {
           <div class="flex space-x-2">
             <button
               @click="openEditModal(plan)"
-              class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+              class="p-2 text-stone hover:text-lime hover:bg-surface-3 rounded-lg transition-colors"
               :title="t('common.edit')"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <Pencil class="w-4 h-4" />
               </svg>
             </button>
             <button
               @click="openDeleteConfirm(plan)"
-              class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+              class="p-2 text-stone hover:text-red-500 hover:bg-surface-3 rounded-lg transition-colors"
               :title="t('common.delete')"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <Trash2 class="w-4 h-4" />
               </svg>
             </button>
           </div>
         </div>
-        <p class="text-smoke/60 mb-4">{{ plan.description }}</p>
+        <p class="text-stone mb-4">{{ plan.description }}</p>
         <div class="mb-4">
           <span class="font-display text-3xl text-lime">
             {{ formatCurrency(plan.price) }}
           </span>
-          <span class="text-smoke/60"> / {{ plan.duration }} {{ t(`finance.duration${plan.durationType === 'months' ? 'Months' : 'Days'}`) }}</span>
+          <span class="text-stone"> / {{ plan.duration }} {{ t(`finance.duration${plan.durationType === 'months' ? 'Months' : 'Days'}`) }}</span>
         </div>
         <div class="space-y-2 mb-4">
           <p v-for="(feature, i) in plan.features" :key="i" class="text-sm">
-            ✓ {{ feature }}
+            <span class="text-lime mr-2">&#10003;</span> {{ feature }}
           </p>
         </div>
         <span :class="['badge', plan.active ? 'badge-success' : 'badge-warning']">
@@ -232,16 +232,16 @@ async function handleDeletePlan() {
     </div>
 
     <div v-if="financeStore.plans.length === 0" class="card text-center py-12">
-      <p class="text-smoke/40">{{ t('finance.noPlans') }}</p>
+      <p class="text-stone">{{ t('finance.noPlans') }}</p>
     </div>
 
     <!-- Add Plan Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="font-display text-2xl text-lime">{{ t('finance.addPlan') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <h2 class="text-lg font-display font-semibold text-smoke">{{ t('finance.addPlan') }}</h2>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddPlan" class="space-y-4">
@@ -277,7 +277,7 @@ async function handleDeletePlan() {
           <div>
             <label class="block text-sm font-medium mb-2">{{ t('finance.features') }}</label>
             <textarea v-model="newPlan.features" class="input w-full" rows="4" :placeholder="t('finance.featuresPlaceholder')"></textarea>
-            <p class="text-xs text-smoke/40 mt-1">{{ t('finance.oneFeaturePerLine') }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('finance.oneFeaturePerLine') }}</p>
           </div>
 
           <div class="flex items-center space-x-2">
@@ -304,10 +304,10 @@ async function handleDeletePlan() {
     <!-- Edit Plan Modal -->
     <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
-          <h2 class="font-display text-2xl text-lime">{{ t('finance.editPlan') }}</h2>
-          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <h2 class="text-lg font-display font-semibold text-smoke">{{ t('finance.editPlan') }}</h2>
+          <button @click="closeEditModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleEditPlan" class="space-y-4">
@@ -343,7 +343,7 @@ async function handleDeletePlan() {
           <div>
             <label class="block text-sm font-medium mb-2">{{ t('finance.features') }}</label>
             <textarea v-model="editPlan.features" class="input w-full" rows="4" :placeholder="t('finance.featuresPlaceholder')"></textarea>
-            <p class="text-xs text-smoke/40 mt-1">{{ t('finance.oneFeaturePerLine') }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('finance.oneFeaturePerLine') }}</p>
           </div>
 
           <div class="flex items-center space-x-2">
@@ -370,13 +370,13 @@ async function handleDeletePlan() {
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-red-500">{{ t('finance.deletePlan') }}</h2>
-          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeDeleteConfirm" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
-        <p class="text-smoke/80 mb-6">
+        <p class="text-smoke/90 mb-6">
           {{ t('finance.deletePlanConfirmation') || 'Are you sure you want to delete this pricing plan?' }}
           <strong class="block mt-2 text-smoke">{{ selectedPlan?.name }}</strong>
         </p>

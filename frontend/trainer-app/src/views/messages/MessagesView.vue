@@ -61,7 +61,7 @@ async function handleSendMessage() {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="font-display text-4xl text-lime">{{ t('messages.title') }}</h1>
+      <h1 class="text-display-md text-smoke">{{ t('messages.title') }}</h1>
       <button @click="showComposeModal = true" class="btn btn-primary">{{ t('messages.compose') }}</button>
     </div>
 
@@ -76,20 +76,20 @@ async function handleSendMessage() {
             @click="selectMessage(message)"
             :class="[
               'p-3 rounded-lg cursor-pointer transition-colors',
-              selectedMessage?.id === message.id ? 'bg-lime/20 border border-lime/50' : 'bg-smoke/5 hover:bg-smoke/10',
+              selectedMessage?.id === message.id ? 'bg-lime/20 border border-lime/50' : 'bg-surface-2 hover:bg-surface-3',
               message.unread ? 'border-l-4 border-l-lime' : ''
             ]"
           >
             <div class="flex items-center justify-between">
               <p :class="['font-medium', message.unread ? 'text-lime' : '']">{{ message.from }}</p>
-              <span class="text-xs text-smoke/40">{{ new Date(message.date).toLocaleDateString() }}</span>
+              <span class="text-xs text-stone">{{ new Date(message.date).toLocaleDateString() }}</span>
             </div>
             <p class="text-sm font-medium">{{ message.subject }}</p>
-            <p class="text-sm text-smoke/60 truncate">{{ message.preview }}</p>
+            <p class="text-sm text-stone truncate">{{ message.preview }}</p>
           </div>
         </div>
 
-        <div v-if="messages.length === 0" class="text-center py-8 text-smoke/40">
+        <div v-if="messages.length === 0" class="text-center py-8 text-stone">
           {{ t('messages.noMessages') }}
         </div>
       </div>
@@ -97,22 +97,22 @@ async function handleSendMessage() {
       <!-- Message detail -->
       <div class="lg:col-span-2 card">
         <div v-if="selectedMessage">
-          <div class="border-b border-smoke/10 pb-4 mb-4">
+          <div class="border-b border-surface-3 pb-4 mb-4">
             <h3 class="font-display text-2xl">{{ selectedMessage.subject }}</h3>
             <div class="flex items-center justify-between mt-2">
-              <p class="text-smoke/60">{{ t('messages.from') }}: <span class="text-smoke">{{ selectedMessage.from }}</span></p>
-              <p class="text-smoke/40 text-sm">{{ new Date(selectedMessage.date).toLocaleString() }}</p>
+              <p class="text-stone">{{ t('messages.from') }}: <span class="text-smoke">{{ selectedMessage.from }}</span></p>
+              <p class="text-stone text-sm">{{ new Date(selectedMessage.date).toLocaleString() }}</p>
             </div>
           </div>
           <div class="prose prose-invert max-w-none">
             <p>{{ selectedMessage.preview }}</p>
-            <p class="mt-4 text-smoke/60">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p class="mt-4 text-stone">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
           </div>
-          <div class="mt-6 pt-4 border-t border-smoke/10">
+          <div class="mt-6 pt-4 border-t border-surface-3">
             <button class="btn btn-primary">{{ t('messages.reply') }}</button>
           </div>
         </div>
-        <div v-else class="text-center py-12 text-smoke/40">
+        <div v-else class="text-center py-12 text-stone">
           {{ t('messages.selectMessage') }}
         </div>
       </div>
@@ -121,10 +121,10 @@ async function handleSendMessage() {
     <!-- Compose Modal -->
     <div v-if="showComposeModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('messages.compose') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleSendMessage" class="space-y-4">

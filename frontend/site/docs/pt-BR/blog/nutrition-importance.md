@@ -12,7 +12,6 @@ category: Nutrição
   <span>Por Guilherme Almeida</span> • <span>Dezembro 2025</span> • <span class="reading-time">6 min de leitura</span>
 </div>
 
-<div class="accent-line"></div>
 
 **"Abs are made in the kitchen."** Você já ouviu isso, certo? Mas a verdade vai além: todos os seus resultados - emagrecimento, ganho de massa, performance - são feitos na cozinha. O treino é apenas o estímulo.
 

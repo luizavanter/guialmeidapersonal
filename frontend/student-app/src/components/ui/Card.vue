@@ -1,6 +1,6 @@
 <template>
   <div :class="cardClasses">
-    <div v-if="$slots.header || title" class="px-6 py-4 border-b border-smoke/10">
+    <div v-if="$slots.header || title" class="px-6 py-4 border-b border-surface-3">
       <slot name="header">
         <h3 class="text-lg font-semibold text-smoke">{{ title }}</h3>
       </slot>
@@ -8,7 +8,7 @@
     <div :class="bodyClasses">
       <slot />
     </div>
-    <div v-if="$slots.footer" class="px-6 py-4 border-t border-smoke/10">
+    <div v-if="$slots.footer" class="px-6 py-4 border-t border-surface-3">
       <slot name="footer" />
     </div>
   </div>
@@ -29,7 +29,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const cardClasses = computed(() => {
-  const base = 'bg-coal/30 border border-smoke/10 rounded-lg backdrop-blur-sm'
+  const base = 'bg-surface-1 border border-surface-3 rounded-ga-lg'
   const hoverClass = props.hover ? 'hover:border-lime/30 transition-colors' : ''
   return `${base} ${hoverClass}`
 })

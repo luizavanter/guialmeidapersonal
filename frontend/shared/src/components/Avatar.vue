@@ -37,7 +37,7 @@ const props = withDefaults(defineProps<AvatarProps>(), {
 const imageError = ref(false)
 
 const avatarClasses = computed(() => {
-  const classes = ['avatar', 'relative', 'inline-flex', 'items-center', 'justify-center', 'bg-coal-lighter', 'text-smoke', 'font-medium', 'overflow-hidden']
+  const classes = ['avatar', 'relative', 'inline-flex', 'items-center', 'justify-center', 'bg-surface-3', 'text-smoke', 'font-medium', 'overflow-hidden']
 
   // Size
   switch (props.size) {

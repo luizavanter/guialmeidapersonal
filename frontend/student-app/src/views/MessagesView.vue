@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-8 flex items-center justify-between">
-      <h1 class="text-3xl font-display text-lime">{{ t('messages.title') }}</h1>
+      <h1 class="text-display-md text-smoke">{{ t('messages.title') }}</h1>
       <Button
         v-if="unreadCount > 0"
         variant="ghost"
@@ -13,7 +13,7 @@
     </div>
 
     <div v-if="isLoading" class="text-center py-12">
-      <p class="text-smoke/60">{{ t('common.loading') }}</p>
+      <p class="text-stone">{{ t('common.loading') }}</p>
     </div>
 
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -28,14 +28,12 @@
                 'p-4 rounded-lg border transition-colors',
                 !message.readAt
                   ? 'bg-lime/5 border-lime/20'
-                  : 'bg-coal/50 border-smoke/10',
+                  : 'bg-surface-2 border-surface-3',
               ]"
             >
               <div class="flex items-start gap-3">
-                <div class="flex-shrink-0 w-10 h-10 bg-ocean/20 rounded-full flex items-center justify-center">
-                  <svg class="w-5 h-5 text-ocean" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+                <div class="flex-shrink-0 w-10 h-10 bg-ocean/10 rounded-full flex items-center justify-center">
+                  <UserIcon class="w-5 h-5 text-ocean" />
                 </div>
                 <div class="flex-1 min-w-0">
                   <div class="flex items-start justify-between mb-1">
@@ -43,7 +41,7 @@
                       {{ message.sender?.name || 'Trainer' }}
                     </p>
                     <div class="flex items-center gap-2">
-                      <span class="text-xs text-smoke/60 whitespace-nowrap">
+                      <span class="text-xs text-stone whitespace-nowrap">
                         {{ formatRelativeTime(message.insertedAt) }}
                       </span>
                       <span
@@ -52,12 +50,12 @@
                       ></span>
                     </div>
                   </div>
-                  <p class="text-sm text-smoke/80 whitespace-pre-wrap break-words">{{ message.content }}</p>
+                  <p class="text-sm text-smoke/90 whitespace-pre-wrap break-words">{{ message.content }}</p>
                 </div>
               </div>
             </div>
           </div>
-          <div v-else class="text-center py-12 text-smoke/60">
+          <div v-else class="text-center py-12 text-stone">
             {{ t('messages.noMessages') }}
           </div>
         </Card>
@@ -75,7 +73,7 @@
                 <textarea
                   v-model="messageForm.content"
                   rows="8"
-                  class="block w-full rounded-lg bg-coal/50 border border-smoke/20 px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime resize-none"
+                  class="block w-full rounded-lg bg-surface-2 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime resize-none"
                   :placeholder="t('messages.typeMessage')"
                   required
                 ></textarea>
@@ -102,11 +100,11 @@
         <Card title="Estatísticas" class="mt-6">
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-smoke/60 text-sm">Total de mensagens</span>
+              <span class="text-stone text-sm">Total de mensagens</span>
               <span class="text-2xl font-bold text-smoke font-mono">{{ sortedMessages.length }}</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-smoke/60 text-sm">Não lidas</span>
+              <span class="text-stone text-sm">Não lidas</span>
               <span class="text-2xl font-bold text-lime font-mono">{{ unreadCount }}</span>
             </div>
           </div>
@@ -126,6 +124,7 @@ import { useToast } from '@/composables/useToast'
 import { formatRelativeTime } from '@/utils/date'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
+import { User as UserIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const authStore = useAuthStore()

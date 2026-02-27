@@ -16,7 +16,7 @@
       @blur="$emit('blur')"
     />
     <p v-if="error" class="mt-1 text-sm text-red-500">{{ error }}</p>
-    <p v-else-if="hint" class="mt-1 text-sm text-smoke/60">{{ hint }}</p>
+    <p v-else-if="hint" class="mt-1 text-sm text-stone">{{ hint }}</p>
   </div>
 </template>
 
@@ -47,12 +47,12 @@ defineEmits<{
 }>()
 
 const inputClasses = computed(() => {
-  const base = 'block w-full rounded-lg bg-coal/50 border px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+  const base = 'block w-full rounded-lg bg-surface-1 border px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:ring-offset-0 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
 
   if (props.error) {
     return `${base} border-red-500 focus:border-red-500 focus:ring-red-500`
   }
 
-  return `${base} border-smoke/20 focus:border-lime focus:ring-lime`
+  return `${base} border-surface-3 focus:border-lime focus:ring-lime`
 })
 </script>

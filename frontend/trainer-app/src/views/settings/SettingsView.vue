@@ -16,7 +16,7 @@ function changeLanguage() {
 
 <template>
   <div class="space-y-6">
-    <h1 class="font-display text-4xl text-lime">{{ t('nav.settings') }}</h1>
+    <h1 class="text-display-md text-smoke">{{ t('nav.settings') }}</h1>
 
     <!-- Profile Settings -->
     <div class="card">

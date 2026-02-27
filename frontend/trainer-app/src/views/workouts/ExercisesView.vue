@@ -3,6 +3,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWorkoutsStore } from '@/stores/workoutsStore'
 
+import { Pencil, Trash2 } from 'lucide-vue-next'
+
 const { t } = useI18n()
 const workoutsStore = useWorkoutsStore()
 
@@ -169,7 +171,7 @@ async function handleDeleteExercise() {
   <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <h1 class="font-display text-4xl text-lime">{{ t('workouts.exerciseLibrary') }}</h1>
+      <h1 class="text-display-md text-smoke">{{ t('workouts.exerciseLibrary') }}</h1>
       <button @click="showAddModal = true" class="btn btn-primary">
         {{ t('workouts.addExercise') }}
       </button>
@@ -193,9 +195,9 @@ async function handleDeleteExercise() {
         class="card hover:border-lime/50 transition-all"
       >
         <div class="mb-4">
-          <div v-if="exercise.thumbnailUrl" class="w-full h-40 bg-smoke/5 rounded-lg mb-4"></div>
+          <div v-if="exercise.thumbnailUrl" class="w-full h-40 bg-surface-2 rounded-lg mb-4"></div>
           <h3 class="font-medium text-lg">{{ exercise.name }}</h3>
-          <p class="text-sm text-smoke/60">{{ exercise.muscleGroup }}</p>
+          <p class="text-sm text-stone">{{ exercise.muscleGroup }}</p>
         </div>
         <div class="flex items-center justify-between">
           <div class="flex space-x-2">
@@ -205,20 +207,18 @@ async function handleDeleteExercise() {
           <div class="flex space-x-2">
             <button
               @click="openEditModal(exercise)"
-              class="p-2 text-smoke/60 hover:text-lime hover:bg-smoke/10 rounded-lg transition-colors"
+              class="p-2 text-stone hover:text-lime hover:bg-surface-3 rounded-lg transition-colors"
               :title="t('common.edit')"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              <Pencil class="w-4 h-4" />
               </svg>
             </button>
             <button
               @click="openDeleteConfirm(exercise)"
-              class="p-2 text-smoke/60 hover:text-red-500 hover:bg-smoke/10 rounded-lg transition-colors"
+              class="p-2 text-stone hover:text-red-500 hover:bg-surface-3 rounded-lg transition-colors"
               :title="t('common.delete')"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <Trash2 class="w-4 h-4" />
               </svg>
             </button>
           </div>
@@ -227,16 +227,16 @@ async function handleDeleteExercise() {
     </div>
 
     <div v-if="filteredExercises.length === 0" class="card text-center py-12">
-      <p class="text-smoke/40">{{ t('workouts.noExercisesFound') }}</p>
+      <p class="text-stone">{{ t('workouts.noExercisesFound') }}</p>
     </div>
 
     <!-- Add Exercise Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('workouts.addExercise') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddExercise" class="space-y-4">
@@ -298,10 +298,10 @@ async function handleDeleteExercise() {
     <!-- Edit Exercise Modal -->
     <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeEditModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('workouts.editExercise') }}</h2>
-          <button @click="closeEditModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeEditModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleEditExercise" class="space-y-4">
@@ -363,13 +363,13 @@ async function handleDeleteExercise() {
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeDeleteConfirm"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-red-500">{{ t('workouts.deleteExercise') }}</h2>
-          <button @click="closeDeleteConfirm" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeDeleteConfirm" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
-        <p class="text-smoke/80 mb-6">
+        <p class="text-smoke/90 mb-6">
           {{ t('workouts.deleteExerciseConfirmation') || 'Are you sure you want to delete this exercise?' }}
           <strong class="block mt-2 text-smoke">{{ selectedExercise?.name }}</strong>
         </p>

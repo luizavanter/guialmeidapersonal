@@ -12,7 +12,6 @@ category: Mindset
   <span>Por Guilherme Almeida</span> • <span>Dezembro 2025</span> • <span class="reading-time">8 min de leitura</span>
 </div>
 
-<div class="accent-line"></div>
 
 **"A pessoa mais disciplinada vence."** Errado. A pessoa mais consistente vence.
 

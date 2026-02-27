@@ -66,7 +66,7 @@ async function handleAddSubscription() {
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h1 class="font-display text-4xl text-lime">{{ t('finance.subscriptions') }}</h1>
+      <h1 class="text-display-md text-smoke">{{ t('finance.subscriptions') }}</h1>
       <button @click="showAddModal = true" class="btn btn-primary">{{ t('finance.addSubscription') }}</button>
     </div>
 
@@ -87,7 +87,7 @@ async function handleAddSubscription() {
             {{ t(`finance.${sub.status}`) }}
           </span>
         </div>
-        <div class="space-y-2 text-sm text-smoke/60">
+        <div class="space-y-2 text-sm text-stone">
           <p>Plan: {{ sub.plan?.name }}</p>
           <p>Start: {{ formatDate(sub.startDate) }}</p>
           <p>End: {{ formatDate(sub.endDate) }}</p>
@@ -96,16 +96,16 @@ async function handleAddSubscription() {
     </div>
 
     <div v-if="financeStore.subscriptions.length === 0" class="card text-center py-12">
-      <p class="text-smoke/40">{{ t('finance.noSubscriptions') }}</p>
+      <p class="text-stone">{{ t('finance.noSubscriptions') }}</p>
     </div>
 
     <!-- Add Subscription Modal -->
     <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/70" @click="closeModal"></div>
-      <div class="relative bg-coal border border-smoke/20 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
         <div class="flex items-center justify-between mb-6">
           <h2 class="font-display text-2xl text-lime">{{ t('finance.addSubscription') }}</h2>
-          <button @click="closeModal" class="text-smoke/60 hover:text-smoke text-2xl">&times;</button>
+          <button @click="closeModal" class="text-stone hover:text-smoke text-2xl">&times;</button>
         </div>
 
         <form @submit.prevent="handleAddSubscription" class="space-y-4">

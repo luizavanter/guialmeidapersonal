@@ -3,55 +3,52 @@ title: Contato
 description: Entre em contato para agendar sua avaliação gratuita
 ---
 
-# Entre em Contato
-
-<div class="accent-line"></div>
-
-<p class="lead">Pronto para começar sua transformação? Agende uma avaliação gratuita e vamos descobrir qual programa é perfeito para você.</p>
+<div class="page-header">
+<p class="section-label">Contato</p>
+<h1>Entre em Contato</h1>
+<p class="page-lead">Pronto para começar sua transformação? Agende uma avaliação gratuita e vamos descobrir qual programa é perfeito para você.</p>
+</div>
 
 <div class="contact-grid">
 <div class="contact-info">
-<h2>Informações de Contato</h2>
+<h2>Informações</h2>
+<div class="info-list">
 <div class="info-item">
-<div class="info-icon">📍</div>
-<div class="info-content">
 <h3>Localização</h3>
 <p>Jurerê, Florianópolis/SC<br>Atendimento em estúdio parceiro ou residência</p>
 </div>
-</div>
 <div class="info-item">
-<div class="info-icon">📱</div>
-<div class="info-content">
 <h3>WhatsApp</h3>
 <p><a href="/pt-BR/contact">Entre em contato pelo formulário</a></p>
 </div>
-</div>
 <div class="info-item">
-<div class="info-icon">📧</div>
-<div class="info-content">
 <h3>E-mail</h3>
 <p><a href="mailto:contato@gapersonal.com.br">contato@gapersonal.com.br</a></p>
 </div>
-</div>
 <div class="info-item">
-<div class="info-icon">📸</div>
-<div class="info-content">
 <h3>Redes Sociais</h3>
-<p><a href="https://instagram.com/gapersonal" target="_blank">Instagram</a> | <a href="https://facebook.com/gapersonal" target="_blank">Facebook</a></p>
+<p><a href="https://instagram.com/gapersonal" target="_blank">Instagram</a> · <a href="https://facebook.com/gapersonal" target="_blank">Facebook</a></p>
 </div>
 </div>
-<div class="schedule-info">
+<div class="schedule-card">
 <h3>Horário de Atendimento</h3>
-<ul>
-<li><strong>Segunda a Sexta:</strong> 6h às 21h</li>
-<li><strong>Sábado:</strong> 7h às 12h</li>
-<li><strong>Domingo:</strong> Fechado</li>
-</ul>
+<div class="schedule-row">
+<span>Segunda a Sexta</span>
+<span>6h — 21h</span>
+</div>
+<div class="schedule-row">
+<span>Sábado</span>
+<span>7h — 12h</span>
+</div>
+<div class="schedule-row">
+<span>Domingo</span>
+<span>Fechado</span>
+</div>
 </div>
 </div>
 <div class="contact-form-section">
 <h2>Solicitar Avaliação Gratuita</h2>
-<p>Preencha o formulário abaixo e entrarei em contato em até 24 horas.</p>
+<p class="form-subtitle">Preencha o formulário abaixo e entrarei em contato em até 24 horas.</p>
 
 <ContactForm :labels="{ name: 'Nome Completo', email: 'E-mail', phone: 'Telefone (WhatsApp)', goal: 'Objetivo Principal', message: 'Mensagem' }" :placeholders="{ name: 'Seu nome completo', email: 'seu@email.com', phone: '(48) 99999-9999', goal: 'Selecione seu objetivo', message: 'Conte um pouco sobre sua rotina...' }" :goalOptions="[{ value: 'weight_loss', label: 'Emagrecimento' }, { value: 'muscle_gain', label: 'Ganho de Massa Muscular' }, { value: 'hybrid', label: 'Treinamento Híbrido' }, { value: 'conditioning', label: 'Condicionamento Físico' }, { value: 'other', label: 'Outro' }]" submitText="Enviar Solicitação" successMessage="Obrigado! Sua solicitação foi enviada." loadingText="Enviando..." errorText="Erro ao enviar. Tente novamente." locale="pt" />
 
@@ -59,7 +56,9 @@ description: Entre em contato para agendar sua avaliação gratuita
 </div>
 
 <div class="faq-section">
-<h2>Perguntas Frequentes</h2>
+<div class="container">
+<p class="section-label" style="text-align: center;">FAQ</p>
+<h2 style="text-align: center; color: #F5F5F0;">Perguntas Frequentes</h2>
 <div class="faq-grid">
 <div class="faq-item">
 <h3>A avaliação inicial é realmente gratuita?</h3>
@@ -95,28 +94,166 @@ description: Entre em contato para agendar sua avaliação gratuita
 </div>
 </div>
 </div>
+</div>
 
 <style scoped>
-.lead { font-size: 1.2rem; line-height: 1.7; color: rgba(245, 245, 240, 0.9); margin-bottom: 3rem; }
-.contact-grid { display: grid; grid-template-columns: 1fr; gap: 3rem; margin-bottom: 4rem; }
-@media (min-width: 768px) { .contact-grid { grid-template-columns: 1fr 1.5fr; } }
-.contact-info h2, .contact-form-section h2 { color: #C4F53A; margin-bottom: 2rem; }
-.info-item { display: flex; gap: 1.5rem; margin-bottom: 2rem; align-items: flex-start; }
-.info-icon { font-size: 2rem; flex-shrink: 0; }
-.info-content h3 { color: #0EA5E9; font-size: 1.1rem; margin-bottom: 0.5rem; }
-.info-content p { color: rgba(245, 245, 240, 0.85); margin: 0; }
-.info-content a { color: #0EA5E9; text-decoration: none; }
-.info-content a:hover { color: #C4F53A; }
-.schedule-info { background: rgba(196, 245, 58, 0.05); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #C4F53A; margin-top: 2rem; }
-.schedule-info h3 { color: #C4F53A; margin-top: 0; margin-bottom: 1rem; }
-.schedule-info ul { list-style: none; padding: 0; margin: 0; }
-.schedule-info li { padding: 0.5rem 0; color: rgba(245, 245, 240, 0.85); }
-.contact-form-section p { color: rgba(245, 245, 240, 0.8); margin-bottom: 2rem; }
-.faq-section { margin-top: 4rem; padding-top: 4rem; border-top: 1px solid rgba(245, 245, 240, 0.1); }
-.faq-section h2 { color: #C4F53A; text-align: center; margin-bottom: 3rem; }
-.faq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
-.faq-item { background: rgba(245, 245, 240, 0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(245, 245, 240, 0.1); }
-.faq-item:hover { border-color: rgba(196, 245, 58, 0.3); }
-.faq-item h3 { color: #0EA5E9; font-size: 1.1rem; margin-bottom: 1rem; }
-.faq-item p { color: rgba(245, 245, 240, 0.85); margin: 0; line-height: 1.6; }
+.page-header {
+  max-width: 700px;
+  margin-bottom: 4rem;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #CDFA3E;
+  margin-bottom: 0.75rem;
+}
+
+.page-lead {
+  font-size: 1.125rem;
+  color: rgba(245, 245, 240, 0.7);
+  line-height: 1.7;
+}
+
+/* Contact Grid */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+
+.contact-info h2,
+.contact-form-section h2 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #F5F5F0;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.info-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid #1C1C1C;
+}
+
+.info-item:first-child {
+  padding-top: 0;
+}
+
+.info-item h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8A8578;
+  margin-bottom: 0.375rem;
+}
+
+.info-item p {
+  color: rgba(245, 245, 240, 0.85);
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.info-item a {
+  color: #CDFA3E;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.info-item a:hover {
+  opacity: 0.8;
+}
+
+/* Schedule Card */
+.schedule-card {
+  background-color: #111111;
+  border: 1px solid #1C1C1C;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.schedule-card h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8A8578;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.schedule-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.375rem 0;
+  font-size: 0.9375rem;
+  color: rgba(245, 245, 240, 0.8);
+}
+
+/* Form */
+.form-subtitle {
+  color: rgba(245, 245, 240, 0.6);
+  margin-bottom: 1.5rem;
+  font-size: 0.9375rem;
+}
+
+/* FAQ Section */
+.faq-section {
+  padding: 4rem 0;
+  border-top: 1px solid #1C1C1C;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.faq-item {
+  background-color: #111111;
+  border: 1px solid #1C1C1C;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: border-color 0.25s ease;
+}
+
+.faq-item:hover {
+  border-color: rgba(205, 250, 62, 0.15);
+}
+
+.faq-item h3 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #F5F5F0;
+  margin-bottom: 0.75rem;
+}
+
+.faq-item p {
+  color: rgba(245, 245, 240, 0.65);
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.9375rem;
+}
+
+@media (min-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+}
 </style>
