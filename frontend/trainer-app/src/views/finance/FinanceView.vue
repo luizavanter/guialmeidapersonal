@@ -79,7 +79,7 @@ onMounted(async () => {
             <Wallet :size="28" :stroke-width="1.5" class="text-lime" />
           </div>
           <h3 class="text-lg font-display font-semibold text-smoke mb-1">{{ t('finance.payments') }}</h3>
-          <p class="text-sm text-stone">Track all payments</p>
+          <p class="text-sm text-stone">{{ t('finance.paymentsDescription') }}</p>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ onMounted(async () => {
             <ClipboardList :size="28" :stroke-width="1.5" class="text-ocean" />
           </div>
           <h3 class="text-lg font-display font-semibold text-smoke mb-1">{{ t('finance.subscriptions') }}</h3>
-          <p class="text-sm text-stone">Manage subscriptions</p>
+          <p class="text-sm text-stone">{{ t('finance.subscriptionsDescription') }}</p>
         </div>
       </div>
 
@@ -105,7 +105,7 @@ onMounted(async () => {
             <Package :size="28" :stroke-width="1.5" class="text-smoke" />
           </div>
           <h3 class="text-lg font-display font-semibold text-smoke mb-1">{{ t('finance.plans') }}</h3>
-          <p class="text-sm text-stone">Configure pricing plans</p>
+          <p class="text-sm text-stone">{{ t('finance.plansDescription') }}</p>
         </div>
       </div>
     </div>

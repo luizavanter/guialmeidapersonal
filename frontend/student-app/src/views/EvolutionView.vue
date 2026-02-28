@@ -62,7 +62,7 @@
                 <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.muscleMass) }}</span>
               </div>
               <div v-if="assessment.bmr">
-                <span class="text-stone">TMB:</span>
+                <span class="text-stone">{{ t('evolution.bmr') }}:</span>
                 <span class="text-smoke font-mono ml-2">{{ assessment.bmr }} kcal</span>
               </div>
             </div>
@@ -101,7 +101,7 @@
 
             <div class="flex flex-wrap gap-4 text-sm text-stone mb-3">
               <div v-if="goal.targetDate">
-                <span>Data alvo:</span>
+                <span>{{ t('evolution.targetDate') }}:</span>
                 <span class="text-smoke ml-1">{{ formatDate(goal.targetDate) }}</span>
               </div>
             </div>
@@ -118,7 +118,7 @@
                 ></div>
               </div>
               <p class="text-xs text-center text-stone">
-                {{ getGoalProgress(goal) }}% completo
+                {{ t('evolution.percentComplete', { n: getGoalProgress(goal) }) }}
               </p>
             </div>
           </div>

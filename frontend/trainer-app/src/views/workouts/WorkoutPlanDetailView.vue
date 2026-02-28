@@ -47,8 +47,8 @@ onMounted(async () => {
             <div>
               <p class="font-medium">{{ workoutEx.exercise?.name }}</p>
               <p class="text-sm text-stone">
-                {{ workoutEx.sets }} sets × {{ workoutEx.reps }} reps
-                <span v-if="workoutEx.rest"> • {{ workoutEx.rest }}s rest</span>
+                {{ workoutEx.sets }} {{ t('workouts.sets') }} × {{ workoutEx.reps }} {{ t('workouts.reps') }}
+                <span v-if="workoutEx.rest"> • {{ workoutEx.rest }}s {{ t('workouts.rest') }}</span>
               </p>
             </div>
           </div>

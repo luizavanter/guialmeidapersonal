@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "src/assets"
   ],
   "main": "./dist/ga-personal-shared.umd.js",
   "module": "./dist/ga-personal-shared.es.js",
@@ -14,7 +15,8 @@
       "require": "./dist/ga-personal-shared.umd.js",
       "types": "./dist/index.d.ts"
     },
-    "./styles": "./dist/style.css"
+    "./styles": "./dist/style.css",
+    "./src/assets/*": "./src/assets/*"
   },
   "scripts": {
     "dev": "vite",

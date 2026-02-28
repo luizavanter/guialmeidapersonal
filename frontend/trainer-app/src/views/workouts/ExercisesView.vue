@@ -201,8 +201,8 @@ async function handleDeleteExercise() {
         </div>
         <div class="flex items-center justify-between">
           <div class="flex space-x-2">
-            <span class="badge badge-info">{{ exercise.equipment || 'Body weight' }}</span>
-            <span class="badge badge-warning">{{ t(`workouts.${exercise.difficulty}`) }}</span>
+            <span class="badge badge-info">{{ exercise.equipment || t('workouts.bodyweight') }}</span>
+            <span class="badge badge-warning">{{ t(`workouts.${exercise.difficulty || exercise.difficultyLevel || 'beginner'}`) }}</span>
           </div>
           <div class="flex space-x-2">
             <button
@@ -211,7 +211,6 @@ async function handleDeleteExercise() {
               :title="t('common.edit')"
             >
               <Pencil class="w-4 h-4" />
-              </svg>
             </button>
             <button
               @click="openDeleteConfirm(exercise)"
@@ -219,7 +218,6 @@ async function handleDeleteExercise() {
               :title="t('common.delete')"
             >
               <Trash2 class="w-4 h-4" />
-              </svg>
             </button>
           </div>
         </div>
@@ -370,7 +368,7 @@ async function handleDeleteExercise() {
         </div>
 
         <p class="text-smoke/90 mb-6">
-          {{ t('workouts.deleteExerciseConfirmation') || 'Are you sure you want to delete this exercise?' }}
+          {{ t('workouts.deleteExerciseConfirmation') }}
           <strong class="block mt-2 text-smoke">{{ selectedExercise?.name }}</strong>
         </p>
 

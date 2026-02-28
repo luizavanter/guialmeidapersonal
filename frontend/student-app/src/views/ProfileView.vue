@@ -36,7 +36,7 @@
                 type="tel"
                 :label="t('profile.phone')"
                 :error="errors.phone"
-                placeholder="(XX) XXXXX-XXXX"
+                :placeholder="t('profile.phonePlaceholder')"
               />
               <Input
                 v-model="form.dateOfBirth"
@@ -47,25 +47,25 @@
 
             <!-- Emergency Contact -->
             <div class="pt-4 border-t border-surface-3">
-              <h3 class="text-lg font-semibold text-smoke mb-4">Contato de Emergência</h3>
+              <h3 class="text-lg font-semibold text-smoke mb-4">{{ t('profile.emergencyContact') }}</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   v-model="form.emergencyContact"
                   :label="t('profile.emergencyContact')"
-                  placeholder="Nome completo"
+                  :placeholder="t('profile.emergencyContactName')"
                 />
                 <Input
                   v-model="form.emergencyPhone"
                   type="tel"
                   :label="t('profile.emergencyPhone')"
-                  placeholder="(XX) XXXXX-XXXX"
+                  :placeholder="t('profile.phonePlaceholder')"
                 />
               </div>
             </div>
 
             <!-- Health Info -->
             <div class="pt-4 border-t border-surface-3">
-              <h3 class="text-lg font-semibold text-smoke mb-4">Informações de Saúde</h3>
+              <h3 class="text-lg font-semibold text-smoke mb-4">{{ t('profile.healthInfo') }}</h3>
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-smoke mb-1">
@@ -75,7 +75,7 @@
                     v-model="form.healthConditions"
                     rows="3"
                     class="block w-full rounded-lg bg-surface-1 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
-                    placeholder="Alergias, lesões, condições crônicas, etc."
+                    :placeholder="t('profile.healthConditionsPlaceholder')"
                   ></textarea>
                 </div>
 
@@ -87,7 +87,7 @@
                     v-model="form.goals"
                     rows="3"
                     class="block w-full rounded-lg bg-surface-1 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime"
-                    placeholder="Seus objetivos com o treinamento"
+                    :placeholder="t('profile.goalsPlaceholder')"
                   ></textarea>
                 </div>
               </div>

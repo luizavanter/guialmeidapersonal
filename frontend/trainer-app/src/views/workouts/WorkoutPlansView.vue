@@ -161,7 +161,7 @@ async function handleDeletePlan() {
         <p class="text-sm text-stone mb-4">{{ plan.description }}</p>
         <div class="flex items-center justify-between">
           <div class="flex space-x-2">
-            <span class="badge badge-info">{{ plan.exercises?.length || 0 }} exercises</span>
+            <span class="badge badge-info">{{ plan.exercises?.length || 0 }} {{ t('workouts.exercises') }}</span>
             <span :class="[
               'badge',
               plan.status === 'active' ? 'badge-success' : 'badge-warning'
@@ -176,7 +176,6 @@ async function handleDeletePlan() {
               :title="t('common.edit')"
             >
               <Pencil class="w-4 h-4" />
-              </svg>
             </button>
             <button
               @click="openDeleteConfirm(plan, $event)"
@@ -184,7 +183,6 @@ async function handleDeletePlan() {
               :title="t('common.delete')"
             >
               <Trash2 class="w-4 h-4" />
-              </svg>
             </button>
           </div>
         </div>
@@ -216,7 +214,7 @@ async function handleDeletePlan() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('students.status') }}</label>
             <select v-model="newPlan.status" class="input w-full">
               <option value="active">{{ t('workouts.active') }}</option>
               <option value="inactive">{{ t('workouts.inactive') }}</option>
@@ -260,7 +258,7 @@ async function handleDeletePlan() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('students.status') }}</label>
             <select v-model="editPlan.status" class="input w-full">
               <option value="active">{{ t('workouts.active') }}</option>
               <option value="inactive">{{ t('workouts.inactive') }}</option>
@@ -293,7 +291,7 @@ async function handleDeletePlan() {
         </div>
 
         <p class="text-smoke/90 mb-6">
-          {{ t('workouts.deletePlanConfirmation') || 'Are you sure you want to delete this workout plan?' }}
+          {{ t('workouts.deletePlanConfirmation') }}
           <strong class="block mt-2 text-smoke">{{ selectedPlan?.name }}</strong>
         </p>
 

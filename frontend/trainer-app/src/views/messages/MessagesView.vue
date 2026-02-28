@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useMessagesStore } from '@/stores/messagesStore'
 import { useStudentsStore } from '@/stores/studentsStore'
+import { formatDate } from '@ga-personal/shared'
 
 const { t } = useI18n()
+const messagesStore = useMessagesStore()
 const studentsStore = useStudentsStore()
 
 const showComposeModal = ref(false)
@@ -16,17 +19,20 @@ const newMessage = reactive({
   body: ''
 })
 
-// Mock messages for now
-const messages = ref([
-  { id: 1, from: 'João Silva', subject: 'Dúvida sobre treino', preview: 'Olá, tenho uma dúvida...', date: new Date(), unread: true },
-  { id: 2, from: 'Maria Santos', subject: 'Obrigada!', preview: 'Muito obrigada pelo treino...', date: new Date(), unread: false }
-])
-
 const selectedMessage = ref<any>(null)
+
+onMounted(async () => {
+  await Promise.all([
+    messagesStore.fetchMessages(),
+    studentsStore.fetchStudents()
+  ])
+})
 
 function selectMessage(message: any) {
   selectedMessage.value = message
-  message.unread = false
+  if (!message.readAt) {
+    messagesStore.markAsRead(message.id)
+  }
 }
 
 function closeModal() {
@@ -47,8 +53,11 @@ async function handleSendMessage() {
   submitError.value = ''
 
   try {
-    // TODO: Implement actual message sending when backend is ready
-    console.log('Sending message:', newMessage)
+    await messagesStore.sendMessage({
+      recipient_id: newMessage.recipientId,
+      subject: newMessage.subject,
+      body: newMessage.body
+    })
     closeModal()
   } catch (err: any) {
     submitError.value = err.message || t('common.error')
@@ -71,25 +80,31 @@ async function handleSendMessage() {
         <h2 class="font-display text-xl mb-4">{{ t('messages.inbox') }}</h2>
         <div class="space-y-2">
           <div
-            v-for="message in messages"
+            v-for="message in messagesStore.sortedMessages"
             :key="message.id"
             @click="selectMessage(message)"
             :class="[
               'p-3 rounded-lg cursor-pointer transition-colors',
               selectedMessage?.id === message.id ? 'bg-lime/20 border border-lime/50' : 'bg-surface-2 hover:bg-surface-3',
-              message.unread ? 'border-l-4 border-l-lime' : ''
+              !message.readAt ? 'border-l-4 border-l-lime' : ''
             ]"
           >
             <div class="flex items-center justify-between">
-              <p :class="['font-medium', message.unread ? 'text-lime' : '']">{{ message.from }}</p>
-              <span class="text-xs text-stone">{{ new Date(message.date).toLocaleDateString() }}</span>
+              <p :class="['font-medium', !message.readAt ? 'text-lime' : '']">
+                {{ message.sender?.firstName }} {{ message.sender?.lastName }}
+              </p>
+              <span class="text-xs text-stone">{{ formatDate(message.insertedAt) }}</span>
             </div>
             <p class="text-sm font-medium">{{ message.subject }}</p>
-            <p class="text-sm text-stone truncate">{{ message.preview }}</p>
+            <p class="text-sm text-stone truncate">{{ message.body }}</p>
           </div>
         </div>
 
-        <div v-if="messages.length === 0" class="text-center py-8 text-stone">
+        <div v-if="messagesStore.loading" class="text-center py-8 text-stone">
+          {{ t('common.loading') }}
+        </div>
+
+        <div v-else-if="messagesStore.sortedMessages.length === 0" class="text-center py-8 text-stone">
           {{ t('messages.noMessages') }}
         </div>
       </div>
@@ -100,13 +115,12 @@ async function handleSendMessage() {
           <div class="border-b border-surface-3 pb-4 mb-4">
             <h3 class="font-display text-2xl">{{ selectedMessage.subject }}</h3>
             <div class="flex items-center justify-between mt-2">
-              <p class="text-stone">{{ t('messages.from') }}: <span class="text-smoke">{{ selectedMessage.from }}</span></p>
-              <p class="text-stone text-sm">{{ new Date(selectedMessage.date).toLocaleString() }}</p>
+              <p class="text-stone">{{ t('messages.from') }}: <span class="text-smoke">{{ selectedMessage.sender?.firstName }} {{ selectedMessage.sender?.lastName }}</span></p>
+              <p class="text-stone text-sm">{{ formatDate(selectedMessage.insertedAt) }}</p>
             </div>
           </div>
           <div class="prose prose-invert max-w-none">
-            <p>{{ selectedMessage.preview }}</p>
-            <p class="mt-4 text-stone">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p>{{ selectedMessage.body }}</p>
           </div>
           <div class="mt-6 pt-4 border-t border-surface-3">
             <button class="btn btn-primary">{{ t('messages.reply') }}</button>
@@ -132,7 +146,7 @@ async function handleSendMessage() {
             <label class="block text-sm font-medium mb-2">{{ t('messages.to') }} *</label>
             <select v-model="newMessage.recipientId" class="input w-full" required>
               <option value="">{{ t('common.select') }}</option>
-              <option v-for="student in studentsStore.students" :key="student.id" :value="student.id">
+              <option v-for="student in studentsStore.students" :key="student.id" :value="student.userId || student.user?.id">
                 {{ student.user?.firstName }} {{ student.user?.lastName }}
               </option>
             </select>

@@ -66,7 +66,8 @@
     "messages": "Mensagens",
     "settings": "Configurações",
     "profile": "Perfil",
-    "help": "Ajuda"
+    "help": "Ajuda",
+    "language": "Idioma"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -295,7 +296,11 @@
     "cancelled": "Cancelada",
     "expired": "Expirada",
     "studentCannotChange": "O aluno não pode ser alterado",
-    "deletePlanConfirmation": "Tem certeza que deseja excluir este plano de preços?"
+    "deletePlanConfirmation": "Tem certeza que deseja excluir este plano de preços?",
+    "paymentsDescription": "Acompanhe todos os pagamentos",
+    "subscriptionsDescription": "Gerencie as assinaturas",
+    "plansDescription": "Configure os planos de preço",
+    "student": "Aluno"
   },
   "messages": {
     "title": "Mensagens",

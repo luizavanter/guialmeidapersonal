@@ -22,7 +22,7 @@
             <span class="font-mono">{{ formatTime(stats.nextAppointment.startTime) }}</span>
           </div>
           <router-link to="/schedule" class="inline-block text-sm text-ocean hover:text-ocean/80 transition-colors mt-2">
-            Ver agenda →
+            {{ t('common.viewSchedule') }} →
           </router-link>
         </div>
         <div v-else class="text-stone text-sm">
@@ -37,10 +37,10 @@
           <p class="text-sm text-stone line-clamp-2">{{ stats.activeWorkoutPlan.description }}</p>
           <div class="flex items-center gap-2 text-lime text-sm">
             <CheckCircle class="w-4 h-4" />
-            <span>{{ stats.activeWorkoutPlan.exercises?.length || 0 }} exercícios</span>
+            <span>{{ stats.activeWorkoutPlan.exercises?.length || 0 }} {{ t('common.exercises') }}</span>
           </div>
           <router-link :to="`/workouts/${stats.activeWorkoutPlan.id}`" class="inline-block text-sm text-ocean hover:text-ocean/80 transition-colors mt-2">
-            Ver treino →
+            {{ t('common.viewWorkout') }} →
           </router-link>
         </div>
         <div v-else class="text-stone text-sm">
@@ -59,11 +59,11 @@
             <p class="text-stone text-xs mb-2">{{ t('dashboard.lastAssessment') }}</p>
             <div class="grid grid-cols-2 gap-2 text-sm">
               <div v-if="stats.recentProgress.lastAssessment.weight">
-                <span class="text-stone">Peso:</span>
+                <span class="text-stone">{{ t('dashboard.weight') }}:</span>
                 <span class="text-smoke font-mono ml-1">{{ formatWeight(stats.recentProgress.lastAssessment.weight) }}</span>
               </div>
               <div v-if="stats.recentProgress.lastAssessment.bodyFat">
-                <span class="text-stone">Gordura:</span>
+                <span class="text-stone">{{ t('dashboard.bodyFat') }}:</span>
                 <span class="text-smoke font-mono ml-1">{{ formatPercentage(stats.recentProgress.lastAssessment.bodyFat) }}</span>
               </div>
             </div>
@@ -94,7 +94,7 @@
             </div>
           </div>
           <router-link to="/evolution" class="inline-block text-sm text-ocean hover:text-ocean/80 transition-colors">
-            Ver todas as metas →
+            {{ t('common.viewAllGoals') }} →
           </router-link>
         </div>
         <div v-else class="text-stone text-sm">
@@ -115,7 +115,7 @@
             </div>
           </div>
           <router-link to="/messages" class="inline-block text-sm text-ocean hover:text-ocean/80 transition-colors">
-            Ver mensagens →
+            {{ t('common.viewMessages') }} →
           </router-link>
         </div>
       </Card>

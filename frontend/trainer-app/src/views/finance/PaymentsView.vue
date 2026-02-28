@@ -187,7 +187,6 @@ async function handleAddPayment() {
                     :title="t('common.edit')"
                   >
               <Pencil class="w-4 h-4" />
-                    </svg>
                   </button>
                 </div>
               </td>
@@ -232,7 +231,7 @@ async function handleAddPayment() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.status') }}</label>
             <select v-model="newPayment.status" class="input w-full">
               <option value="pending">{{ t('finance.pending') }}</option>
               <option value="paid">{{ t('finance.paid') }}</option>
@@ -284,7 +283,7 @@ async function handleAddPayment() {
             <p>{{ formatDate(selectedPayment.dueDate) }}</p>
           </div>
           <div>
-            <span class="text-stone text-sm">Status</span>
+            <span class="text-stone text-sm">{{ t('finance.status') }}</span>
             <p>
               <span :class="[
                 'badge',
@@ -328,7 +327,7 @@ async function handleAddPayment() {
                 {{ student.user?.firstName }} {{ student.user?.lastName }}
               </option>
             </select>
-            <p class="text-xs text-stone mt-1">{{ t('finance.studentCannotChange') || 'Student cannot be changed' }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('finance.studentCannotChange') }}</p>
           </div>
 
           <div>
@@ -342,7 +341,7 @@ async function handleAddPayment() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.status') }}</label>
             <select v-model="editPayment.status" class="input w-full">
               <option value="pending">{{ t('finance.pending') }}</option>
               <option value="paid">{{ t('finance.paid') }}</option>

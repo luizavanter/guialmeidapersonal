@@ -138,7 +138,7 @@ const stats = computed(() => [
           >
             <div>
               <p class="font-medium text-sm text-smoke">{{ payment.student?.user?.firstName }}</p>
-              <p class="text-xs text-stone">Due: {{ payment.dueDate }}</p>
+              <p class="text-xs text-stone">{{ t('finance.dueDate') }}: {{ payment.dueDate }}</p>
             </div>
             <span class="font-mono text-sm text-lime">
               {{ formatCurrency(payment.amount) }}

@@ -23,14 +23,14 @@
               <span>{{ formatDate(currentPlan.startDate) }}</span>
             </div>
             <div v-if="currentPlan.endDate" class="flex items-center gap-2 text-stone">
-              <span>até</span>
+              <span>{{ t('common.to') }}</span>
               <span>{{ formatDate(currentPlan.endDate) }}</span>
             </div>
           </div>
 
           <router-link :to="`/workouts/${currentPlan.id}`">
             <Button variant="primary">
-              Ver Detalhes do Treino
+              {{ t('workouts.viewPlanDetails') }}
             </Button>
           </router-link>
         </div>
@@ -51,32 +51,32 @@
             <div class="flex items-start justify-between mb-2">
               <div class="flex-1">
                 <h4 class="text-sm font-semibold text-smoke">
-                  {{ log.workoutExercise?.exercise?.name || 'Exercício' }}
+                  {{ log.workoutExercise?.exercise?.name || t('workouts.exercise') }}
                 </h4>
                 <p class="text-xs text-stone mt-1">
                   {{ formatDateTime(log.completedAt) }}
                 </p>
               </div>
               <span class="text-xs text-lime bg-lime/10 px-2 py-1 rounded">
-                {{ log.sets }} séries
+                {{ t('workouts.setsCount', { n: log.sets }) }}
               </span>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               <div>
-                <span class="text-stone">Reps:</span>
+                <span class="text-stone">{{ t('workouts.reps') }}:</span>
                 <span class="text-smoke font-mono ml-1">{{ log.reps.join(', ') }}</span>
               </div>
               <div>
-                <span class="text-stone">Carga:</span>
+                <span class="text-stone">{{ t('workouts.weight') }}:</span>
                 <span class="text-smoke font-mono ml-1">{{ log.weight.join(', ') }} kg</span>
               </div>
               <div v-if="log.rpe && log.rpe.length > 0">
-                <span class="text-stone">RPE:</span>
+                <span class="text-stone">{{ t('workouts.rpe') }}:</span>
                 <span class="text-smoke font-mono ml-1">{{ log.rpe.join(', ') }}</span>
               </div>
               <div v-if="log.duration">
-                <span class="text-stone">Duração:</span>
+                <span class="text-stone">{{ t('workouts.duration') }}:</span>
                 <span class="text-smoke font-mono ml-1">{{ formatDuration(log.duration) }}</span>
               </div>
             </div>
@@ -87,7 +87,7 @@
           </div>
         </div>
         <div v-else class="text-center py-8 text-stone">
-          Nenhum treino registrado ainda
+          {{ t('workouts.noLogsYet') }}
         </div>
       </Card>
     </div>

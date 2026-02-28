@@ -201,7 +201,6 @@ async function handleDeletePlan() {
               :title="t('common.edit')"
             >
               <Pencil class="w-4 h-4" />
-              </svg>
             </button>
             <button
               @click="openDeleteConfirm(plan)"
@@ -209,7 +208,6 @@ async function handleDeletePlan() {
               :title="t('common.delete')"
             >
               <Trash2 class="w-4 h-4" />
-              </svg>
             </button>
           </div>
         </div>
@@ -226,7 +224,7 @@ async function handleDeletePlan() {
           </p>
         </div>
         <span :class="['badge', plan.active ? 'badge-success' : 'badge-warning']">
-          {{ plan.active ? 'Active' : 'Inactive' }}
+          {{ plan.active ? t('finance.active') : t('students.inactive') }}
         </span>
       </div>
     </div>
@@ -377,7 +375,7 @@ async function handleDeletePlan() {
         </div>
 
         <p class="text-smoke/90 mb-6">
-          {{ t('finance.deletePlanConfirmation') || 'Are you sure you want to delete this pricing plan?' }}
+          {{ t('finance.deletePlanConfirmation') }}
           <strong class="block mt-2 text-smoke">{{ selectedPlan?.name }}</strong>
         </p>
 

@@ -271,7 +271,6 @@ async function handleDeleteAppointment() {
               :title="t('common.edit')"
             >
               <Pencil class="w-4 h-4" />
-              </svg>
             </button>
             <button
               @click="openDeleteConfirm(appointment)"
@@ -279,7 +278,6 @@ async function handleDeleteAppointment() {
               :title="t('common.delete')"
             >
               <Trash2 class="w-4 h-4" />
-              </svg>
             </button>
           </div>
         </div>
@@ -384,7 +382,7 @@ async function handleDeleteAppointment() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('appointments.status') }}</label>
             <select v-model="editAppointment.status" class="input w-full">
               <option value="scheduled">{{ t('appointments.scheduled') }}</option>
               <option value="confirmed">{{ t('appointments.confirmed') }}</option>
@@ -425,7 +423,7 @@ async function handleDeleteAppointment() {
         </div>
 
         <p class="text-smoke/90 mb-6">
-          {{ t('agenda.deleteConfirmation') || 'Are you sure you want to delete this appointment?' }}
+          {{ t('agenda.deleteConfirmation') }}
           <strong class="block mt-2 text-smoke">
             {{ selectedAppointment?.student?.user?.firstName }} {{ selectedAppointment?.student?.user?.lastName }}
             - {{ formatDate(selectedAppointment?.startTime) }}

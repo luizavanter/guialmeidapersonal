@@ -88,9 +88,9 @@ async function handleAddSubscription() {
           </span>
         </div>
         <div class="space-y-2 text-sm text-stone">
-          <p>Plan: {{ sub.plan?.name }}</p>
-          <p>Start: {{ formatDate(sub.startDate) }}</p>
-          <p>End: {{ formatDate(sub.endDate) }}</p>
+          <p>{{ t('finance.plan') }}: {{ sub.plan?.name }}</p>
+          <p>{{ t('finance.startDate') }}: {{ formatDate(sub.startDate) }}</p>
+          <p>{{ t('finance.endDate') }}: {{ formatDate(sub.endDate) }}</p>
         </div>
       </div>
     </div>
@@ -135,7 +135,7 @@ async function handleAddSubscription() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('finance.status') }}</label>
             <select v-model="newSubscription.status" class="input w-full">
               <option value="active">{{ t('finance.active') }}</option>
               <option value="cancelled">{{ t('finance.cancelled') }}</option>

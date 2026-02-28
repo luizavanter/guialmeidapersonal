@@ -72,7 +72,7 @@
           </div>
         </div>
         <div v-else class="text-center py-8 text-stone">
-          Nenhuma sessão anterior
+          {{ t('schedule.noPastAppointments') }}
         </div>
       </Card>
     </div>
@@ -82,9 +82,9 @@
       <form id="change-request-form" @submit.prevent="handleChangeRequest">
         <div class="space-y-4">
           <div v-if="selectedAppointment" class="p-3 bg-surface-2 rounded-lg border border-surface-3">
-            <p class="text-sm text-stone mb-1">Sessão atual:</p>
+            <p class="text-sm text-stone mb-1">{{ t('schedule.currentSession') }}:</p>
             <p class="text-smoke font-mono">
-              {{ formatDate(selectedAppointment.appointmentDate) }} às {{ formatTime(selectedAppointment.startTime) }}
+              {{ formatDate(selectedAppointment.appointmentDate) }} {{ t('schedule.at') }} {{ formatTime(selectedAppointment.startTime) }}
             </p>
           </div>
 

@@ -248,7 +248,6 @@ async function handleDeleteStudent() {
                   :title="t('common.edit')"
                 >
               <Pencil class="w-4 h-4" />
-                  </svg>
                 </button>
                 <button
                   @click="openDeleteConfirm(student, $event)"
@@ -256,7 +255,6 @@ async function handleDeleteStudent() {
                   :title="t('common.delete')"
                 >
               <Trash2 class="w-4 h-4" />
-                  </svg>
                 </button>
               </div>
             </div>
@@ -302,7 +300,7 @@ async function handleDeleteStudent() {
           <div>
             <label class="block text-sm font-medium mb-2">{{ t('auth.password') }}</label>
             <input v-model="newStudent.password" type="password" class="input w-full" placeholder="temp123456" />
-            <p class="text-xs text-stone mt-1">{{ t('students.passwordHint') || 'Deixe vazio para senha padrão' }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('students.passwordHint') }}</p>
           </div>
 
           <div>
@@ -311,7 +309,7 @@ async function handleDeleteStudent() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('students.status') }}</label>
             <select v-model="newStudent.status" class="input w-full">
               <option value="active">{{ t('students.active') }}</option>
               <option value="inactive">{{ t('students.inactive') }}</option>
@@ -358,7 +356,7 @@ async function handleDeleteStudent() {
           <div>
             <label class="block text-sm font-medium mb-2">{{ t('auth.email') }}</label>
             <input v-model="editStudent.email" type="email" class="input w-full" disabled />
-            <p class="text-xs text-stone mt-1">{{ t('students.emailCannotChange') || 'Email cannot be changed' }}</p>
+            <p class="text-xs text-stone mt-1">{{ t('students.emailCannotChange') }}</p>
           </div>
 
           <div>
@@ -367,7 +365,7 @@ async function handleDeleteStudent() {
           </div>
 
           <div>
-            <label class="block text-sm font-medium mb-2">Status</label>
+            <label class="block text-sm font-medium mb-2">{{ t('students.status') }}</label>
             <select v-model="editStudent.status" class="input w-full">
               <option value="active">{{ t('students.active') }}</option>
               <option value="inactive">{{ t('students.inactive') }}</option>
@@ -401,7 +399,7 @@ async function handleDeleteStudent() {
         </div>
 
         <p class="text-smoke/90 mb-6">
-          {{ t('students.deleteConfirmation') || 'Are you sure you want to delete this student?' }}
+          {{ t('students.deleteConfirmation') }}
           <strong class="block mt-2 text-smoke">
             {{ selectedStudent?.user?.firstName }} {{ selectedStudent?.user?.lastName }}
           </strong>

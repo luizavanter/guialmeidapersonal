@@ -56,7 +56,7 @@
                     <span class="text-smoke font-mono ml-2">{{ exercise.reps }}</span>
                   </div>
                   <div v-if="exercise.restSeconds">
-                    <span class="text-stone">Descanso:</span>
+                    <span class="text-stone">{{ t('workouts.rest') }}:</span>
                     <span class="text-smoke font-mono ml-2">{{ exercise.restSeconds }}s</span>
                   </div>
                 </div>
@@ -80,7 +80,7 @@
               {{ selectedExercise?.exercise?.name }}
             </h4>
             <p class="text-sm text-stone">
-              {{ selectedExercise?.sets }} séries × {{ selectedExercise?.reps }} reps
+              {{ selectedExercise?.sets }} {{ t('workouts.sets') }} × {{ selectedExercise?.reps }} {{ t('workouts.reps') }}
             </p>
           </div>
 
@@ -95,7 +95,7 @@
 
           <div>
             <label class="block text-sm font-medium text-smoke mb-2">
-              {{ t('workouts.reps') }} (por série) *
+              {{ t('workouts.reps') }} ({{ t('workouts.perSet') }}) *
             </label>
             <div class="grid grid-cols-2 gap-2">
               <Input
@@ -103,7 +103,7 @@
                 :key="i"
                 v-model="logForm.reps[i - 1]"
                 type="number"
-                :placeholder="`Série ${i}`"
+                :placeholder="t('workouts.setNumber', { n: i })"
                 required
                 min="1"
               />
@@ -112,7 +112,7 @@
 
           <div>
             <label class="block text-sm font-medium text-smoke mb-2">
-              {{ t('workouts.weight') }} (kg, por série) *
+              {{ t('workouts.weight') }} (kg, {{ t('workouts.perSet') }}) *
             </label>
             <div class="grid grid-cols-2 gap-2">
               <Input
@@ -120,7 +120,7 @@
                 :key="i"
                 v-model="logForm.weight[i - 1]"
                 type="number"
-                :placeholder="`Série ${i}`"
+                :placeholder="t('workouts.setNumber', { n: i })"
                 required
                 min="0"
                 step="0.5"
@@ -130,7 +130,7 @@
 
           <div>
             <label class="block text-sm font-medium text-smoke mb-2">
-              {{ t('workouts.rpe') }} (1-10, por série)
+              {{ t('workouts.rpe') }} (1-10, {{ t('workouts.perSet') }})
             </label>
             <div class="grid grid-cols-2 gap-2">
               <Input
@@ -138,7 +138,7 @@
                 :key="i"
                 v-model="logForm.rpe[i - 1]"
                 type="number"
-                :placeholder="`Série ${i}`"
+                :placeholder="t('workouts.setNumber', { n: i })"
                 min="1"
                 max="10"
               />
@@ -148,7 +148,7 @@
           <Input
             v-model="logForm.duration"
             type="number"
-            :label="`${t('workouts.duration')} (segundos)`"
+            :label="t('workouts.durationSeconds')"
             min="0"
           />
 
@@ -190,7 +190,6 @@ import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useWorkoutsStore } from '@/stores/workouts'
 import { useToast } from '@/composables/useToast'
-import { getDayOfWeekName } from '@/utils/date'
 import { validateSets, validateReps, validateWeight, validateRPE } from '@/utils/validation'
 import type { WorkoutExercise } from '@/types'
 import Card from '@/components/ui/Card.vue'
@@ -243,7 +242,7 @@ const groupedExercises = computed(() => {
 })
 
 const getDayName = (dayOfWeek: number) => {
-  return getDayOfWeekName(dayOfWeek, 'pt-BR')
+  return t(`workouts.dayOfWeek.${dayOfWeek}`)
 }
 
 const openLogModal = (exercise: WorkoutExercise) => {
@@ -276,28 +275,28 @@ const handleLogWorkout = async () => {
   const rpe = logForm.rpe.map((r) => parseInt(r)).filter((r) => !isNaN(r))
 
   if (reps.length !== sets || weight.length !== sets) {
-    logErrors.general = 'Preencha todas as séries'
+    logErrors.general = t('workouts.fillAllSets')
     return
   }
 
   // Validate individual values
   for (const r of reps) {
     if (!validateReps(r)) {
-      logErrors.general = 'Repetições inválidas'
+      logErrors.general = t('workouts.invalidReps')
       return
     }
   }
 
   for (const w of weight) {
     if (!validateWeight(w)) {
-      logErrors.general = 'Carga inválida'
+      logErrors.general = t('workouts.invalidWeight')
       return
     }
   }
 
   for (const r of rpe) {
     if (!validateRPE(r)) {
-      logErrors.general = 'RPE deve estar entre 1 e 10'
+      logErrors.general = t('workouts.invalidRpe')
       return
     }
   }

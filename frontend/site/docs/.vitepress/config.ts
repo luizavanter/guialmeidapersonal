@@ -45,7 +45,20 @@ const enUSConfig = {
       { text: 'Blog', link: '/en-US/blog/' },
       { text: 'Contact', link: '/en-US/contact' }
     ],
-    sidebar: {},
+    sidebar: {
+      '/en-US/blog/': [
+        {
+          text: 'Recent Posts',
+          items: [
+            { text: 'Hybrid Training: The Best of Both Worlds', link: '/en-US/blog/hybrid-training' },
+            { text: '5 Common Weight Loss Mistakes', link: '/en-US/blog/weight-loss-mistakes' },
+            { text: 'Building Muscle After 40', link: '/en-US/blog/muscle-gain-over-40' },
+            { text: 'The Importance of Nutrition in Training', link: '/en-US/blog/nutrition-importance' },
+            { text: 'How to Stay Consistent with Training', link: '/en-US/blog/training-consistency' }
+          ]
+        }
+      ]
+    },
     footer: {
       message: 'GA Personal - Transforming lives through fitness',
       copyright: 'Copyright © 2026 Guilherme Almeida Personal Trainer'

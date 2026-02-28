@@ -19,7 +19,7 @@
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Messages List -->
       <div class="lg:col-span-2">
-        <Card title="Conversas">
+        <Card :title="t('messages.conversations')">
           <div v-if="sortedMessages.length > 0" class="space-y-3 max-h-[600px] overflow-y-auto">
             <div
               v-for="message in sortedMessages"
@@ -38,7 +38,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-start justify-between mb-1">
                     <p class="text-sm font-semibold text-smoke">
-                      {{ message.sender?.name || 'Trainer' }}
+                      {{ message.sender?.name || t('messages.trainer') }}
                     </p>
                     <div class="flex items-center gap-2">
                       <span class="text-xs text-stone whitespace-nowrap">
@@ -68,7 +68,7 @@
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-medium text-smoke mb-1">
-                  Mensagem *
+                  {{ t('messages.messageLabel') }} *
                 </label>
                 <textarea
                   v-model="messageForm.content"
@@ -97,14 +97,14 @@
         </Card>
 
         <!-- Stats -->
-        <Card title="Estatísticas" class="mt-6">
+        <Card :title="t('messages.stats')" class="mt-6">
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <span class="text-stone text-sm">Total de mensagens</span>
+              <span class="text-stone text-sm">{{ t('messages.totalMessages') }}</span>
               <span class="text-2xl font-bold text-smoke font-mono">{{ sortedMessages.length }}</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-stone text-sm">Não lidas</span>
+              <span class="text-stone text-sm">{{ t('messages.unread') }}</span>
               <span class="text-2xl font-bold text-lime font-mono">{{ unreadCount }}</span>
             </div>
           </div>

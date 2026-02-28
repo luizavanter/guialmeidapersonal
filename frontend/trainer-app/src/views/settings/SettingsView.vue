@@ -39,7 +39,7 @@ function changeLanguage() {
 
     <!-- Language Settings -->
     <div class="card">
-      <h2 class="font-display text-2xl mb-4">Language / Idioma</h2>
+      <h2 class="font-display text-2xl mb-4">{{ t('nav.language') }}</h2>
       <div class="flex items-center space-x-4">
         <select v-model="selectedLocale" @change="changeLanguage" class="input">
           <option value="pt-BR">Português (BR)</option>
