@@ -165,14 +165,8 @@ defmodule GaPersonalWeb.PaymentController do
   def index_for_student(conn, params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        payments = Finance.list_payments_for_student(student.id, params)
-        json(conn, %{data: Enum.map(payments, &payment_json/1)})
-    end
+    payments = Finance.list_payments_for_student(user.id, params)
+    json(conn, %{data: Enum.map(payments, &payment_json/1)})
   end
 
   defp payment_json(payment) do

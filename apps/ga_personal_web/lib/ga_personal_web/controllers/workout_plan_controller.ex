@@ -88,34 +88,22 @@ defmodule GaPersonalWeb.WorkoutPlanController do
   def index_for_student(conn, params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        workout_plans = Workouts.list_workout_plans_for_student(student.id, params)
-        json(conn, %{data: Enum.map(workout_plans, &workout_plan_json/1)})
-    end
+    workout_plans = Workouts.list_workout_plans_for_student(user.id, params)
+    json(conn, %{data: Enum.map(workout_plans, &workout_plan_json/1)})
   end
 
   def show_for_student(conn, %{"id" => id}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
+    case Workouts.get_workout_plan_for_student(id, user.id) do
+      {:ok, workout_plan} ->
+        json(conn, %{data: workout_plan_json(workout_plan)})
+
+      {:error, :not_found} ->
         {:error, :not_found}
 
-      student ->
-        case Workouts.get_workout_plan_for_student(id, student.id) do
-          {:ok, workout_plan} ->
-            json(conn, %{data: workout_plan_json(workout_plan)})
-
-          {:error, :not_found} ->
-            {:error, :not_found}
-
-          {:error, :unauthorized} ->
-            {:error, :forbidden}
-        end
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 

@@ -90,18 +90,12 @@ defmodule GaPersonalWeb.SubscriptionController do
   def show_for_student(conn, _params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
+    case Finance.get_subscription_for_student(user.id) do
       nil ->
         {:error, :not_found}
 
-      student ->
-        case Finance.get_subscription_for_student(student.id) do
-          nil ->
-            {:error, :not_found}
-
-          subscription ->
-            json(conn, %{data: subscription_json(subscription)})
-        end
+      subscription ->
+        json(conn, %{data: subscription_json(subscription)})
     end
   end
 

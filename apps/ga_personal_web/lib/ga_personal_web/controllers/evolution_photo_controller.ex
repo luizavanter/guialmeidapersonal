@@ -8,14 +8,8 @@ defmodule GaPersonalWeb.EvolutionPhotoController do
   def index_for_student(conn, _params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        photos = Evolution.list_evolution_photos(student.id)
-        json(conn, %{data: Enum.map(photos, &photo_json/1)})
-    end
+    photos = Evolution.list_evolution_photos(user.id)
+    json(conn, %{data: Enum.map(photos, &photo_json/1)})
   end
 
   defp photo_json(photo) do

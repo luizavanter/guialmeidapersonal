@@ -10,53 +10,35 @@ defmodule GaPersonalWeb.WorkoutLogController do
   def index(conn, params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        workout_logs = Workouts.list_workout_logs(student.id, params)
-        json(conn, %{data: Enum.map(workout_logs, &workout_log_json/1)})
-    end
+    workout_logs = Workouts.list_workout_logs(user.id, params)
+    json(conn, %{data: Enum.map(workout_logs, &workout_log_json/1)})
   end
 
   def show(conn, %{"id" => id}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
+    case Workouts.get_workout_log_for_student(id, user.id) do
+      {:ok, workout_log} ->
+        json(conn, %{data: workout_log_json(workout_log)})
+
+      {:error, :not_found} ->
         {:error, :not_found}
 
-      student ->
-        case Workouts.get_workout_log_for_student(id, student.id) do
-          {:ok, workout_log} ->
-            json(conn, %{data: workout_log_json(workout_log)})
-
-          {:error, :not_found} ->
-            {:error, :not_found}
-
-          {:error, :unauthorized} ->
-            {:error, :forbidden}
-        end
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def create(conn, %{"workout_log" => workout_log_params}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
+    # Ensure the student can only create logs for themselves
+    params = Map.put(workout_log_params, "student_id", user.id)
 
-      student ->
-        # Ensure the student can only create logs for themselves
-        params = Map.put(workout_log_params, "student_id", student.id)
-
-        with {:ok, workout_log} <- Workouts.create_workout_log(params) do
-          conn
-          |> put_status(:created)
-          |> json(%{data: workout_log_json(workout_log)})
-        end
+    with {:ok, workout_log} <- Workouts.create_workout_log(params) do
+      conn
+      |> put_status(:created)
+      |> json(%{data: workout_log_json(workout_log)})
     end
   end
 

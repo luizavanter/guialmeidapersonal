@@ -88,34 +88,22 @@ defmodule GaPersonalWeb.AppointmentController do
   def index_for_student(conn, params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        appointments = Schedule.list_appointments_for_student(student.id, params)
-        json(conn, %{data: Enum.map(appointments, &appointment_json/1)})
-    end
+    appointments = Schedule.list_appointments_for_student(user.id, params)
+    json(conn, %{data: Enum.map(appointments, &appointment_json/1)})
   end
 
   def show_for_student(conn, %{"id" => id}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
+    case Schedule.get_appointment_for_student(id, user.id) do
+      {:ok, appointment} ->
+        json(conn, %{data: appointment_json(appointment)})
+
+      {:error, :not_found} ->
         {:error, :not_found}
 
-      student ->
-        case Schedule.get_appointment_for_student(id, student.id) do
-          {:ok, appointment} ->
-            json(conn, %{data: appointment_json(appointment)})
-
-          {:error, :not_found} ->
-            {:error, :not_found}
-
-          {:error, :unauthorized} ->
-            {:error, :forbidden}
-        end
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
