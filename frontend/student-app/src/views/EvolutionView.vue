@@ -43,23 +43,23 @@
             <div class="flex items-start justify-between mb-3">
               <div>
                 <p class="text-sm font-semibold text-smoke">
-                  {{ formatDate(assessment.assessmentDate) }}
+                  {{ formatDate(assessment.assessment_date || assessment.assessmentDate) }}
                 </p>
               </div>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-              <div v-if="assessment.weight">
+              <div v-if="assessment.weight_kg || assessment.weight">
                 <span class="text-stone">{{ t('evolution.weight') }}:</span>
-                <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.weight) }}</span>
+                <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.weight_kg || assessment.weight) }}</span>
               </div>
-              <div v-if="assessment.bodyFat">
+              <div v-if="assessment.body_fat_percentage || assessment.bodyFat">
                 <span class="text-stone">{{ t('evolution.bodyFat') }}:</span>
-                <span class="text-smoke font-mono ml-2">{{ formatPercentage(assessment.bodyFat) }}</span>
+                <span class="text-smoke font-mono ml-2">{{ formatPercentage(assessment.body_fat_percentage || assessment.bodyFat) }}</span>
               </div>
-              <div v-if="assessment.muscleMass">
+              <div v-if="assessment.muscle_mass_kg || assessment.muscleMass">
                 <span class="text-stone">{{ t('evolution.muscleMass') }}:</span>
-                <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.muscleMass) }}</span>
+                <span class="text-smoke font-mono ml-2">{{ formatWeight(assessment.muscle_mass_kg || assessment.muscleMass) }}</span>
               </div>
               <div v-if="assessment.bmr">
                 <span class="text-stone">{{ t('evolution.bmr') }}:</span>
@@ -100,16 +100,16 @@
             </p>
 
             <div class="flex flex-wrap gap-4 text-sm text-stone mb-3">
-              <div v-if="goal.targetDate">
+              <div v-if="goal.target_date || goal.targetDate">
                 <span>{{ t('evolution.targetDate') }}:</span>
-                <span class="text-smoke ml-1">{{ formatDate(goal.targetDate) }}</span>
+                <span class="text-smoke ml-1">{{ formatDate(goal.target_date || goal.targetDate) }}</span>
               </div>
             </div>
 
-            <div v-if="goal.targetValue && goal.currentValue" class="space-y-2">
+            <div v-if="(goal.target_value || goal.targetValue) && (goal.current_value || goal.currentValue)" class="space-y-2">
               <div class="flex justify-between text-sm text-stone">
-                <span>{{ t('evolution.current') }}: {{ goal.currentValue }} {{ goal.targetUnit }}</span>
-                <span>{{ t('evolution.target') }}: {{ goal.targetValue }} {{ goal.targetUnit }}</span>
+                <span>{{ t('evolution.current') }}: {{ goal.current_value || goal.currentValue }} {{ goal.target_unit || goal.targetUnit }}</span>
+                <span>{{ t('evolution.target') }}: {{ goal.target_value || goal.targetValue }} {{ goal.target_unit || goal.targetUnit }}</span>
               </div>
               <div class="w-full bg-surface-3 rounded-full h-3 overflow-hidden">
                 <div
@@ -252,9 +252,11 @@ const getGoalStatusClass = (status: string) => {
   return classes[status as keyof typeof classes] || classes.active
 }
 
-const getGoalProgress = (goal: Goal) => {
-  if (!goal.targetValue || !goal.currentValue) return 0
-  return Math.min(Math.round((goal.currentValue / goal.targetValue) * 100), 100)
+const getGoalProgress = (goal: any) => {
+  const target = parseFloat(goal.target_value || goal.targetValue)
+  const current = parseFloat(goal.current_value || goal.currentValue)
+  if (!target || !current) return 0
+  return Math.min(Math.round((current / target) * 100), 100)
 }
 
 onMounted(async () => {

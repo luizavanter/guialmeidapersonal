@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/lib/api'
 import { API_ENDPOINTS } from '@/constants/api'
+import { useAuthStore } from '@/stores/auth'
 import type { Message, MessageInput } from '@/types'
 
 export const useMessagesStore = defineStore('messages', () => {
@@ -10,7 +11,13 @@ export const useMessagesStore = defineStore('messages', () => {
   const error = ref<string | null>(null)
 
   const unreadCount = computed(() => {
-    return messages.value.filter((m: any) => !m.read_at && !m.readAt).length
+    const authStore = useAuthStore()
+    const userId = authStore.user?.id
+    return messages.value.filter((m: any) => {
+      const isUnread = !m.read_at && !m.readAt
+      const isRecipient = !userId || (m.recipient_id || m.recipientId) === userId
+      return isUnread && isRecipient
+    }).length
   })
 
   const sortedMessages = computed(() => {

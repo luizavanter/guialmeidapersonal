@@ -62,7 +62,7 @@ export const useEvolutionStore = defineStore('evolution', () => {
   const getLatestAssessment = () => {
     if (bodyAssessments.value.length === 0) return null
     return [...bodyAssessments.value].sort(
-      (a, b) => new Date(b.assessmentDate).getTime() - new Date(a.assessmentDate).getTime()
+      (a: any, b: any) => new Date(b.assessment_date || b.assessmentDate).getTime() - new Date(a.assessment_date || a.assessmentDate).getTime()
     )[0]
   }
 
@@ -72,30 +72,30 @@ export const useEvolutionStore = defineStore('evolution', () => {
 
   const getWeightHistory = () => {
     return bodyAssessments.value
-      .filter((a) => a.weight !== null && a.weight !== undefined)
-      .map((a) => ({
-        date: a.assessmentDate,
-        value: a.weight!,
+      .filter((a: any) => (a.weight_kg || a.weight) !== null && (a.weight_kg || a.weight) !== undefined)
+      .map((a: any) => ({
+        date: a.assessment_date || a.assessmentDate,
+        value: parseFloat(a.weight_kg || a.weight),
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }
 
   const getBodyFatHistory = () => {
     return bodyAssessments.value
-      .filter((a) => a.bodyFat !== null && a.bodyFat !== undefined)
-      .map((a) => ({
-        date: a.assessmentDate,
-        value: a.bodyFat!,
+      .filter((a: any) => (a.body_fat_percentage || a.bodyFat) !== null && (a.body_fat_percentage || a.bodyFat) !== undefined)
+      .map((a: any) => ({
+        date: a.assessment_date || a.assessmentDate,
+        value: parseFloat(a.body_fat_percentage || a.bodyFat),
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }
 
   const getMuscleMassHistory = () => {
     return bodyAssessments.value
-      .filter((a) => a.muscleMass !== null && a.muscleMass !== undefined)
-      .map((a) => ({
-        date: a.assessmentDate,
-        value: a.muscleMass!,
+      .filter((a: any) => (a.muscle_mass_kg || a.muscleMass) !== null && (a.muscle_mass_kg || a.muscleMass) !== undefined)
+      .map((a: any) => ({
+        date: a.assessment_date || a.assessmentDate,
+        value: parseFloat(a.muscle_mass_kg || a.muscleMass),
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }

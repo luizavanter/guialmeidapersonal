@@ -20,11 +20,11 @@
           <div class="flex flex-wrap gap-4 text-sm">
             <div class="flex items-center gap-2 text-stone">
               <CalendarIcon class="w-4 h-4" />
-              <span>{{ formatDate(currentPlan.startDate) }}</span>
+              <span>{{ formatDate(currentPlan.start_date || currentPlan.startDate) }}</span>
             </div>
-            <div v-if="currentPlan.endDate" class="flex items-center gap-2 text-stone">
+            <div v-if="currentPlan.end_date || currentPlan.endDate" class="flex items-center gap-2 text-stone">
               <span>{{ t('common.to') }}</span>
-              <span>{{ formatDate(currentPlan.endDate) }}</span>
+              <span>{{ formatDate(currentPlan.end_date || currentPlan.endDate) }}</span>
             </div>
           </div>
 
@@ -51,33 +51,29 @@
             <div class="flex items-start justify-between mb-2">
               <div class="flex-1">
                 <h4 class="text-sm font-semibold text-smoke">
-                  {{ log.workoutExercise?.exercise?.name || t('workouts.exercise') }}
+                  {{ log.exercise?.name || t('workouts.exercise') }}
                 </h4>
                 <p class="text-xs text-stone mt-1">
-                  {{ formatDateTime(log.completedAt) }}
+                  {{ formatDateTime(log.completed_at || log.completedAt) }}
                 </p>
               </div>
               <span class="text-xs text-lime bg-lime/10 px-2 py-1 rounded">
-                {{ t('workouts.setsCount', { n: log.sets }) }}
+                {{ t('workouts.setsCount', { n: log.sets_completed || log.sets || 0 }) }}
               </span>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              <div>
+              <div v-if="log.reps_completed || log.reps">
                 <span class="text-stone">{{ t('workouts.reps') }}:</span>
-                <span class="text-smoke font-mono ml-1">{{ log.reps.join(', ') }}</span>
+                <span class="text-smoke font-mono ml-1">{{ log.reps_completed || log.reps }}</span>
               </div>
-              <div>
+              <div v-if="log.weight_used || log.weight">
                 <span class="text-stone">{{ t('workouts.weight') }}:</span>
-                <span class="text-smoke font-mono ml-1">{{ log.weight.join(', ') }} kg</span>
+                <span class="text-smoke font-mono ml-1">{{ log.weight_used || log.weight }} kg</span>
               </div>
-              <div v-if="log.rpe && log.rpe.length > 0">
-                <span class="text-stone">{{ t('workouts.rpe') }}:</span>
-                <span class="text-smoke font-mono ml-1">{{ log.rpe.join(', ') }}</span>
-              </div>
-              <div v-if="log.duration">
+              <div v-if="log.duration_seconds || log.duration">
                 <span class="text-stone">{{ t('workouts.duration') }}:</span>
-                <span class="text-smoke font-mono ml-1">{{ formatDuration(log.duration) }}</span>
+                <span class="text-smoke font-mono ml-1">{{ formatDuration(log.duration_seconds || log.duration) }}</span>
               </div>
             </div>
 

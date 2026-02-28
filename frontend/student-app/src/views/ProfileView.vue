@@ -164,14 +164,14 @@ const loadProfile = () => {
   const user = authStore.user
   const profile = profileStore.profile
 
-  form.name = user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || ''
+  form.name = user?.name || user?.full_name || [user?.firstName || user?.first_name, user?.lastName || user?.last_name].filter(Boolean).join(' ') || ''
   form.email = user?.email || ''
-  form.phone = profile?.phone || ''
-  form.dateOfBirth = profile?.dateOfBirth || ''
-  form.emergencyContact = profile?.emergencyContact || ''
-  form.emergencyPhone = profile?.emergencyPhone || ''
-  form.healthConditions = profile?.healthConditions || ''
-  form.goals = profile?.goals || ''
+  form.phone = (profile as any)?.phone || ''
+  form.dateOfBirth = (profile as any)?.date_of_birth || (profile as any)?.dateOfBirth || ''
+  form.emergencyContact = (profile as any)?.emergency_contact || (profile as any)?.emergencyContact || ''
+  form.emergencyPhone = (profile as any)?.emergency_phone || (profile as any)?.emergencyPhone || ''
+  form.healthConditions = (profile as any)?.health_conditions || (profile as any)?.healthConditions || ''
+  form.goals = (profile as any)?.goals || ''
 
   errors.name = ''
   errors.phone = ''
@@ -196,10 +196,10 @@ const handleUpdateProfile = async () => {
   try {
     await profileStore.updateProfile({
       phone: form.phone || undefined,
-      dateOfBirth: form.dateOfBirth || undefined,
-      emergencyContact: form.emergencyContact || undefined,
-      emergencyPhone: form.emergencyPhone || undefined,
-      healthConditions: form.healthConditions || undefined,
+      date_of_birth: form.dateOfBirth || undefined,
+      emergency_contact: form.emergencyContact || undefined,
+      emergency_phone: form.emergencyPhone || undefined,
+      health_conditions: form.healthConditions || undefined,
       goals: form.goals || undefined,
     })
 

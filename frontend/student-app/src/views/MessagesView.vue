@@ -188,8 +188,13 @@ onMounted(async () => {
 
   await messagesStore.fetchMessages()
 
-  // Mark messages as read when viewing
-  const unread = sortedMessages.value.filter((m: any) => !m.read_at && !m.readAt)
+  // Mark received messages as read when viewing (only messages where current user is recipient)
+  const userId = authStore.user?.id
+  const unread = sortedMessages.value.filter((m: any) => {
+    const isUnread = !m.read_at && !m.readAt
+    const isRecipient = (m.recipient_id || m.recipientId) === userId
+    return isUnread && isRecipient
+  })
   unread.forEach((m) => {
     messagesStore.markAsRead(m.id)
   })
