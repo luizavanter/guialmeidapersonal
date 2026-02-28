@@ -1,6 +1,7 @@
 defmodule GaPersonal.Content.Testimonial do
   use Ecto.Schema
   import Ecto.Changeset
+  alias GaPersonal.Sanitizer
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -24,7 +25,10 @@ defmodule GaPersonal.Content.Testimonial do
   def changeset(testimonial, attrs) do
     testimonial
     |> cast(attrs, [:trainer_id, :student_id, :author_name, :author_photo_url, :content, :rating, :is_featured, :is_approved])
+    |> Sanitizer.sanitize_changeset([:author_name, :content])
     |> validate_required([:trainer_id, :author_name, :content])
+    |> validate_length(:author_name, max: 255)
+    |> validate_length(:content, max: 5000)
     |> validate_inclusion(:rating, 1..5)
     |> foreign_key_constraint(:trainer_id)
     |> foreign_key_constraint(:student_id)

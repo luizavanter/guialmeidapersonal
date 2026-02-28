@@ -83,6 +83,14 @@ if config_env() == :prod do
 
   config :ga_personal, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Configure Guardian JWT secret from environment (overrides default in config.exs)
+  if jwt_secret = System.get_env("JWT_SECRET") do
+    config :ga_personal, GaPersonal.Guardian,
+      issuer: "ga_personal",
+      secret_key: jwt_secret,
+      ttl: {15, :minutes}
+  end
+
   # Configure Resend API key for email delivery
   # The API key is stored in GCP Secret Manager and injected as environment variable
   if resend_api_key = System.get_env("RESEND_API_KEY") do

@@ -1,6 +1,7 @@
 defmodule GaPersonal.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
+  alias GaPersonal.Sanitizer
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -27,7 +28,11 @@ defmodule GaPersonal.Accounts.User do
     user
     |> cast(attrs, [:email, :password, :role, :full_name, :phone, :locale, :active])
     |> validate_required([:email, :role, :full_name])
+    |> Sanitizer.sanitize_changeset([:full_name, :phone])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must be a valid email")
+    |> validate_length(:full_name, max: 255)
+    |> validate_length(:email, max: 255)
+    |> validate_length(:phone, max: 30)
     |> validate_inclusion(:role, ["trainer", "student", "admin"])
     |> validate_inclusion(:locale, ["pt_BR", "en_US"])
     |> unique_constraint(:email)

@@ -39,7 +39,15 @@ config :phoenix, :json_library, Jason
 # Configure Guardian
 config :ga_personal, GaPersonal.Guardian,
   issuer: "ga_personal",
-  secret_key: "eWpJA8rLGjQ2N5hPvMwXkF7sD9bT6cZ3nV0xY1uR4iO8aK5mE2qH7jS3fG6lB9pC"
+  secret_key: "eWpJA8rLGjQ2N5hPvMwXkF7sD9bT6cZ3nV0xY1uR4iO8aK5mE2qH7jS3fG6lB9pC",
+  ttl: {15, :minutes}
+
+# Configure Hammer (rate limiting)
+config :hammer,
+  backend: {Hammer.Backend.ETS, [
+    expiry_ms: 60_000 * 60 * 2,
+    cleanup_interval_ms: 60_000 * 10
+  ]}
 
 # Configure Gettext
 config :ga_personal, GaPersonal.Gettext,

@@ -1,11 +1,23 @@
 defmodule GaPersonalWeb.Router do
   use GaPersonalWeb, :router
 
-  alias GaPersonalWeb.Plugs.{RequireRole, LoadCurrentUser}
+  alias GaPersonalWeb.Plugs.{RequireRole, LoadCurrentUser, RateLimit}
 
   pipeline :api do
     plug :accepts, ["json"]
     # CORS is handled at the endpoint level for OPTIONS preflight support
+  end
+
+  pipeline :rate_limit_auth do
+    plug RateLimit, limit: 5, period: 60_000, key_prefix: "auth"
+  end
+
+  pipeline :rate_limit_contact do
+    plug RateLimit, limit: 3, period: 60_000, key_prefix: "contact"
+  end
+
+  pipeline :rate_limit_refresh do
+    plug RateLimit, limit: 10, period: 60_000, key_prefix: "refresh"
   end
 
   pipeline :authenticated do
@@ -27,17 +39,40 @@ defmodule GaPersonalWeb.Router do
     plug RequireRole, [:trainer, :student, :admin]
   end
 
+  # Health check - no auth, no rate limiting
   scope "/api/v1", GaPersonalWeb do
     pipe_through :api
 
-    # Public routes - Authentication
+    get "/health", HealthController, :check
+  end
+
+  # Public auth routes with rate limiting
+  scope "/api/v1", GaPersonalWeb do
+    pipe_through [:api, :rate_limit_auth]
+
     post "/auth/register", AuthController, :register
     post "/auth/login", AuthController, :login
+    post "/auth/logout", AuthController, :logout
+  end
 
-    # Public routes - Contact form (marketing website)
+  # Token refresh with separate rate limit
+  scope "/api/v1", GaPersonalWeb do
+    pipe_through [:api, :rate_limit_refresh]
+
+    post "/auth/refresh", AuthController, :refresh
+  end
+
+  # Contact form with rate limiting
+  scope "/api/v1", GaPersonalWeb do
+    pipe_through [:api, :rate_limit_contact]
+
     post "/contact", ContactController, :create
+  end
 
-    # Webhooks - external integrations (no auth required, signature verified)
+  # Webhooks - no rate limiting (external integrations)
+  scope "/api/v1", GaPersonalWeb do
+    pipe_through :api
+
     post "/webhooks/calcom", WebhookController, :calcom
   end
 

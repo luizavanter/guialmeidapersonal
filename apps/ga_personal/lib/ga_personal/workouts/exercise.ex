@@ -1,6 +1,7 @@
 defmodule GaPersonal.Workouts.Exercise do
   use Ecto.Schema
   import Ecto.Changeset
+  alias GaPersonal.Sanitizer
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -38,7 +39,11 @@ defmodule GaPersonal.Workouts.Exercise do
       :instructions,
       :is_public
     ])
+    |> Sanitizer.sanitize_changeset([:name, :description, :instructions, :muscle_groups, :equipment_needed])
     |> validate_required([:name])
+    |> validate_length(:name, max: 255)
+    |> validate_length(:description, max: 5000)
+    |> validate_length(:instructions, max: 10_000)
     |> validate_inclusion(:category, ["strength", "cardio", "flexibility", "balance"])
     |> validate_inclusion(:difficulty_level, ["beginner", "intermediate", "advanced"])
   end

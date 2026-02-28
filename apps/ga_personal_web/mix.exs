@@ -45,7 +45,8 @@ defmodule GaPersonalWeb.MixProject do
       {:ga_personal, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
-      {:cors_plug, "~> 3.0"}
+      {:cors_plug, "~> 3.0"},
+      {:hammer, "~> 6.2"}
     ]
   end
 

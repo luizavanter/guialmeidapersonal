@@ -1,6 +1,7 @@
 defmodule GaPersonal.Evolution.Goal do
   use Ecto.Schema
   import Ecto.Changeset
+  alias GaPersonal.Sanitizer
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -40,7 +41,11 @@ defmodule GaPersonal.Evolution.Goal do
       :status,
       :achieved_at
     ])
+    |> Sanitizer.sanitize_changeset([:title, :description, :unit])
     |> validate_required([:student_id, :trainer_id, :goal_type, :title, :start_date])
+    |> validate_length(:title, max: 255)
+    |> validate_length(:description, max: 2000)
+    |> validate_length(:unit, max: 20)
     |> validate_inclusion(:goal_type, ["weight_loss", "muscle_gain", "strength", "endurance", "flexibility", "custom"])
     |> validate_inclusion(:status, ["active", "achieved", "abandoned"])
     |> foreign_key_constraint(:student_id)

@@ -1,6 +1,7 @@
 defmodule GaPersonal.Schedule.Appointment do
   use Ecto.Schema
   import Ecto.Changeset
+  alias GaPersonal.Sanitizer
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
@@ -35,7 +36,11 @@ defmodule GaPersonal.Schedule.Appointment do
       :notes,
       :cancellation_reason
     ])
+    |> Sanitizer.sanitize_changeset([:appointment_type, :location, :notes, :cancellation_reason])
     |> validate_required([:trainer_id, :student_id, :scheduled_at])
+    |> validate_length(:location, max: 500)
+    |> validate_length(:notes, max: 2000)
+    |> validate_length(:cancellation_reason, max: 500)
     |> validate_inclusion(:status, ["scheduled", "completed", "cancelled", "no_show"])
     |> foreign_key_constraint(:trainer_id)
     |> foreign_key_constraint(:student_id)

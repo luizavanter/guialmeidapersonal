@@ -71,8 +71,15 @@ export const createApiInstance = (options: UseApiOptions = {}): AxiosInstance =>
               { refreshToken }
             )
 
-            const { accessToken } = response.data.data
+            const { tokens } = response.data.data
+            const accessToken = tokens?.accessToken || response.data.data.accessToken
             localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
+
+            // Update refresh token on rotation
+            const newRefreshToken = tokens?.refreshToken
+            if (newRefreshToken) {
+              localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken)
+            }
 
             // Retry original request
             if (originalRequest.headers) {

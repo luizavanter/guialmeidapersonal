@@ -6,18 +6,19 @@ defmodule GaPersonalWeb.AuthController do
 
   action_fallback GaPersonalWeb.FallbackController
 
-  # Token expiration in seconds (28 days)
-  @token_expires_in 28 * 24 * 60 * 60
+  # Access token expiration in seconds (15 minutes)
+  @access_token_expires_in 15 * 60
 
   def register(conn, %{"user" => user_params}) do
     with {:ok, user} <- Accounts.create_user(user_params),
-         {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
+         {:ok, access_token, _claims} <- Guardian.encode_and_sign(user),
+         {:ok, refresh_token, _record} <- Accounts.create_refresh_token(user) do
       conn
       |> put_status(:created)
       |> json(%{
         data: %{
           user: user_json(user),
-          tokens: tokens_json(token)
+          tokens: tokens_json(access_token, refresh_token)
         }
       })
     end
@@ -25,11 +26,12 @@ defmodule GaPersonalWeb.AuthController do
 
   def login(conn, %{"email" => email, "password" => password}) do
     with {:ok, user} <- Accounts.authenticate(email, password),
-         {:ok, token, _claims} <- Guardian.encode_and_sign(user) do
+         {:ok, access_token, _claims} <- Guardian.encode_and_sign(user),
+         {:ok, refresh_token, _record} <- Accounts.create_refresh_token(user) do
       json(conn, %{
         data: %{
           user: user_json(user),
-          tokens: tokens_json(token)
+          tokens: tokens_json(access_token, refresh_token)
         }
       })
     else
@@ -42,6 +44,35 @@ defmodule GaPersonalWeb.AuthController do
         conn
         |> put_status(:forbidden)
         |> json(%{errors: %{message: "Account is inactive"}})
+    end
+  end
+
+  def refresh(conn, %{"refreshToken" => raw_refresh_token}) do
+    with {:ok, new_refresh_token, _record, user} <- Accounts.rotate_refresh_token(raw_refresh_token),
+         {:ok, access_token, _claims} <- Guardian.encode_and_sign(user) do
+      json(conn, %{
+        data: %{
+          user: user_json(user),
+          tokens: tokens_json(access_token, new_refresh_token)
+        }
+      })
+    else
+      {:error, reason} when reason in [:invalid_token, :token_revoked, :token_expired, :user_not_found] ->
+        conn
+        |> put_status(:unauthorized)
+        |> json(%{errors: %{message: "Invalid or expired refresh token"}})
+    end
+  end
+
+  def logout(conn, %{"refreshToken" => raw_refresh_token}) do
+    case Accounts.verify_refresh_token(raw_refresh_token) do
+      {:ok, token} ->
+        Accounts.revoke_refresh_token(token)
+        json(conn, %{data: %{message: "Logged out successfully"}})
+
+      {:error, _reason} ->
+        # Even if token is invalid, return success (don't leak info)
+        json(conn, %{data: %{message: "Logged out successfully"}})
     end
   end
 
@@ -67,11 +98,11 @@ defmodule GaPersonalWeb.AuthController do
     }
   end
 
-  defp tokens_json(access_token) do
+  defp tokens_json(access_token, refresh_token) do
     %{
       accessToken: access_token,
-      refreshToken: access_token,
-      expiresIn: @token_expires_in
+      refreshToken: refresh_token,
+      expiresIn: @access_token_expires_in
     }
   end
 

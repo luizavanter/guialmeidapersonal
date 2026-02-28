@@ -5,7 +5,7 @@ defmodule GaPersonal.Accounts do
 
   import Ecto.Query, warn: false
   alias GaPersonal.Repo
-  alias GaPersonal.Accounts.{User, StudentProfile}
+  alias GaPersonal.Accounts.{User, StudentProfile, RefreshToken}
 
   ## User functions
 
@@ -76,6 +76,98 @@ defmodule GaPersonal.Accounts do
         Bcrypt.no_user_verify()
         {:error, :invalid_credentials}
     end
+  end
+
+  ## Refresh Token functions
+
+  @doc """
+  Creates a new refresh token for a user.
+  Returns {raw_token, refresh_token_record}.
+  """
+  def create_refresh_token(%User{id: user_id}) do
+    raw_token = RefreshToken.generate_token()
+    token_hash = RefreshToken.hash_token(raw_token)
+
+    attrs = %{
+      token_hash: token_hash,
+      user_id: user_id,
+      expires_at: RefreshToken.default_expiry()
+    }
+
+    case %RefreshToken{} |> RefreshToken.changeset(attrs) |> Repo.insert() do
+      {:ok, record} -> {:ok, raw_token, record}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Verifies a raw refresh token. Returns the token record if valid.
+  """
+  def verify_refresh_token(raw_token) when is_binary(raw_token) do
+    token_hash = RefreshToken.hash_token(raw_token)
+
+    case Repo.get_by(RefreshToken, token_hash: token_hash) do
+      nil ->
+        {:error, :invalid_token}
+
+      %RefreshToken{} = token ->
+        cond do
+          RefreshToken.revoked?(token) -> {:error, :token_revoked}
+          RefreshToken.expired?(token) -> {:error, :token_expired}
+          true -> {:ok, token}
+        end
+    end
+  end
+
+  def verify_refresh_token(_), do: {:error, :invalid_token}
+
+  @doc """
+  Revokes a refresh token.
+  """
+  def revoke_refresh_token(%RefreshToken{} = token) do
+    token
+    |> RefreshToken.changeset(%{revoked_at: DateTime.utc_now() |> DateTime.truncate(:second)})
+    |> Repo.update()
+  end
+
+  @doc """
+  Revokes all refresh tokens for a user.
+  """
+  def revoke_all_refresh_tokens(%User{id: user_id}) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    from(rt in RefreshToken,
+      where: rt.user_id == ^user_id and is_nil(rt.revoked_at)
+    )
+    |> Repo.update_all(set: [revoked_at: now])
+  end
+
+  @doc """
+  Rotates a refresh token: revokes the old one, creates a new one.
+  Returns {new_raw_token, new_record, user}.
+  """
+  def rotate_refresh_token(raw_token) do
+    with {:ok, old_token} <- verify_refresh_token(raw_token),
+         user when not is_nil(user) <- get_user(old_token.user_id),
+         {:ok, _revoked} <- revoke_refresh_token(old_token),
+         {:ok, new_raw_token, new_record} <- create_refresh_token(user) do
+      {:ok, new_raw_token, new_record, user}
+    else
+      nil -> {:error, :user_not_found}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Deletes expired and revoked refresh tokens older than 7 days.
+  """
+  def cleanup_refresh_tokens do
+    cutoff = DateTime.utc_now() |> DateTime.add(-7 * 24 * 60 * 60, :second)
+
+    from(rt in RefreshToken,
+      where: rt.expires_at < ^cutoff or (not is_nil(rt.revoked_at) and rt.revoked_at < ^cutoff)
+    )
+    |> Repo.delete_all()
   end
 
   ## Student Profile functions
