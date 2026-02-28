@@ -61,8 +61,12 @@ defmodule GaPersonalWeb.FallbackController do
   defp translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->
-        String.replace(acc, "%{#{key}}", to_string(value))
+        String.replace(acc, "%{#{key}}", format_error_value(value))
       end)
     end)
   end
+
+  defp format_error_value(value) when is_list(value), do: inspect(value)
+  defp format_error_value(value) when is_tuple(value), do: inspect(value)
+  defp format_error_value(value), do: to_string(value)
 end

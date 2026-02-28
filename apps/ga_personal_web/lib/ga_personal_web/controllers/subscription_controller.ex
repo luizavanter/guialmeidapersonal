@@ -112,14 +112,15 @@ defmodule GaPersonalWeb.SubscriptionController do
     }
   end
 
-  defp student_json(%{student: student}) when not is_nil(student) do
+  defp student_json(%{student: %Ecto.Association.NotLoaded{}}), do: nil
+  defp student_json(%{student: nil}), do: nil
+  defp student_json(%{student: student}) do
     %{
       id: student.id,
-      user_id: student.user_id
+      email: student.email,
+      full_name: student.full_name
     }
   end
-
-  defp student_json(_), do: nil
 
   defp plan_info_json(%{plan: plan}) when not is_nil(plan) do
     %{

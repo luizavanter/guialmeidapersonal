@@ -81,15 +81,15 @@ defmodule GaPersonalWeb.MessageController do
   end
 
   defp user_json(message, field) do
-    user = Map.get(message, field)
-    if user do
-      %{
-        id: user.id,
-        full_name: user.full_name,
-        email: user.email
-      }
-    else
-      nil
+    case Map.get(message, field) do
+      %Ecto.Association.NotLoaded{} -> nil
+      nil -> nil
+      user ->
+        %{
+          id: user.id,
+          full_name: user.full_name,
+          email: user.email
+        }
     end
   end
 end

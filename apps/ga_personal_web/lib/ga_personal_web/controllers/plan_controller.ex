@@ -79,10 +79,11 @@ defmodule GaPersonalWeb.PlanController do
       description: plan.description,
       price_cents: plan.price_cents,
       currency: plan.currency,
-      duration_days: plan.duration_days,
-      sessions_per_week: plan.sessions_per_week,
+      billing_period: plan.billing_period,
+      sessions_included: plan.sessions_included,
       features: plan.features,
       is_active: plan.is_active,
+      is_public: plan.is_public,
       inserted_at: plan.inserted_at,
       updated_at: plan.updated_at
     }
