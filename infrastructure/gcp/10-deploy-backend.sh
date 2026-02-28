@@ -240,7 +240,7 @@ create_migration_job() {
             --task-timeout="600s" \
             --set-env-vars="MIX_ENV=prod" \
             --set-secrets="DATABASE_URL=database-url:latest" \
-            --command="/app/bin/backend" \
+            --command="/app/bin/ga_personal" \
             --args="eval","GaPersonal.Release.migrate" \
             --quiet
     else
@@ -259,7 +259,7 @@ create_migration_job() {
             --task-timeout="600s" \
             --set-env-vars="MIX_ENV=prod" \
             --set-secrets="DATABASE_URL=database-url:latest" \
-            --command="/app/bin/backend" \
+            --command="/app/bin/ga_personal" \
             --args="eval","GaPersonal.Release.migrate" \
             --quiet
     fi
