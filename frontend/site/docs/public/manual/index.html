@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manual de Uso — GA Personal</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --coal: #0A0A0A;
+      --coal-light: #141414;
+      --coal-lighter: #1E1E1E;
+      --lime: #C4F53A;
+      --lime-dim: rgba(196,245,58,0.15);
+      --ocean: #0EA5E9;
+      --smoke: #F5F5F0;
+      --smoke-dim: rgba(245,245,240,0.6);
+      --smoke-faint: rgba(245,245,240,0.08);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--coal);
+      color: var(--smoke);
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .page-header {
+      background: linear-gradient(180deg, var(--coal-lighter) 0%, var(--coal) 100%);
+      border-bottom: 1px solid var(--smoke-faint);
+      padding: 1.25rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .header-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+    .logo-mark {
+      width: 34px; height: 34px;
+      background: var(--lime);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.8rem;
+      color: var(--coal);
+    }
+    .logo-text { font-weight: 600; font-size: 1rem; color: var(--smoke); }
+    .doc-badge {
+      background: var(--lime-dim); color: var(--lime);
+      font-size: 0.65rem; font-weight: 600;
+      padding: 0.25rem 0.7rem; border-radius: 100px;
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+
+    /* Layout */
+    .page-layout {
+      display: flex;
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: calc(100vh - 60px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--smoke-faint);
+      padding: 2rem 1.5rem;
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .sidebar-title {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--smoke-dim);
+      margin-bottom: 1rem;
+    }
+    .sidebar a {
+      display: block;
+      padding: 0.4rem 0.75rem;
+      margin-bottom: 0.15rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: var(--smoke-dim);
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .sidebar a:hover {
+      background: var(--smoke-faint);
+      color: var(--smoke);
+    }
+    .sidebar a.active {
+      background: var(--lime-dim);
+      color: var(--lime);
+      font-weight: 500;
+    }
+    .sidebar .indent { padding-left: 1.75rem; font-size: 0.8rem; }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 3rem 3rem 6rem;
+    }
+
+    .main h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    .main .subtitle {
+      color: var(--smoke-dim);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .chapter {
+      margin-bottom: 4rem;
+      scroll-margin-top: 80px;
+    }
+
+    .chapter-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--smoke-faint);
+    }
+
+    .chapter-num {
+      width: 30px; height: 30px;
+      background: var(--lime);
+      color: var(--coal);
+      font-weight: 700; font-size: 0.75rem;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chapter-header h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .sub-chapter {
+      margin-bottom: 2.5rem;
+    }
+
+    .sub-chapter h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--lime);
+    }
+
+    p { color: var(--smoke-dim); margin-bottom: 1rem; }
+    strong { color: var(--smoke); font-weight: 500; }
+
+    /* Step lists */
+    .steps {
+      list-style: none;
+      counter-reset: step;
+      margin-bottom: 1.5rem;
+    }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      color: var(--smoke-dim);
+      font-size: 0.9rem;
+    }
+    .steps li::before {
+      content: counter(step);
+      width: 24px; height: 24px;
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--lime);
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    /* Info boxes */
+    .info-box {
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-left: 3px solid var(--ocean);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--smoke-dim);
+    }
+    .info-box.tip { border-left-color: var(--lime); }
+
+    /* Access table */
+    .access-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+    }
+    .access-table th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      background: var(--coal-lighter);
+      border-bottom: 1px solid var(--smoke-faint);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--smoke-dim);
+    }
+    .access-table td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--smoke-faint);
+      color: var(--smoke-dim);
+    }
+    .access-table tr:last-child td { border-bottom: none; }
+    .access-table a { color: var(--ocean); text-decoration: none; }
+    .access-table a:hover { text-decoration: underline; }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .feature-card {
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+    .feature-card h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--smoke);
+    }
+    .feature-card p {
+      font-size: 0.8rem;
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    /* FAQ */
+    .faq-item {
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: 1rem 1.25rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--smoke);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-q::after { content: '+'; color: var(--lime); font-size: 1.2rem; font-weight: 300; }
+    .faq-q.open::after { content: '−'; }
+    .faq-a {
+      padding: 0 1.25rem 1rem;
+      font-size: 0.85rem;
+      color: var(--smoke-dim);
+      display: none;
+    }
+    .faq-a.open { display: block; }
+
+    /* Footer */
+    .doc-footer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      border-top: 1px solid var(--smoke-faint);
+      text-align: center;
+      color: var(--smoke-dim);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { padding: 2rem 1.5rem 4rem; }
+      .main h1 { font-size: 1.6rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      body { background: white; color: #111; }
+      .page-header { position: static; }
+      .sidebar { display: none; }
+      .main { padding: 1rem; }
+      p { color: #444; }
+      .chapter-num { background: #111; color: white; }
+      .info-box { background: #f8f8f8; border-color: #ddd; }
+      .feature-card { background: #f8f8f8; border-color: #ddd; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-inner">
+    <a href="https://guialmeidapersonal.esp.br" class="logo">
+      <div class="logo-mark">GA</div>
+      <span class="logo-text">GA Personal</span>
+    </a>
+    <span class="doc-badge">Manual de Uso</span>
+  </div>
+</header>
+
+<div class="page-layout">
+
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Índice</div>
+    <a href="#acesso">Primeiros Passos</a>
+    <a href="#painel" class="active">Painel do Personal</a>
+    <a href="#painel-dashboard" class="indent">Dashboard</a>
+    <a href="#painel-alunos" class="indent">Alunos</a>
+    <a href="#painel-agenda" class="indent">Agenda</a>
+    <a href="#painel-treinos" class="indent">Treinos</a>
+    <a href="#painel-evolucao" class="indent">Evolução</a>
+    <a href="#painel-financeiro" class="indent">Financeiro</a>
+    <a href="#painel-mensagens" class="indent">Mensagens</a>
+    <a href="#painel-config" class="indent">Configurações</a>
+    <a href="#portal">Portal do Aluno</a>
+    <a href="#portal-dashboard" class="indent">Dashboard</a>
+    <a href="#portal-treinos" class="indent">Meus Treinos</a>
+    <a href="#portal-evolucao" class="indent">Evolução</a>
+    <a href="#portal-agenda" class="indent">Agenda</a>
+    <a href="#portal-mensagens" class="indent">Mensagens</a>
+    <a href="#portal-perfil" class="indent">Perfil</a>
+    <a href="#site">Site Institucional</a>
+    <a href="#faq">Perguntas Frequentes</a>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main">
+    <h1>Manual de Uso da Plataforma</h1>
+    <p class="subtitle">Guia completo para utilização do sistema GA Personal</p>
+
+    <!-- Chapter 1: Getting Started -->
+    <div class="chapter" id="acesso">
+      <div class="chapter-header">
+        <div class="chapter-num">1</div>
+        <h2>Primeiros Passos</h2>
+      </div>
+
+      <div class="sub-chapter">
+        <h3>Como Acessar</h3>
+        <p>A plataforma possui três áreas distintas. Utilize o endereço correspondente ao seu perfil:</p>
+        <table class="access-table">
+          <thead><tr><th>Área</th><th>Endereço</th><th>Quem Usa</th></tr></thead>
+          <tbody>
+            <tr><td>Painel do Personal</td><td><a href="https://admin.guialmeidapersonal.esp.br">admin.guialmeidapersonal.esp.br</a></td><td>Personal Trainer</td></tr>
+            <tr><td>Portal do Aluno</td><td><a href="https://app.guialmeidapersonal.esp.br">app.guialmeidapersonal.esp.br</a></td><td>Alunos</td></tr>
+            <tr><td>Site Institucional</td><td><a href="https://guialmeidapersonal.esp.br">guialmeidapersonal.esp.br</a></td><td>Visitantes</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-chapter">
+        <h3>Como Fazer Login</h3>
+        <ol class="steps">
+          <li>Acesse o endereço correspondente ao seu perfil</li>
+          <li>Digite seu <strong>e-mail</strong> e <strong>senha</strong></li>
+          <li>Clique em <strong>Entrar</strong></li>
+        </ol>
+        <div class="info-box">Caso tenha esquecido a senha, clique em "Esqueci minha senha" na tela de login.</div>
+      </div>
+
+      <div class="sub-chapter">
+        <h3>Idioma</h3>
+        <p>A plataforma está disponível em <strong>Português (BR)</strong> e <strong>English (US)</strong>. Para trocar:</p>
+        <ul class="steps">
+          <li><strong>Painel do Personal:</strong> acesse Configurações e altere o idioma</li>
+          <li><strong>Site:</strong> clique no ícone de idioma no canto superior direito</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Chapter 2: Trainer Panel -->
+    <div class="chapter" id="painel">
+      <div class="chapter-header">
+        <div class="chapter-num">2</div>
+        <h2>Painel do Personal Trainer</h2>
+      </div>
+      <p>O painel é o centro de controle de todo o seu trabalho com alunos. Todas as funcionalidades estão acessíveis pelo menu lateral.</p>
+
+      <div class="sub-chapter" id="painel-dashboard">
+        <h3>Dashboard (Tela Inicial)</h3>
+        <p>Ao fazer login, você verá um resumo completo do seu dia:</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>Resumo do Dia</h4>
+            <p>Total de alunos ativos, sessões agendadas para hoje, e pagamentos pendentes.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Agenda do Dia</h4>
+            <p>Seus compromissos nas próximas horas, com nome do aluno e horário.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Alertas</h4>
+            <p>Pagamentos atrasados, sessões pendentes de confirmação, e lembretes importantes.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-chapter" id="painel-alunos">
+        <h3>Alunos</h3>
+        <p><strong>Menu lateral → Alunos</strong></p>
+        <p>Gerencie todos os seus alunos em um só lugar. Você pode ver a lista completa, buscar por nome ou e-mail, filtrar por status, e acessar o perfil detalhado de cada aluno.</p>
+        <p><strong>Para cadastrar um novo aluno:</strong></p>
+        <ol class="steps">
+          <li>Clique em <strong>"Novo Aluno"</strong></li>
+          <li>Preencha nome completo, e-mail e telefone</li>
+          <li>Defina o status como <strong>"ativo"</strong></li>
+          <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+        <div class="info-box tip">O aluno receberá automaticamente acesso ao Portal do Aluno com o e-mail cadastrado.</div>
+      </div>
+
+      <div class="sub-chapter" id="painel-agenda">
+        <h3>Agenda</h3>
+        <p><strong>Menu lateral → Agenda</strong></p>
+        <p>Visualize seus compromissos em três formatos: <strong>dia</strong>, <strong>semana</strong> ou <strong>mês</strong>.</p>
+        <p><strong>Para agendar uma sessão:</strong></p>
+        <ol class="steps">
+          <li>Clique em <strong>"Novo Agendamento"</strong></li>
+          <li>Selecione o aluno</li>
+          <li>Escolha data e horário</li>
+          <li>Defina a duração (em minutos)</li>
+          <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+        <div class="info-box tip">O aluno será notificado automaticamente e receberá um lembrete por e-mail 24 horas antes da sessão.</div>
+      </div>
+
+      <div class="sub-chapter" id="painel-treinos">
+        <h3>Treinos</h3>
+        <p><strong>Menu lateral → Treinos</strong></p>
+        <p>Esta área se divide em duas partes:</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>Biblioteca de Exercícios</h4>
+            <p>Seu catálogo pessoal de exercícios com nome, grupo muscular, equipamento necessário e nível de dificuldade.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Planos de Treino</h4>
+            <p>Monte planilhas completas com exercícios, séries, repetições, carga e descanso. Atribua a cada aluno.</p>
+          </div>
+        </div>
+        <p><strong>Para criar um plano de treino:</strong></p>
+        <ol class="steps">
+          <li>Acesse <strong>Treinos → Planos</strong></li>
+          <li>Clique em <strong>"Novo Plano"</strong></li>
+          <li>Dê um nome (ex: "Treino A — Peito e Tríceps")</li>
+          <li>Adicione exercícios da sua biblioteca</li>
+          <li>Defina séries, repetições, carga e descanso para cada exercício</li>
+          <li>Atribua o plano a um aluno</li>
+        </ol>
+      </div>
+
+      <div class="sub-chapter" id="painel-evolucao">
+        <h3>Evolução</h3>
+        <p><strong>Menu lateral → Evolução</strong></p>
+        <p>Acompanhe a evolução de cada aluno com:</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>Avaliações Físicas</h4>
+            <p>Registre peso, gordura corporal e medidas. O sistema calcula automaticamente IMC e massa magra.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Fotos de Evolução</h4>
+            <p>Upload de fotos antes/depois para comparação visual do progresso.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Metas</h4>
+            <p>Defina objetivos personalizados e acompanhe o progresso com barras visuais.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-chapter" id="painel-financeiro">
+        <h3>Financeiro</h3>
+        <p><strong>Menu lateral → Financeiro</strong></p>
+        <p>Gerencie toda a parte financeira do seu negócio:</p>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h4>Dashboard</h4>
+            <p>Visão geral com receita do mês, pagamentos pendentes e atrasados.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Cobranças</h4>
+            <p>Gere cobranças automáticas via Pix (QR Code), Boleto ou Cartão de Crédito.</p>
+          </div>
+          <div class="feature-card">
+            <h4>Assinaturas</h4>
+            <p>Configure assinaturas mensais ou trimestrais com renovação automática.</p>
+          </div>
+        </div>
+        <p><strong>Para gerar uma cobrança Pix:</strong></p>
+        <ol class="steps">
+          <li>Acesse <strong>Financeiro → Pagamentos</strong></li>
+          <li>Selecione o pagamento pendente</li>
+          <li>Clique em <strong>"Gerar Cobrança"</strong></li>
+          <li>Escolha <strong>"Pix"</strong></li>
+          <li>O QR Code será gerado — envie ao aluno</li>
+        </ol>
+      </div>
+
+      <div class="sub-chapter" id="painel-mensagens">
+        <h3>Mensagens</h3>
+        <p><strong>Menu lateral → Mensagens</strong></p>
+        <p>Comunique-se diretamente com seus alunos. Veja mensagens recebidas na <strong>Inbox</strong>, acompanhe as <strong>Enviadas</strong>, ou crie uma <strong>Nova Mensagem</strong> selecionando o destinatário.</p>
+      </div>
+
+      <div class="sub-chapter" id="painel-config">
+        <h3>Configurações</h3>
+        <p><strong>Menu lateral → Configurações</strong> (ícone de engrenagem)</p>
+        <p>Edite seu nome, veja seu e-mail e altere o idioma da plataforma.</p>
+      </div>
+    </div>
+
+    <!-- Chapter 3: Student Portal -->
+    <div class="chapter" id="portal">
+      <div class="chapter-header">
+        <div class="chapter-num">3</div>
+        <h2>Portal do Aluno</h2>
+      </div>
+      <p>O Portal é o espaço onde os alunos acompanham treinos, evolução e comunicação com o personal.</p>
+
+      <div class="sub-chapter" id="portal-dashboard">
+        <h3>Dashboard</h3>
+        <p>Ao fazer login, você verá cinco cards com informações importantes:</p>
+        <div class="feature-grid">
+          <div class="feature-card"><h4>Próxima Sessão</h4><p>Data e hora do próximo treino agendado.</p></div>
+          <div class="feature-card"><h4>Treino Atual</h4><p>Seu plano de treino ativo com exercícios.</p></div>
+          <div class="feature-card"><h4>Progresso</h4><p>Treinos completados na semana.</p></div>
+          <div class="feature-card"><h4>Metas</h4><p>Objetivos em andamento com progresso visual.</p></div>
+          <div class="feature-card"><h4>Mensagens</h4><p>Quantidade de mensagens não lidas.</p></div>
+        </div>
+      </div>
+
+      <div class="sub-chapter" id="portal-treinos">
+        <h3>Meus Treinos</h3>
+        <p>Veja seu plano de treino ativo com todos os exercícios, séries, repetições e carga recomendada.</p>
+        <p><strong>Para registrar um treino:</strong></p>
+        <ol class="steps">
+          <li>Acesse <strong>"Meus Treinos"</strong></li>
+          <li>Abra o treino do dia</li>
+          <li>Para cada exercício, informe <strong>peso</strong>, <strong>repetições</strong> e <strong>nível de esforço</strong></li>
+          <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+      </div>
+
+      <div class="sub-chapter" id="portal-evolucao">
+        <h3>Evolução</h3>
+        <p>Acompanhe sua evolução com gráficos de peso e gordura corporal ao longo do tempo, histórico de avaliações, progresso das metas, e galeria de fotos antes/depois.</p>
+      </div>
+
+      <div class="sub-chapter" id="portal-agenda">
+        <h3>Agenda</h3>
+        <p>Veja suas <strong>próximas sessões</strong> agendadas e o <strong>histórico</strong> de sessões anteriores.</p>
+      </div>
+
+      <div class="sub-chapter" id="portal-mensagens">
+        <h3>Mensagens</h3>
+        <p>Envie mensagens diretamente ao seu personal trainer. Veja o histórico de conversas e a quantidade de mensagens não lidas.</p>
+      </div>
+
+      <div class="sub-chapter" id="portal-perfil">
+        <h3>Perfil</h3>
+        <p>Edite suas informações pessoais:</p>
+        <div class="feature-grid">
+          <div class="feature-card"><h4>Dados Pessoais</h4><p>Nome, telefone e data de nascimento.</p></div>
+          <div class="feature-card"><h4>Contato de Emergência</h4><p>Nome e telefone de quem avisar em caso de emergência.</p></div>
+          <div class="feature-card"><h4>Saúde</h4><p>Condições de saúde (alergias, lesões) e seus objetivos.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chapter 4: Website -->
+    <div class="chapter" id="site">
+      <div class="chapter-header">
+        <div class="chapter-num">4</div>
+        <h2>Site Institucional</h2>
+      </div>
+      <p>O site em <strong>guialmeidapersonal.esp.br</strong> é a vitrine pública do seu negócio, disponível em Português e Inglês.</p>
+      <div class="feature-grid">
+        <div class="feature-card"><h4>Início</h4><p>Apresentação, serviços, depoimentos de alunos e chamadas para ação.</p></div>
+        <div class="feature-card"><h4>Sobre</h4><p>Biografia e credenciais profissionais.</p></div>
+        <div class="feature-card"><h4>Serviços</h4><p>Detalhes dos programas: Híbrido, Emagrecimento e Ganho de Massa.</p></div>
+        <div class="feature-card"><h4>Blog</h4><p>5 artigos profissionais sobre treinamento, nutrição e motivação.</p></div>
+        <div class="feature-card"><h4>Contato</h4><p>Formulário de agendamento, informações de contato e FAQ com 8 perguntas.</p></div>
+      </div>
+      <p>Visitantes interessados preenchem o formulário de contato e a mensagem chega automaticamente ao seu e-mail.</p>
+    </div>
+
+    <!-- Chapter 5: FAQ -->
+    <div class="chapter" id="faq">
+      <div class="chapter-header">
+        <div class="chapter-num">5</div>
+        <h2>Perguntas Frequentes</h2>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Esqueci minha senha. O que fazer?</div>
+        <div class="faq-a">Clique em "Esqueci minha senha" na tela de login. Você receberá um e-mail com instruções para redefinir sua senha.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Meu aluno não consegue acessar o portal.</div>
+        <div class="faq-a">Verifique se o aluno foi cadastrado com o e-mail correto, se o status está como "ativo", e se está usando o link correto: <strong>app.guialmeidapersonal.esp.br</strong>.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">O sistema funciona no celular?</div>
+        <div class="faq-a">Sim. Todas as telas são responsivas e se adaptam a telas de smartphone e tablet.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Como gerar uma cobrança Pix?</div>
+        <div class="faq-a">No Financeiro, selecione o pagamento → "Gerar Cobrança" → escolha "Pix". O QR Code será gerado automaticamente para enviar ao aluno.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Quantos alunos posso cadastrar?</div>
+        <div class="faq-a">Não há limite de alunos na plataforma.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Os dados dos alunos estão seguros?</div>
+        <div class="faq-a">Sim. A plataforma utiliza criptografia SSL, autenticação segura com tokens rotativos, e os dados ficam armazenados em servidores seguros no Brasil (Google Cloud — São Paulo).</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Posso usar a plataforma offline?</div>
+        <div class="faq-a">Não. A plataforma requer conexão com a internet para funcionar corretamente.</div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Como alterar o idioma da plataforma?</div>
+        <div class="faq-a">No Painel do Personal: Configurações → Idioma. No Site: ícone de idioma no canto superior direito.</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer class="doc-footer">
+  <p>GA Personal — Transformando vidas através do fitness</p>
+  <p style="margin-top:0.25rem">contato@gapersonal.com.br</p>
+</footer>
+
+</body>
+</html>
