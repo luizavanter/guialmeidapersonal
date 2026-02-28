@@ -85,7 +85,7 @@ config :ga_personal, :asaas,
 # Configure Oban (background jobs)
 config :ga_personal, Oban,
   repo: GaPersonal.Repo,
-  queues: [default: 10, mailers: 5, scheduled: 3],
+  queues: [default: 10, mailers: 5, scheduled: 3, ai: 2],
   plugins: [
     Oban.Plugins.Pruner,
     {Oban.Plugins.Cron,

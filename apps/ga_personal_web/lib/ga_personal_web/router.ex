@@ -144,6 +144,14 @@ defmodule GaPersonalWeb.Router do
     get "/media/:id/download", MediaController, :download
     delete "/media/:id", MediaController, :delete
     get "/students/:student_id/media", MediaController, :index
+
+    # Bioimpedance import - AI-powered extraction from reports
+    post "/bioimpedance/extract", BioimpedanceController, :extract
+    get "/bioimpedance/imports", BioimpedanceController, :index
+    get "/bioimpedance/imports/:id", BioimpedanceController, :show
+    put "/bioimpedance/imports/:id", BioimpedanceController, :update
+    post "/bioimpedance/imports/:id/apply", BioimpedanceController, :apply_import
+    post "/bioimpedance/imports/:id/reject", BioimpedanceController, :reject
   end
 
   # Student-accessible routes (read-only or limited write)
