@@ -139,7 +139,7 @@ verify_infrastructure() {
     log_info "Core secrets verified"
 
     # Check optional secrets (warn if missing, don't fail)
-    local optional_secrets=("asaas-api-key" "asaas-webhook-token" "resend-api-key")
+    local optional_secrets=("asaas-api-key" "asaas-webhook-token" "resend-api-key" "anthropic-api-key")
     for secret in "${optional_secrets[@]}"; do
         if ! gcloud secrets describe "$secret" --project=$PROJECT_ID &>/dev/null; then
             log_warn "Optional secret '$secret' not found - related feature will be disabled"
@@ -186,6 +186,9 @@ deploy_service() {
     fi
     if gcloud secrets describe "resend-api-key" --project=$PROJECT_ID &>/dev/null; then
         SECRETS="${SECRETS},RESEND_API_KEY=resend-api-key:latest"
+    fi
+    if gcloud secrets describe "anthropic-api-key" --project=$PROJECT_ID &>/dev/null; then
+        SECRETS="${SECRETS},ANTHROPIC_API_KEY=anthropic-api-key:latest"
     fi
 
     gcloud run deploy $SERVICE_NAME \

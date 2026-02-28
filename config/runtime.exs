@@ -83,6 +83,19 @@ if config_env() == :prod do
 
   config :ga_personal, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Configure Google Cloud Storage
+  if gcs_bucket = System.get_env("GCS_BUCKET") do
+    config :ga_personal, :gcs,
+      bucket: gcs_bucket,
+      project_id: System.get_env("GCP_PROJECT_ID", "guialmeidapersonal")
+  end
+
+  # Configure Anthropic API (AI features - Phase C)
+  if anthropic_api_key = System.get_env("ANTHROPIC_API_KEY") do
+    config :ga_personal, :anthropic,
+      api_key: anthropic_api_key
+  end
+
   # Configure Asaas payment gateway
   if asaas_api_key = System.get_env("ASAAS_API_KEY") do
     config :ga_personal, :asaas,

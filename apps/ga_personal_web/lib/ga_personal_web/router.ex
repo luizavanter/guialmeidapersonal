@@ -93,6 +93,12 @@ defmodule GaPersonalWeb.Router do
     post "/notifications/read-all", NotificationController, :mark_all_read
     resources "/notifications", NotificationController, only: [:index, :show, :update, :delete]
     post "/notifications/:id/read", NotificationController, :mark_read
+
+    # Privacy - LGPD compliance (all authenticated users)
+    post "/privacy/consent", PrivacyController, :grant_consent
+    delete "/privacy/consent/:type", PrivacyController, :revoke_consent
+    get "/privacy/my-data", PrivacyController, :export_data
+    delete "/privacy/my-data", PrivacyController, :delete_data
   end
 
   # Trainer/Admin only routes - managing the business
@@ -131,6 +137,13 @@ defmodule GaPersonalWeb.Router do
     resources "/blog-posts", BlogPostController, except: [:new, :edit]
     resources "/testimonials", TestimonialController, except: [:new, :edit]
     resources "/faqs", FAQController, except: [:new, :edit]
+
+    # Media management - trainers manage media files
+    post "/media/upload-url", MediaController, :create_upload_url
+    post "/media/confirm-upload", MediaController, :confirm_upload
+    get "/media/:id/download", MediaController, :download
+    delete "/media/:id", MediaController, :delete
+    get "/students/:student_id/media", MediaController, :index
   end
 
   # Student-accessible routes (read-only or limited write)
@@ -160,6 +173,12 @@ defmodule GaPersonalWeb.Router do
     # Students can view their subscription and payment history
     get "/subscription", SubscriptionController, :show_for_student
     get "/payments", PaymentController, :index_for_student
+
+    # Media - students can upload and view their own files
+    post "/media/upload-url", MediaController, :create_upload_url
+    post "/media/confirm-upload", MediaController, :confirm_upload
+    get "/media/:id/download", MediaController, :download
+    get "/my-media", MediaController, :my_files
   end
 
   # Enable LiveDashboard in development

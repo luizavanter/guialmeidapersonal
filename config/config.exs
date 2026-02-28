@@ -67,6 +67,15 @@ config :ga_personal, :mailer_from,
   email: "noreply@guialmeidapersonal.esp.br",
   name: "GA Personal"
 
+# Configure Google Cloud Storage (media uploads)
+config :ga_personal, :gcs,
+  bucket: "ga-personal-media",
+  project_id: "guialmeidapersonal"
+
+# Configure Anthropic (AI features - Phase C)
+config :ga_personal, :anthropic,
+  api_key: nil
+
 # Configure Asaas (payment gateway)
 config :ga_personal, :asaas,
   api_key: nil,
@@ -84,7 +93,8 @@ config :ga_personal, Oban,
        {"0 7 * * 1", GaPersonal.Workers.WeeklyTrainerSummary},
        {"0 6 * * *", GaPersonal.Workers.AppointmentReminder},
        {"0 6 * * *", GaPersonal.Workers.PaymentDueReminder},
-       {"0 8 * * *", GaPersonal.Workers.AutoBillingWorker}
+       {"0 8 * * *", GaPersonal.Workers.AutoBillingWorker},
+       {"0 3 * * *", GaPersonal.Workers.MediaCleanupWorker}
      ]}
   ]
 
