@@ -47,7 +47,8 @@ defmodule GaPersonal.MixProject do
       # Email
       {:swoosh, "~> 1.21"},
       {:resend, "~> 0.4.0"},
-      {:finch, "~> 0.18"}
+      {:finch, "~> 0.18"},
+      {:ex_machina, "~> 2.8", only: :test}
     ]
   end
 

@@ -24,6 +24,7 @@ defmodule GaPersonal.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import GaPersonal.DataCase
+      import GaPersonal.Factory
     end
   end
 

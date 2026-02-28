@@ -19,20 +19,57 @@ defmodule GaPersonalWeb.ConnCase do
 
   using do
     quote do
-      # The default endpoint for testing
       @endpoint GaPersonalWeb.Endpoint
 
       use GaPersonalWeb, :verified_routes
 
-      # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
       import GaPersonalWeb.ConnCase
+      import GaPersonal.Factory
     end
   end
 
   setup tags do
     GaPersonal.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
+
+  @doc """
+  Creates a trainer user and returns an authenticated connection.
+  """
+  def setup_trainer_conn(%{conn: conn}) do
+    trainer = GaPersonal.Factory.insert(:trainer)
+    conn = authenticate_conn(conn, trainer)
+    %{conn: conn, trainer: trainer}
+  end
+
+  @doc """
+  Creates a student user and returns an authenticated connection.
+  """
+  def setup_student_conn(%{conn: conn}) do
+    student = GaPersonal.Factory.insert(:student_user)
+    conn = authenticate_conn(conn, student)
+    %{conn: conn, student: student}
+  end
+
+  @doc """
+  Creates an admin user and returns an authenticated connection.
+  """
+  def setup_admin_conn(%{conn: conn}) do
+    admin = GaPersonal.Factory.insert(:admin)
+    conn = authenticate_conn(conn, admin)
+    %{conn: conn, admin: admin}
+  end
+
+  @doc """
+  Authenticates a connection with a given user by generating a JWT token.
+  """
+  def authenticate_conn(conn, user) do
+    {:ok, token, _claims} = GaPersonal.Guardian.encode_and_sign(user)
+
+    conn
+    |> Plug.Conn.put_req_header("authorization", "Bearer #{token}")
+    |> Plug.Conn.put_req_header("content-type", "application/json")
   end
 end
