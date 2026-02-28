@@ -67,6 +67,12 @@ config :ga_personal, :mailer_from,
   email: "noreply@guialmeidapersonal.esp.br",
   name: "GA Personal"
 
+# Configure Asaas (payment gateway)
+config :ga_personal, :asaas,
+  api_key: nil,
+  environment: "sandbox",
+  webhook_token: nil
+
 # Configure Oban (background jobs)
 config :ga_personal, Oban,
   repo: GaPersonal.Repo,
@@ -77,7 +83,8 @@ config :ga_personal, Oban,
      crontab: [
        {"0 7 * * 1", GaPersonal.Workers.WeeklyTrainerSummary},
        {"0 6 * * *", GaPersonal.Workers.AppointmentReminder},
-       {"0 6 * * *", GaPersonal.Workers.PaymentDueReminder}
+       {"0 6 * * *", GaPersonal.Workers.PaymentDueReminder},
+       {"0 8 * * *", GaPersonal.Workers.AutoBillingWorker}
      ]}
   ]
 

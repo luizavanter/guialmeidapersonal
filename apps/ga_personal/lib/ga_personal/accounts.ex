@@ -282,6 +282,7 @@ defmodule GaPersonal.Accounts do
     case result do
       {:ok, profile} ->
         GaPersonal.NotificationService.on_student_created(profile.user)
+        GaPersonal.Workers.AsaasCustomerSync.enqueue(profile.id)
         {:ok, profile}
 
       error ->

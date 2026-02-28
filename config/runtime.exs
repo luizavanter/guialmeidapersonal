@@ -83,6 +83,14 @@ if config_env() == :prod do
 
   config :ga_personal, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
+  # Configure Asaas payment gateway
+  if asaas_api_key = System.get_env("ASAAS_API_KEY") do
+    config :ga_personal, :asaas,
+      api_key: asaas_api_key,
+      environment: System.get_env("ASAAS_ENVIRONMENT", "sandbox"),
+      webhook_token: System.get_env("ASAAS_WEBHOOK_TOKEN")
+  end
+
   # Configure Guardian JWT secret from environment (overrides default in config.exs)
   if jwt_secret = System.get_env("JWT_SECRET") do
     config :ga_personal, GaPersonal.Guardian,

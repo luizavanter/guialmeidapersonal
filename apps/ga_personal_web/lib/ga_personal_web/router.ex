@@ -74,6 +74,7 @@ defmodule GaPersonalWeb.Router do
     pipe_through :api
 
     post "/webhooks/calcom", WebhookController, :calcom
+    post "/webhooks/asaas", WebhookController, :asaas
   end
 
   # Routes accessible by any authenticated user
@@ -118,6 +119,7 @@ defmodule GaPersonalWeb.Router do
 
     # Payments - trainers track payments
     resources "/payments", PaymentController, only: [:index, :create, :show, :update]
+    post "/payments/:id/charge", PaymentController, :create_charge
 
     # Body Assessments - trainers create assessments for students
     resources "/body-assessments", BodyAssessmentController, except: [:new, :edit]

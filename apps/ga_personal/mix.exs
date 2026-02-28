@@ -48,6 +48,8 @@ defmodule GaPersonal.MixProject do
       {:swoosh, "~> 1.21"},
       {:resend, "~> 0.4.0"},
       {:finch, "~> 0.18"},
+      # HTTP client (for Asaas API)
+      {:req, "~> 0.5"},
       # Background jobs
       {:oban, "~> 2.18"},
       {:ex_machina, "~> 2.8", only: :test}

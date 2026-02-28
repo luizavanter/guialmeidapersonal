@@ -12,6 +12,7 @@ defmodule GaPersonalWeb.WebhookController do
 
   alias GaPersonal.Schedule
   alias GaPersonal.Accounts
+  alias GaPersonal.Finance
 
   @calcom_events ~w(BOOKING_CREATED BOOKING_CANCELLED BOOKING_RESCHEDULED)
 
@@ -304,4 +305,100 @@ defmodule GaPersonalWeb.WebhookController do
 
     Enum.join(notes, "\n")
   end
+
+  # ── Asaas Webhook ──────────────────────────────────────────────
+
+  @asaas_payment_events ~w(PAYMENT_CONFIRMED PAYMENT_RECEIVED PAYMENT_OVERDUE PAYMENT_REFUNDED PAYMENT_DELETED)
+
+  @doc """
+  Handle Asaas webhook events for payment status updates.
+
+  Asaas sends POST requests with:
+    - event: Event type (e.g. "PAYMENT_CONFIRMED")
+    - payment: Payment object with id, status, value, etc.
+  """
+  def asaas(conn, params) do
+    with :ok <- verify_asaas_token(conn),
+         {:ok, event} <- get_asaas_event(params),
+         :ok <- process_asaas_event(event, params) do
+      json(conn, %{status: "ok"})
+    else
+      {:error, :invalid_token} ->
+        Logger.warning("Asaas webhook: Invalid access token")
+        conn |> put_status(:unauthorized) |> json(%{error: "Invalid token"})
+
+      {:error, :unknown_event} ->
+        json(conn, %{status: "ok", message: "Event not handled"})
+
+      {:error, reason} ->
+        Logger.error("Asaas webhook error: #{inspect(reason)}")
+        conn |> put_status(:unprocessable_entity) |> json(%{error: "Processing failed"})
+    end
+  end
+
+  defp verify_asaas_token(conn) do
+    expected = Application.get_env(:ga_personal, :asaas)[:webhook_token]
+
+    cond do
+      is_nil(expected) ->
+        Logger.warning("Asaas webhook: No webhook token configured, accepting all")
+        :ok
+
+      true ->
+        token = get_req_header(conn, "asaas-access-token") |> List.first()
+
+        if Plug.Crypto.secure_compare(expected || "", token || "") do
+          :ok
+        else
+          {:error, :invalid_token}
+        end
+    end
+  end
+
+  defp get_asaas_event(%{"event" => event}) when event in @asaas_payment_events, do: {:ok, event}
+  defp get_asaas_event(%{"event" => _}), do: {:error, :unknown_event}
+  defp get_asaas_event(_), do: {:error, :unknown_event}
+
+  defp process_asaas_event(event, %{"payment" => payment_data}) do
+    asaas_charge_id = payment_data["id"]
+    Logger.info("Asaas webhook: #{event} for charge #{asaas_charge_id}")
+
+    case Finance.get_payment_by_asaas_charge_id(asaas_charge_id) do
+      nil ->
+        Logger.warning("Asaas webhook: No local payment found for charge #{asaas_charge_id}")
+        :ok
+
+      payment ->
+        new_status = asaas_status_to_local(event)
+        attrs = %{status: new_status}
+
+        attrs =
+          if event in ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"] do
+            Map.put(attrs, :payment_date, Date.utc_today())
+          else
+            attrs
+          end
+
+        case Finance.update_payment(payment, attrs) do
+          {:ok, _updated} ->
+            Logger.info("Asaas webhook: Updated payment #{payment.id} to #{new_status}")
+            :ok
+
+          {:error, reason} ->
+            {:error, reason}
+        end
+    end
+  end
+
+  defp process_asaas_event(_event, _params) do
+    Logger.warning("Asaas webhook: Missing payment data")
+    :ok
+  end
+
+  defp asaas_status_to_local("PAYMENT_CONFIRMED"), do: "completed"
+  defp asaas_status_to_local("PAYMENT_RECEIVED"), do: "completed"
+  defp asaas_status_to_local("PAYMENT_OVERDUE"), do: "pending"
+  defp asaas_status_to_local("PAYMENT_REFUNDED"), do: "refunded"
+  defp asaas_status_to_local("PAYMENT_DELETED"), do: "failed"
+  defp asaas_status_to_local(_), do: "pending"
 end

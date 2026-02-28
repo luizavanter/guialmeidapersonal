@@ -237,6 +237,15 @@ defmodule GaPersonal.Finance do
     end)
   end
 
+  def get_payment_by_asaas_charge_id(charge_id) when is_binary(charge_id) do
+    from(p in Payment, where: p.asaas_charge_id == ^charge_id)
+    |> Repo.one()
+    |> case do
+      nil -> nil
+      payment -> Repo.preload(payment, [:student, :subscription])
+    end
+  end
+
   def create_payment(attrs \\ %{}) do
     %Payment{}
     |> Payment.changeset(attrs)

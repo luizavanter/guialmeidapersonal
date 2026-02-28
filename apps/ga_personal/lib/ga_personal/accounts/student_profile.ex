@@ -15,6 +15,8 @@ defmodule GaPersonal.Accounts.StudentProfile do
     field :goals_description, :string
     field :notes, :string
     field :status, :string, default: "active"
+    field :cpf, :string
+    field :asaas_customer_id, :string
 
     belongs_to :user, GaPersonal.Accounts.User
     belongs_to :trainer, GaPersonal.Accounts.User
@@ -35,7 +37,9 @@ defmodule GaPersonal.Accounts.StudentProfile do
       :medical_conditions,
       :goals_description,
       :notes,
-      :status
+      :status,
+      :cpf,
+      :asaas_customer_id
     ])
     |> Sanitizer.sanitize_changeset([:emergency_contact_name, :emergency_contact_phone, :medical_conditions, :goals_description, :notes])
     |> validate_required([:user_id, :trainer_id])

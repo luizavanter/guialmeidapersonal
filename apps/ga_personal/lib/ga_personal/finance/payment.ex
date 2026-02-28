@@ -14,6 +14,11 @@ defmodule GaPersonal.Finance.Payment do
     field :due_date, :date
     field :reference_number, :string
     field :notes, :string
+    field :asaas_charge_id, :string
+    field :asaas_invoice_url, :string
+    field :asaas_pix_qr_code, :string
+    field :asaas_pix_payload, :string
+    field :asaas_bankslip_url, :string
 
     belongs_to :student, GaPersonal.Accounts.User
     belongs_to :trainer, GaPersonal.Accounts.User
@@ -36,11 +41,16 @@ defmodule GaPersonal.Finance.Payment do
       :payment_date,
       :due_date,
       :reference_number,
-      :notes
+      :notes,
+      :asaas_charge_id,
+      :asaas_invoice_url,
+      :asaas_pix_qr_code,
+      :asaas_pix_payload,
+      :asaas_bankslip_url
     ])
     |> validate_required([:student_id, :trainer_id, :amount_cents])
     |> validate_inclusion(:status, ["pending", "completed", "failed", "refunded"])
-    |> validate_inclusion(:payment_method, ["cash", "pix", "credit_card", "debit_card", "bank_transfer"])
+    |> validate_inclusion(:payment_method, ["cash", "pix", "credit_card", "debit_card", "bank_transfer", "boleto"])
     |> validate_number(:amount_cents, greater_than: 0)
     |> foreign_key_constraint(:student_id)
     |> foreign_key_constraint(:trainer_id)
