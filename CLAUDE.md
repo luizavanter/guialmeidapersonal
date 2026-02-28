@@ -577,6 +577,9 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 ### Módulos de IA
 - `GaPersonal.AI.Client` — Cliente Claude API centralizado (text + multimodal, haiku/sonnet)
 - `GaPersonal.GCS.Client` — GCS V4 signed URL generation (upload/download)
+  - Local: RSA signing com private key do credentials JSON
+  - Cloud Run: IAM `signBlob` API (detecta via `K_SERVICE` env var)
+  - Requer `roles/iam.serviceAccountTokenCreator` no service account
 - Modelos: claude-haiku-4-5-20241022, claude-sonnet-4-5-20250514
 
 ### Novos Controllers (5)
@@ -920,9 +923,13 @@ gcloud dns record-sets list --zone=guialmeidapersonal --project=guialmeidaperson
 - App: https://app.guialmeidapersonal.esp.br
 - Site: https://guialmeidapersonal.esp.br
 
+**AI Media Suite deployado em produção:** 2026-02-28
+- ✅ 4 migrations rodadas (media_files, consent_records, access_logs, bioimpedance_imports, ai_analyses, pose_analyses)
+- ✅ GCS bucket `ga-personal-media` criado com CORS configurado
+- ✅ IAM signBlob API para signed URLs no Cloud Run
+- ✅ Todos os endpoints verificados e funcionando em produção
+
 **Próximos passos:**
-- Deploy AI Media Suite em produção (4 migrations + env vars GCS_BUCKET, ANTHROPIC_API_KEY)
-- Configurar CORS no bucket GCS ga-personal-media
 - Criar conta Asaas sandbox e configurar API key
 - Upload de assets (imagens) e UAT com Guilherme
 - Testes E2E completos via browser
