@@ -1,42 +1,42 @@
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api/v1'
 
 export const API_ENDPOINTS = {
-  // Auth
+  // Auth (no prefix - public/any-authenticated scope)
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   REFRESH: '/auth/refresh',
   LOGOUT: '/auth/logout',
   ME: '/auth/me',
 
-  // Profile
-  PROFILE: '/students/profile',
-  UPDATE_PROFILE: '/students/profile',
+  // Profile (student scope)
+  PROFILE: '/student/profile',
+  UPDATE_PROFILE: '/student/profile',
 
-  // Workouts
-  WORKOUT_PLANS: '/workout-plans',
-  WORKOUT_PLAN: (id: string) => `/workout-plans/${id}`,
-  WORKOUT_LOGS: '/workout-logs',
-  WORKOUT_LOG: (id: string) => `/workout-logs/${id}`,
-  EXERCISES: '/exercises',
+  // Workouts (student scope)
+  WORKOUT_PLANS: '/student/workout-plans',
+  WORKOUT_PLAN: (id: string) => `/student/workout-plans/${id}`,
+  WORKOUT_LOGS: '/student/workout-logs',
+  WORKOUT_LOG: (id: string) => `/student/workout-logs/${id}`,
+  EXERCISES: '/student/exercises',
 
-  // Evolution
-  BODY_ASSESSMENTS: '/body-assessments',
-  EVOLUTION_PHOTOS: '/evolution-photos',
-  GOALS: '/goals',
-  GOAL: (id: string) => `/goals/${id}`,
+  // Evolution (student scope)
+  BODY_ASSESSMENTS: '/student/body-assessments',
+  EVOLUTION_PHOTOS: '/student/evolution-photos',
+  GOALS: '/student/goals',
+  GOAL: (id: string) => `/student/goals/${id}`,
 
-  // Schedule
-  APPOINTMENTS: '/appointments',
-  APPOINTMENT: (id: string) => `/appointments/${id}`,
-  APPOINTMENT_CHANGE_REQUEST: '/appointments/change-request',
+  // Schedule (student scope)
+  APPOINTMENTS: '/student/appointments',
+  APPOINTMENT: (id: string) => `/student/appointments/${id}`,
+  APPOINTMENT_CHANGE_REQUEST: '/student/appointments/change-request',
 
-  // Messages
-  MESSAGES: '/messages',
-  MESSAGE: (id: string) => `/messages/${id}`,
-  MARK_READ: (id: string) => `/messages/${id}/read`,
+  // Messages (student scope)
+  MESSAGES: '/student/messages',
+  MESSAGE: (id: string) => `/student/messages/${id}`,
+  MARK_READ: (id: string) => `/student/messages/${id}/read`,
 
-  // Dashboard
-  DASHBOARD: '/students/dashboard',
+  // Dashboard (student scope)
+  DASHBOARD: '/student/dashboard',
 } as const
 
 export const STORAGE_KEYS = {

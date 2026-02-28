@@ -173,12 +173,22 @@ defmodule GaPersonalWeb.Router do
   scope "/api/v1/student", GaPersonalWeb do
     pipe_through [:api, :authenticated, :student_only]
 
+    # Dashboard - student's own summary data
+    get "/dashboard", StudentController, :dashboard_for_student
+
+    # Profile - students view and update their own profile
+    get "/profile", StudentController, :profile_for_student
+    put "/profile", StudentController, :update_profile_for_student
+
     # Students can view their own workout plans
     get "/workout-plans", WorkoutPlanController, :index_for_student
     get "/workout-plans/:id", WorkoutPlanController, :show_for_student
 
     # Students can create workout logs (record their exercises)
     resources "/workout-logs", WorkoutLogController, only: [:index, :create, :show]
+
+    # Students can view exercises (read-only, from their trainer)
+    get "/exercises", ExerciseController, :index_for_student
 
     # Students can view their appointments
     get "/appointments", AppointmentController, :index_for_student
@@ -188,6 +198,9 @@ defmodule GaPersonalWeb.Router do
     get "/body-assessments", BodyAssessmentController, :index_for_student
     get "/body-assessments/:id", BodyAssessmentController, :show_for_student
 
+    # Students can view their evolution photos
+    get "/evolution-photos", EvolutionPhotoController, :index_for_student
+
     # Students can view and update their goals progress
     get "/goals", GoalController, :index_for_student
     get "/goals/:id", GoalController, :show_for_student
@@ -196,6 +209,12 @@ defmodule GaPersonalWeb.Router do
     # Students can view their subscription and payment history
     get "/subscription", SubscriptionController, :show_for_student
     get "/payments", PaymentController, :index_for_student
+
+    # Messages - students can send and receive messages
+    get "/messages", MessageController, :index
+    post "/messages", MessageController, :create
+    get "/messages/:id", MessageController, :show
+    put "/messages/:id/read", MessageController, :mark_read
 
     # Media - students can upload and view their own files
     post "/media/upload-url", MediaController, :create_upload_url

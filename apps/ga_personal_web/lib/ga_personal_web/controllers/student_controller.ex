@@ -71,6 +71,65 @@ defmodule GaPersonalWeb.StudentController do
     end
   end
 
+  # Student self-service actions
+  def dashboard_for_student(conn, _params) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        json(conn, %{data: %{
+          student: student_json(student),
+          user: %{
+            full_name: user.full_name,
+            email: user.email,
+            phone: user.phone
+          }
+        }})
+    end
+  end
+
+  def profile_for_student(conn, _params) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        json(conn, %{data: Map.merge(student_json(student), %{
+          full_name: user.full_name,
+          email: user.email,
+          phone: user.phone
+        })})
+    end
+  end
+
+  def update_profile_for_student(conn, %{"profile" => profile_params}) do
+    user = conn.assigns.current_user
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        with {:ok, updated_student} <- Accounts.update_student_profile(student, profile_params) do
+          json(conn, %{data: Map.merge(student_json(updated_student), %{
+            full_name: user.full_name,
+            email: user.email,
+            phone: user.phone
+          })})
+        end
+    end
+  end
+
+  def update_profile_for_student(conn, params) do
+    # Accept params without "profile" wrapper too
+    update_profile_for_student(conn, %{"profile" => params})
+  end
+
   defp student_json(student) do
     %{
       id: student.id,

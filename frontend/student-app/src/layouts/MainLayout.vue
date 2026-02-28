@@ -45,7 +45,7 @@
               {{ userInitials }}
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-smoke truncate">{{ user?.name }}</p>
+              <p class="text-sm font-medium text-smoke truncate">{{ user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') }}</p>
               <p class="text-xs text-stone truncate">{{ user?.email }}</p>
             </div>
           </div>
@@ -109,8 +109,9 @@ const messagesStore = useMessagesStore()
 const sidebarOpen = ref(false)
 
 const userInitials = computed(() => {
-  if (!user.value?.name) return 'U'
-  return user.value.name
+  const name = user.value?.name || [user.value?.firstName, user.value?.lastName].filter(Boolean).join(' ')
+  if (!name) return 'U'
+  return name
     .split(' ')
     .map((n: string) => n[0])
     .join('')

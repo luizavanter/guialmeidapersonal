@@ -81,6 +81,21 @@ defmodule GaPersonalWeb.ExerciseController do
     end
   end
 
+  # Student action - read-only access to their trainer's exercises
+  def index_for_student(conn, _params) do
+    user = conn.assigns.current_user
+    alias GaPersonal.Accounts
+
+    case Accounts.get_student_by_user_id(user.id) do
+      nil ->
+        {:error, :not_found}
+
+      student ->
+        exercises = Workouts.list_exercises(student.trainer_id)
+        json(conn, %{data: Enum.map(exercises, &exercise_json/1)})
+    end
+  end
+
   defp exercise_json(exercise) do
     %{
       id: exercise.id,

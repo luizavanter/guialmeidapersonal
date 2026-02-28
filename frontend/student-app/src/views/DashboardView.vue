@@ -2,7 +2,7 @@
   <div>
     <div class="mb-8">
       <h1 class="text-display-md text-smoke">{{ t('dashboard.title') }}</h1>
-      <p class="text-stone mt-1">{{ t('dashboard.welcome', { name: user?.name?.split(' ')[0] || '' }) }}</p>
+      <p class="text-stone mt-1">{{ t('dashboard.welcome', { name: user?.firstName || user?.name?.split(' ')[0] || '' }) }}</p>
     </div>
 
     <div v-if="isLoading" class="text-center py-12">

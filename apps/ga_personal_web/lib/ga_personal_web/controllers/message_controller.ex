@@ -51,6 +51,18 @@ defmodule GaPersonalWeb.MessageController do
     end
   end
 
+  def mark_read(conn, %{"id" => id}) do
+    user_id = conn.assigns.current_user_id
+    message = Messaging.get_message!(id)
+
+    if message.recipient_id == user_id do
+      {:ok, updated} = Messaging.mark_as_read(message)
+      json(conn, %{data: message_json(updated)})
+    else
+      {:error, :forbidden}
+    end
+  end
+
   def delete(conn, %{"id" => id}) do
     user_id = conn.assigns.current_user_id
     message = Messaging.get_message!(id)

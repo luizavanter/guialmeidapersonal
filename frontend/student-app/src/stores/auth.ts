@@ -4,6 +4,20 @@ import { api } from '@/lib/api'
 import { API_ENDPOINTS, STORAGE_KEYS } from '@/constants/api'
 import type { User, LoginCredentials, AuthResponse } from '@/types'
 
+// Normalize backend user (full_name -> name)
+function normalizeUser(raw: any): User {
+  return {
+    id: raw.id,
+    email: raw.email,
+    name: raw.name || raw.full_name || raw.fullName || [raw.firstName, raw.lastName].filter(Boolean).join(' ') || '',
+    role: raw.role,
+    locale: raw.locale || 'pt-BR',
+    avatarUrl: raw.avatar_url || raw.avatarUrl,
+    insertedAt: raw.inserted_at || raw.insertedAt || '',
+    updatedAt: raw.updated_at || raw.updatedAt || '',
+  }
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const isLoading = ref(false)
@@ -22,10 +36,11 @@ export const useAuthStore = defineStore('auth', () => {
         throw new Error('Access denied. Students only.')
       }
 
-      user.value = response.data.user
+      const normalized = normalizeUser(response.data.user)
+      user.value = normalized
       localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.data.tokens.accessToken)
       localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.data.tokens.refreshToken)
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data.user))
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(normalized))
     } catch (err) {
       const errors = api.handleError(err)
       error.value = errors[0]?.message || 'Login failed'
@@ -57,11 +72,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     try {
-      user.value = JSON.parse(userStr)
+      user.value = normalizeUser(JSON.parse(userStr))
       // Verify token is still valid
       const response = await api.get<User>(API_ENDPOINTS.ME)
-      user.value = response.data
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.data))
+      const normalized = normalizeUser(response.data)
+      user.value = normalized
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(normalized))
     } catch (err) {
       // Token invalid, clear storage
       user.value = null

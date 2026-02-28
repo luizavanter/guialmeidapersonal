@@ -164,7 +164,7 @@ const loadProfile = () => {
   const user = authStore.user
   const profile = profileStore.profile
 
-  form.name = user?.name || ''
+  form.name = user?.name || [user?.firstName, user?.lastName].filter(Boolean).join(' ') || ''
   form.email = user?.email || ''
   form.phone = profile?.phone || ''
   form.dateOfBirth = profile?.dateOfBirth || ''
