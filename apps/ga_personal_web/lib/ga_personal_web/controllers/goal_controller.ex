@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.GoalController do
 
   alias GaPersonal.Evolution
   alias GaPersonal.Accounts
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -10,16 +11,13 @@ defmodule GaPersonalWeb.GoalController do
   def index(conn, %{"student_id" => student_id} = params) do
     trainer_id = conn.assigns.current_user_id
 
-    case Accounts.get_student_for_trainer(student_id, trainer_id) do
-      {:ok, _student} ->
-        goals = Evolution.list_goals(student_id, params)
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        goals = Evolution.list_goals(user_id, params)
         json(conn, %{data: Enum.map(goals, &goal_json/1)})
 
-      {:error, :not_found} ->
-        {:error, :not_found}
-
-      {:error, :unauthorized} ->
-        {:error, :forbidden}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -46,19 +44,20 @@ defmodule GaPersonalWeb.GoalController do
     trainer_id = conn.assigns.current_user_id
     student_id = Map.get(goal_params, "student_id")
 
-    case Accounts.get_student_for_trainer(student_id, trainer_id) do
-      {:ok, _student} ->
-        with {:ok, goal} <- Evolution.create_goal(goal_params) do
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        params = goal_params
+        |> Map.put("student_id", user_id)
+        |> Map.put("trainer_id", trainer_id)
+
+        with {:ok, goal} <- Evolution.create_goal(params) do
           conn
           |> put_status(:created)
           |> json(%{data: goal_json(goal)})
         end
 
-      {:error, :not_found} ->
-        {:error, :not_found}
-
-      {:error, :unauthorized} ->
-        {:error, :forbidden}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -100,58 +99,39 @@ defmodule GaPersonalWeb.GoalController do
   def index_for_student(conn, params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        goals = Evolution.list_goals(student.id, params)
-        json(conn, %{data: Enum.map(goals, &goal_json/1)})
-    end
+    goals = Evolution.list_goals(user.id, params)
+    json(conn, %{data: Enum.map(goals, &goal_json/1)})
   end
 
   def show_for_student(conn, %{"id" => id}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
+    case Evolution.get_goal_for_student(id, user.id) do
+      {:ok, goal} ->
+        json(conn, %{data: goal_json(goal)})
+
+      {:error, :not_found} ->
         {:error, :not_found}
 
-      student ->
-        case Evolution.get_goal_for_student(id, student.id) do
-          {:ok, goal} ->
-            json(conn, %{data: goal_json(goal)})
-
-          {:error, :not_found} ->
-            {:error, :not_found}
-
-          {:error, :unauthorized} ->
-            {:error, :forbidden}
-        end
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
   def update_progress(conn, %{"id" => id, "current_value" => current_value}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
+    case Evolution.get_goal_for_student(id, user.id) do
+      {:ok, goal} ->
+        with {:ok, updated} <- Evolution.update_goal(goal, %{current_value: current_value}) do
+          json(conn, %{data: goal_json(updated)})
+        end
+
+      {:error, :not_found} ->
         {:error, :not_found}
 
-      student ->
-        case Evolution.get_goal_for_student(id, student.id) do
-          {:ok, goal} ->
-            # Students can only update their current progress value
-            with {:ok, updated} <- Evolution.update_goal(goal, %{current_value: current_value}) do
-              json(conn, %{data: goal_json(updated)})
-            end
-
-          {:error, :not_found} ->
-            {:error, :not_found}
-
-          {:error, :unauthorized} ->
-            {:error, :forbidden}
-        end
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 

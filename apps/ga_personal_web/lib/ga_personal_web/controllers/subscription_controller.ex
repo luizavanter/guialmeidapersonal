@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.SubscriptionController do
 
   alias GaPersonal.Finance
   alias GaPersonal.Accounts
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -30,12 +31,22 @@ defmodule GaPersonalWeb.SubscriptionController do
 
   def create(conn, %{"subscription" => subscription_params}) do
     trainer_id = conn.assigns.current_user_id
-    params = Map.put(subscription_params, "trainer_id", trainer_id)
+    student_id = Map.get(subscription_params, "student_id")
 
-    with {:ok, subscription} <- Finance.create_subscription(params) do
-      conn
-      |> put_status(:created)
-      |> json(%{data: subscription_json(subscription)})
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        params = subscription_params
+        |> Map.put("student_id", user_id)
+        |> Map.put("trainer_id", trainer_id)
+
+        with {:ok, subscription} <- Finance.create_subscription(params) do
+          conn
+          |> put_status(:created)
+          |> json(%{data: subscription_json(subscription)})
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

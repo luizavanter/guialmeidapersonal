@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.AppointmentController do
 
   alias GaPersonal.Schedule
   alias GaPersonal.Accounts
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -30,12 +31,22 @@ defmodule GaPersonalWeb.AppointmentController do
 
   def create(conn, %{"appointment" => appointment_params}) do
     trainer_id = conn.assigns.current_user_id
-    params = Map.put(appointment_params, "trainer_id", trainer_id)
+    student_id = Map.get(appointment_params, "student_id")
 
-    with {:ok, appointment} <- Schedule.create_appointment(params) do
-      conn
-      |> put_status(:created)
-      |> json(%{data: appointment_json(appointment)})
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        params = appointment_params
+        |> Map.put("student_id", user_id)
+        |> Map.put("trainer_id", trainer_id)
+
+        with {:ok, appointment} <- Schedule.create_appointment(params) do
+          conn
+          |> put_status(:created)
+          |> json(%{data: appointment_json(appointment)})
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

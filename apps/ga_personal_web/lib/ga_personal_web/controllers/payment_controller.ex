@@ -4,6 +4,7 @@ defmodule GaPersonalWeb.PaymentController do
   alias GaPersonal.Finance
   alias GaPersonal.Accounts
   alias GaPersonal.Asaas.Charges
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   require Logger
 
@@ -33,12 +34,22 @@ defmodule GaPersonalWeb.PaymentController do
 
   def create(conn, %{"payment" => payment_params}) do
     trainer_id = conn.assigns.current_user_id
-    params = Map.put(payment_params, "trainer_id", trainer_id)
+    student_id = Map.get(payment_params, "student_id")
 
-    with {:ok, payment} <- Finance.create_payment(params) do
-      conn
-      |> put_status(:created)
-      |> json(%{data: payment_json(payment)})
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        params = payment_params
+        |> Map.put("student_id", user_id)
+        |> Map.put("trainer_id", trainer_id)
+
+        with {:ok, payment} <- Finance.create_payment(params) do
+          conn
+          |> put_status(:created)
+          |> json(%{data: payment_json(payment)})
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

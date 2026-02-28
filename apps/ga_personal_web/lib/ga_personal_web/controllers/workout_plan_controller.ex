@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.WorkoutPlanController do
 
   alias GaPersonal.Workouts
   alias GaPersonal.Accounts
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -30,12 +31,22 @@ defmodule GaPersonalWeb.WorkoutPlanController do
 
   def create(conn, %{"workout_plan" => workout_plan_params}) do
     trainer_id = conn.assigns.current_user_id
-    params = Map.put(workout_plan_params, "trainer_id", trainer_id)
+    student_id = Map.get(workout_plan_params, "student_id")
 
-    with {:ok, workout_plan} <- Workouts.create_workout_plan(params) do
-      conn
-      |> put_status(:created)
-      |> json(%{data: workout_plan_json(workout_plan)})
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        params = workout_plan_params
+        |> Map.put("student_id", user_id)
+        |> Map.put("trainer_id", trainer_id)
+
+        with {:ok, workout_plan} <- Workouts.create_workout_plan(params) do
+          conn
+          |> put_status(:created)
+          |> json(%{data: workout_plan_json(workout_plan)})
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

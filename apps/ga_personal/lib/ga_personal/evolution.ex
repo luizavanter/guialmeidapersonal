@@ -34,8 +34,8 @@ defmodule GaPersonal.Evolution do
         {:error, :not_found}
 
       assessment ->
-        # Need to verify the student belongs to this trainer
-        case GaPersonal.Accounts.get_student(assessment.student_id) do
+        # student_id references users table, so look up profile by user_id
+        case GaPersonal.Accounts.get_student_by_user_id(assessment.student_id) do
           nil ->
             {:error, :not_found}
 
@@ -141,7 +141,8 @@ defmodule GaPersonal.Evolution do
         {:error, :not_found}
 
       goal ->
-        case GaPersonal.Accounts.get_student(goal.student_id) do
+        # student_id references users table, so look up profile by user_id
+        case GaPersonal.Accounts.get_student_by_user_id(goal.student_id) do
           nil ->
             {:error, :not_found}
 

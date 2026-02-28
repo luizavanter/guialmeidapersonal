@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.BodyAssessmentController do
 
   alias GaPersonal.Evolution
   alias GaPersonal.Accounts
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -10,17 +11,13 @@ defmodule GaPersonalWeb.BodyAssessmentController do
   def index(conn, %{"student_id" => student_id}) do
     trainer_id = conn.assigns.current_user_id
 
-    # Verify the student belongs to this trainer
-    case Accounts.get_student_for_trainer(student_id, trainer_id) do
-      {:ok, _student} ->
-        assessments = Evolution.list_body_assessments(student_id)
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        assessments = Evolution.list_body_assessments(user_id)
         json(conn, %{data: Enum.map(assessments, &body_assessment_json/1)})
 
-      {:error, :not_found} ->
-        {:error, :not_found}
-
-      {:error, :unauthorized} ->
-        {:error, :forbidden}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -47,10 +44,11 @@ defmodule GaPersonalWeb.BodyAssessmentController do
     trainer_id = conn.assigns.current_user_id
     student_id = Map.get(assessment_params, "student_id")
 
-    # Verify the student belongs to this trainer
-    case Accounts.get_student_for_trainer(student_id, trainer_id) do
-      {:ok, _student} ->
-        params = Map.put(assessment_params, "assessor_id", trainer_id)
+    case resolve_and_verify_student(student_id, trainer_id) do
+      {:ok, user_id} ->
+        params = assessment_params
+        |> Map.put("student_id", user_id)
+        |> Map.put("trainer_id", trainer_id)
 
         with {:ok, assessment} <- Evolution.create_body_assessment(params) do
           conn
@@ -58,11 +56,8 @@ defmodule GaPersonalWeb.BodyAssessmentController do
           |> json(%{data: body_assessment_json(assessment)})
         end
 
-      {:error, :not_found} ->
-        {:error, :not_found}
-
-      {:error, :unauthorized} ->
-        {:error, :forbidden}
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -104,34 +99,22 @@ defmodule GaPersonalWeb.BodyAssessmentController do
   def index_for_student(conn, _params) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
-        {:error, :not_found}
-
-      student ->
-        assessments = Evolution.list_body_assessments(student.id)
-        json(conn, %{data: Enum.map(assessments, &body_assessment_json/1)})
-    end
+    assessments = Evolution.list_body_assessments(user.id)
+    json(conn, %{data: Enum.map(assessments, &body_assessment_json/1)})
   end
 
   def show_for_student(conn, %{"id" => id}) do
     user = conn.assigns.current_user
 
-    case Accounts.get_student_by_user_id(user.id) do
-      nil ->
+    case Evolution.get_body_assessment_for_student(id, user.id) do
+      {:ok, assessment} ->
+        json(conn, %{data: body_assessment_json(assessment)})
+
+      {:error, :not_found} ->
         {:error, :not_found}
 
-      student ->
-        case Evolution.get_body_assessment_for_student(id, student.id) do
-          {:ok, assessment} ->
-            json(conn, %{data: body_assessment_json(assessment)})
-
-          {:error, :not_found} ->
-            {:error, :not_found}
-
-          {:error, :unauthorized} ->
-            {:error, :forbidden}
-        end
+      {:error, :unauthorized} ->
+        {:error, :forbidden}
     end
   end
 
@@ -139,7 +122,7 @@ defmodule GaPersonalWeb.BodyAssessmentController do
     %{
       id: assessment.id,
       student_id: assessment.student_id,
-      assessor_id: assessment.assessor_id,
+      trainer_id: assessment.trainer_id,
       assessment_date: assessment.assessment_date,
       weight_kg: assessment.weight_kg,
       height_cm: assessment.height_cm,
