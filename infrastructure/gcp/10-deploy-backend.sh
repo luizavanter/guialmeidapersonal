@@ -127,7 +127,7 @@ verify_infrastructure() {
     fi
     log_info "Service account verified"
 
-    # Check required secrets
+    # Check required secrets (core)
     local required_secrets=("database-url" "redis-url" "jwt-secret" "secret-key-base")
     for secret in "${required_secrets[@]}"; do
         if ! gcloud secrets describe "$secret" --project=$PROJECT_ID &>/dev/null; then
@@ -136,7 +136,15 @@ verify_infrastructure() {
             exit 1
         fi
     done
-    log_info "All required secrets verified"
+    log_info "Core secrets verified"
+
+    # Check optional secrets (warn if missing, don't fail)
+    local optional_secrets=("asaas-api-key" "asaas-webhook-token" "resend-api-key")
+    for secret in "${optional_secrets[@]}"; do
+        if ! gcloud secrets describe "$secret" --project=$PROJECT_ID &>/dev/null; then
+            log_warn "Optional secret '$secret' not found - related feature will be disabled"
+        fi
+    done
 
     # Check if image exists in Artifact Registry
     if ! gcloud artifacts docker images describe "$FULL_IMAGE_PATH" \
@@ -166,6 +174,20 @@ deploy_service() {
         return 0
     fi
 
+    # Build secrets string (core + optional)
+    local SECRETS="DATABASE_URL=database-url:latest,REDIS_URL=redis-url:latest,JWT_SECRET=jwt-secret:latest,SECRET_KEY_BASE=secret-key-base:latest"
+
+    # Add optional secrets if they exist
+    if gcloud secrets describe "asaas-api-key" --project=$PROJECT_ID &>/dev/null; then
+        SECRETS="${SECRETS},ASAAS_API_KEY=asaas-api-key:latest"
+    fi
+    if gcloud secrets describe "asaas-webhook-token" --project=$PROJECT_ID &>/dev/null; then
+        SECRETS="${SECRETS},ASAAS_WEBHOOK_TOKEN=asaas-webhook-token:latest"
+    fi
+    if gcloud secrets describe "resend-api-key" --project=$PROJECT_ID &>/dev/null; then
+        SECRETS="${SECRETS},RESEND_API_KEY=resend-api-key:latest"
+    fi
+
     gcloud run deploy $SERVICE_NAME \
         --image="$FULL_IMAGE_PATH" \
         --platform=managed \
@@ -182,8 +204,8 @@ deploy_service() {
         --port=$PORT \
         --concurrency=$CONCURRENCY \
         --timeout=$TIMEOUT \
-        --set-env-vars="MIX_ENV=prod,PHX_SERVER=true,PHX_HOST=api.guialmeidapersonal.com.br" \
-        --set-secrets="DATABASE_URL=database-url:latest,REDIS_URL=redis-url:latest,JWT_SECRET=jwt-secret:latest,SECRET_KEY_BASE=secret-key-base:latest" \
+        --set-env-vars="MIX_ENV=prod,PHX_SERVER=true,PHX_HOST=api.guialmeidapersonal.esp.br,ASAAS_ENVIRONMENT=sandbox" \
+        --set-secrets="$SECRETS" \
         --allow-unauthenticated \
         --quiet
 
