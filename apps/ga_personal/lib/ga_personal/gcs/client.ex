@@ -156,7 +156,7 @@ defmodule GaPersonal.GCS.Client do
     case get_access_token() do
       {:ok, token} ->
         url = "https://iam.googleapis.com/v1/projects/-/serviceAccounts/#{client_email}:signBlob"
-        body = Jason.encode!(%{payload: Base.encode64(string)})
+        body = Jason.encode!(%{bytesToSign: Base.encode64(string)})
 
         case Req.request(
           method: :post,
