@@ -239,7 +239,7 @@ create_migration_job() {
             --max-retries=1 \
             --task-timeout="600s" \
             --set-env-vars="MIX_ENV=prod" \
-            --set-secrets="DATABASE_URL=database-url:latest" \
+            --set-secrets="DATABASE_URL=database-url:latest,SECRET_KEY_BASE=secret-key-base:latest,JWT_SECRET=jwt-secret:latest" \
             --command="/app/bin/ga_personal" \
             --args="eval","GaPersonal.Release.migrate" \
             --quiet
@@ -258,7 +258,7 @@ create_migration_job() {
             --max-retries=1 \
             --task-timeout="600s" \
             --set-env-vars="MIX_ENV=prod" \
-            --set-secrets="DATABASE_URL=database-url:latest" \
+            --set-secrets="DATABASE_URL=database-url:latest,SECRET_KEY_BASE=secret-key-base:latest,JWT_SECRET=jwt-secret:latest" \
             --command="/app/bin/ga_personal" \
             --args="eval","GaPersonal.Release.migrate" \
             --quiet
