@@ -167,7 +167,7 @@ defmodule GaPersonal.GCS.Client do
           ],
           body: body
         ) do
-          {:ok, %Req.Response{status: 200, body: %{"signedBlob" => signed_blob}}} ->
+          {:ok, %Req.Response{status: 200, body: %{"signature" => signed_blob}}} ->
             signature = signed_blob |> Base.decode64!() |> Base.encode16(case: :lower)
             {:ok, signature}
 
