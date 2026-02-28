@@ -54,7 +54,8 @@
     "logoutSuccess": "Logout successful",
     "registerSuccess": "Registration successful",
     "invalidCredentials": "Invalid credentials",
-    "sessionExpired": "Session expired. Please login again."
+    "sessionExpired": "Session expired. Please login again.",
+    "tagline": "Training & Performance"
   },
   "nav": {
     "dashboard": "Dashboard",

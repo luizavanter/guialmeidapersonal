@@ -85,9 +85,9 @@ defmodule GaPersonalWeb.Router do
     get "/auth/me", AuthController, :me
 
     # Messages - all authenticated users can use messaging
-    resources "/messages", MessageController, only: [:index, :create, :show, :delete]
     get "/messages/inbox", MessageController, :inbox
     get "/messages/sent", MessageController, :sent
+    resources "/messages", MessageController, only: [:index, :create, :show, :delete]
 
     # Notifications - all users receive notifications
     post "/notifications/read-all", NotificationController, :mark_all_read

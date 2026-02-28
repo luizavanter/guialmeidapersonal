@@ -37,6 +37,7 @@ export default {
     loginSubtitle: 'Enter your credentials to access the portal',
     invalidCredentials: 'Invalid email or password',
     accessDenied: 'Access denied. Students only.',
+    tagline: 'Training & Performance',
   },
   nav: {
     dashboard: 'Dashboard',
@@ -45,6 +46,7 @@ export default {
     schedule: 'Schedule',
     messages: 'Messages',
     profile: 'Profile',
+    studentLabel: 'Student',
   },
   dashboard: {
     title: 'Dashboard',

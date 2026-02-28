@@ -65,7 +65,7 @@
                   :class="getStatusClass(appointment.status)"
                   class="text-xs px-2 py-1 rounded-full"
                 >
-                  {{ appointment.status }}
+                  {{ t('schedule.status.' + appointment.status) || appointment.status }}
                 </span>
               </div>
             </div>

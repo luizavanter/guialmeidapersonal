@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório de Validação — GA Personal</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --coal: #0A0A0A;
+      --coal-light: #141414;
+      --coal-lighter: #1E1E1E;
+      --lime: #C4F53A;
+      --lime-dim: rgba(196,245,58,0.15);
+      --ocean: #0EA5E9;
+      --smoke: #F5F5F0;
+      --smoke-dim: rgba(245,245,240,0.6);
+      --smoke-faint: rgba(245,245,240,0.08);
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --error: #EF4444;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--coal);
+      color: var(--smoke);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page-header {
+      background: linear-gradient(180deg, var(--coal-lighter) 0%, var(--coal) 100%);
+      border-bottom: 1px solid var(--smoke-faint);
+      padding: 2rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      background: var(--lime);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--coal);
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--smoke);
+      letter-spacing: -0.02em;
+    }
+
+    .doc-badge {
+      background: var(--lime-dim);
+      color: var(--lime);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3rem 0.8rem;
+      border-radius: 100px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 4rem 2rem 3rem;
+    }
+
+    .hero-overline {
+      color: var(--lime);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 2rem;
+      color: var(--smoke-dim);
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+    }
+
+    .hero-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem 6rem;
+    }
+
+    /* Executive Summary Card */
+    .exec-summary {
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .exec-summary h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .exec-summary p {
+      color: var(--smoke-dim);
+      margin-bottom: 1.5rem;
+    }
+
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .status-card {
+      background: var(--coal);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-card .label {
+      font-size: 0.85rem;
+      color: var(--smoke-dim);
+    }
+
+    .status-card .status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 100px;
+    }
+
+    .status-approved {
+      background: rgba(34,197,94,0.15);
+      color: var(--success);
+    }
+
+    /* Sections */
+    .section {
+      margin-bottom: 3.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--smoke-faint);
+    }
+
+    .section-num {
+      width: 32px;
+      height: 32px;
+      background: var(--lime);
+      color: var(--coal);
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .section-header h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .subsection {
+      margin-bottom: 2rem;
+    }
+
+    .subsection h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--smoke);
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--smoke-faint);
+      margin-bottom: 1.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    thead {
+      background: var(--coal-lighter);
+    }
+
+    th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--smoke-dim);
+      border-bottom: 1px solid var(--smoke-faint);
+    }
+
+    td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--smoke-faint);
+      color: var(--smoke-dim);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--smoke-faint);
+    }
+
+    td.ok {
+      color: var(--success);
+      font-weight: 500;
+    }
+
+    td.warn {
+      color: var(--warning);
+      font-weight: 500;
+    }
+
+    /* Code blocks */
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      background: var(--coal-lighter);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: var(--lime);
+    }
+
+    /* Stat cards */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 8px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--lime);
+      letter-spacing: -0.02em;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      color: var(--smoke-dim);
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Recommendation cards */
+    .rec-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .rec-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+
+    .rec-card .sev {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-top: 0.15rem;
+    }
+
+    .sev-low { background: rgba(14,165,233,0.15); color: var(--ocean); }
+    .sev-med { background: rgba(245,158,11,0.15); color: var(--warning); }
+
+    .rec-card .rec-text {
+      font-size: 0.85rem;
+      color: var(--smoke-dim);
+    }
+
+    .rec-card .rec-text strong {
+      color: var(--smoke);
+      font-weight: 500;
+    }
+
+    /* URLs section */
+    .url-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .url-card {
+      background: var(--coal-lighter);
+      border: 1px solid var(--smoke-faint);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .url-card .url-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--smoke-dim);
+      margin-bottom: 0.4rem;
+    }
+
+    .url-card a {
+      color: var(--ocean);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .url-card a:hover { text-decoration: underline; }
+
+    /* Footer */
+    .doc-footer {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2rem;
+      border-top: 1px solid var(--smoke-faint);
+      display: flex;
+      justify-content: space-between;
+      color: var(--smoke-dim);
+      font-size: 0.8rem;
+    }
+
+    /* Print */
+    @media print {
+      body { background: white; color: #111; }
+      .page-header { position: static; background: white; border-bottom-color: #ddd; }
+      .doc-badge { border: 1px solid #ddd; }
+      .exec-summary, .stat-card, .status-card, .url-card, .rec-card { background: #f8f8f8; border-color: #ddd; }
+      table { font-size: 0.8rem; }
+      th { background: #f0f0f0; }
+      code { background: #f0f0f0; color: #111; }
+      .section-num { background: #111; color: white; }
+      .stat-card .value { color: #111; }
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.8rem; }
+      .hero-meta { flex-direction: column; gap: 0.5rem; }
+      .stat-row { grid-template-columns: repeat(2, 1fr); }
+      .status-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-inner">
+    <a href="https://guialmeidapersonal.esp.br" class="logo">
+      <div class="logo-mark">GA</div>
+      <span class="logo-text">GA Personal</span>
+    </a>
+    <span class="doc-badge">Documento Interno</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-overline">Validação de Plataforma</div>
+  <h1>Relatório de Validação<br>da Plataforma</h1>
+  <div class="hero-meta">
+    <span>28 de fevereiro de 2026</span>
+    <span>Versão 1.0</span>
+    <span>Ambiente: Produção (GCP)</span>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <h2>Resumo Executivo</h2>
+    <p>A plataforma GA Personal passou por uma validação completa em ambiente de produção. Todos os módulos foram testados individualmente e em integração, confirmando que o sistema opera conforme especificado. <strong style="color:var(--success)">Resultado geral: Aprovado.</strong></p>
+    <div class="status-grid">
+      <div class="status-card">
+        <span class="label">Painel do Gestor</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">Portal do Aluno</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">Site Institucional</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">API REST (70+ endpoints)</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">Autenticação JWT</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">Internacionalização</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">Formulário de Contato</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+      <div class="status-card">
+        <span class="label">Infraestrutura GCP</span>
+        <span class="status status-approved">Aprovado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 1: Admin -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>Painel do Gestor (Admin)</h2>
+    </div>
+    <p style="color:var(--smoke-dim);margin-bottom:1.5rem">URL: <code>admin.guialmeidapersonal.esp.br</code> — 10 telas validadas com navegação via browser automatizado.</p>
+
+    <div class="subsection">
+      <h3>Login e Dashboard</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Item</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td>Página de login carrega</td><td class="ok">OK</td></tr>
+            <tr><td>Tagline i18n "Treino & Performance"</td><td class="ok">OK</td></tr>
+            <tr><td>Autenticação com credenciais</td><td class="ok">OK</td></tr>
+            <tr><td>Cards de estatísticas (alunos, pagamentos)</td><td class="ok">OK — Dados reais</td></tr>
+            <tr><td>Agenda do dia</td><td class="ok">OK — Sessão 07:00</td></tr>
+            <tr><td>Navegação lateral completa</td><td class="ok">OK</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Módulos Funcionais</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Módulo</th><th>Funcionalidades</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Alunos</td><td>Listagem, busca, filtros, CRUD, detalhes</td><td class="ok">OK — 2 alunos</td></tr>
+            <tr><td>Agenda</td><td>Calendário dia/semana/mês, agendamentos</td><td class="ok">OK — 1 agendamento</td></tr>
+            <tr><td>Treinos</td><td>Hub, biblioteca de exercícios, planos</td><td class="ok">OK — 1 exercício, 1 plano</td></tr>
+            <tr><td>Evolução</td><td>Avaliações, fotos, metas por aluno</td><td class="ok">OK — 2 alunos</td></tr>
+            <tr><td>Financeiro</td><td>Dashboard, pagamentos, assinaturas, planos</td><td class="ok">OK — 1 pagamento</td></tr>
+            <tr><td>Mensagens</td><td>Inbox, envio, seleção de destinatário</td><td class="ok">OK — 2 mensagens</td></tr>
+            <tr><td>Configurações</td><td>Perfil, idioma</td><td class="ok">OK</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Student -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>Portal do Aluno</h2>
+    </div>
+    <p style="color:var(--smoke-dim);margin-bottom:1.5rem">URL: <code>app.guialmeidapersonal.esp.br</code> — 7 telas validadas.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tela</th><th>Funcionalidades</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Login</td><td>Autenticação, tagline i18n, redirecionamento</td><td class="ok">OK</td></tr>
+          <tr><td>Dashboard</td><td>5 cards (sessão, treino, progresso, metas, mensagens)</td><td class="ok">OK</td></tr>
+          <tr><td>Meus Treinos</td><td>Plano ativo, histórico de treinos</td><td class="ok">OK</td></tr>
+          <tr><td>Evolução</td><td>Peso, gordura, avaliações, metas, fotos</td><td class="ok">OK</td></tr>
+          <tr><td>Agenda</td><td>Próximas sessões, histórico</td><td class="ok">OK</td></tr>
+          <tr><td>Mensagens</td><td>Conversas, envio, estatísticas</td><td class="ok">OK</td></tr>
+          <tr><td>Perfil</td><td>Dados pessoais, emergência, saúde</td><td class="ok">OK</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 3: Site -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>Site Institucional</h2>
+    </div>
+    <p style="color:var(--smoke-dim);margin-bottom:1.5rem">URL: <code>guialmeidapersonal.esp.br</code> — Bilíngue (PT-BR / EN-US).</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Página</th><th>PT-BR</th><th>EN-US</th></tr></thead>
+        <tbody>
+          <tr><td>Homepage (hero, stats, serviços, depoimentos, CTA)</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+          <tr><td>Sobre (bio, credenciais)</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+          <tr><td>Serviços (3 programas, pacotes)</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+          <tr><td>Blog (5 artigos com categorias)</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+          <tr><td>Contato (formulário, FAQ, info)</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+          <tr><td>Language Switcher</td><td class="ok">OK</td><td class="ok">OK</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Section 4: API -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>API REST — Endpoints</h2>
+    </div>
+    <p style="color:var(--smoke-dim);margin-bottom:1.5rem">Base: <code>api.guialmeidapersonal.esp.br/api/v1</code> — 15+ categorias validadas via HTTP direto.</p>
+
+    <div class="subsection">
+      <h3>Endpoints Públicos</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Método</th><th>HTTP</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td><code>/health</code></td><td>GET</td><td>200</td><td class="ok">Database OK</td></tr>
+            <tr><td><code>/auth/login</code></td><td>POST</td><td>200</td><td class="ok">Tokens retornados</td></tr>
+            <tr><td><code>/auth/refresh</code></td><td>POST</td><td>200</td><td class="ok">Rotação funcional</td></tr>
+            <tr><td><code>/contact</code></td><td>POST</td><td>201</td><td class="ok">Formulário aceito</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Endpoints Autenticados</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Método</th><th>HTTP</th><th>Dados</th></tr></thead>
+          <tbody>
+            <tr><td><code>/auth/me</code></td><td>GET</td><td>200</td><td class="ok">Dados do admin</td></tr>
+            <tr><td><code>/students</code></td><td>GET</td><td>200</td><td class="ok">2 alunos</td></tr>
+            <tr><td><code>/exercises</code></td><td>GET</td><td>200</td><td class="ok">1 exercício</td></tr>
+            <tr><td><code>/appointments</code></td><td>GET</td><td>200</td><td class="ok">1 agendamento</td></tr>
+            <tr><td><code>/payments</code></td><td>GET</td><td>200</td><td class="ok">1 pagamento</td></tr>
+            <tr><td><code>/subscriptions</code></td><td>GET</td><td>200</td><td class="ok">0 registros</td></tr>
+            <tr><td><code>/messages/inbox</code></td><td>GET</td><td>200</td><td class="ok">Funcional</td></tr>
+            <tr><td><code>/messages/sent</code></td><td>GET</td><td>200</td><td class="ok">2 enviadas</td></tr>
+            <tr><td><code>/notifications</code></td><td>GET</td><td>200</td><td class="ok">Funcional</td></tr>
+            <tr><td><code>/workout-plans</code></td><td>GET</td><td>200</td><td class="ok">1 plano</td></tr>
+            <tr><td><code>/body-assessments</code></td><td>GET</td><td>200</td><td class="ok">Funcional</td></tr>
+            <tr><td><code>/goals</code></td><td>GET</td><td>200</td><td class="ok">Funcional</td></tr>
+            <tr><td><code>/plans</code></td><td>GET</td><td>200</td><td class="ok">1 plano</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Segurança</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Teste</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td>JWT access token (15 min) + refresh token (30 dias)</td><td class="ok">OK</td></tr>
+            <tr><td>Login com senha incorreta retorna 401</td><td class="ok">OK</td></tr>
+            <tr><td>Acesso sem token retorna 401</td><td class="ok">OK</td></tr>
+            <tr><td>Refresh token rotation</td><td class="ok">OK</td></tr>
+            <tr><td>Rate limiting (5 req/min login, 3 req/min contact)</td><td class="ok">OK</td></tr>
+            <tr><td>Multi-tenant data isolation</td><td class="ok">OK</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Infrastructure -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>Infraestrutura e Banco de Dados</h2>
+    </div>
+
+    <div class="subsection">
+      <h3>Componentes de Produção</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Componente</th><th>Serviço GCP</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>API Backend</td><td>Cloud Run (Phoenix/Elixir)</td><td class="ok">Ativo</td></tr>
+            <tr><td>Banco de Dados</td><td>Cloud SQL PostgreSQL 16</td><td class="ok">Ativo</td></tr>
+            <tr><td>Cache</td><td>Memorystore Redis 7.0</td><td class="ok">Ativo</td></tr>
+            <tr><td>Admin Frontend</td><td>Cloud Storage + CDN</td><td class="ok">Ativo</td></tr>
+            <tr><td>Student Frontend</td><td>Cloud Storage + CDN</td><td class="ok">Ativo</td></tr>
+            <tr><td>Marketing Site</td><td>Cloud Storage + CDN</td><td class="ok">Ativo</td></tr>
+            <tr><td>SSL/TLS</td><td>Certificate Manager (wildcard)</td><td class="ok">Ativo</td></tr>
+            <tr><td>Load Balancer</td><td>Global HTTPS LB</td><td class="ok">Ativo</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <h3>Background Workers</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Worker</th><th>Frequência</th><th>Função</th></tr></thead>
+          <tbody>
+            <tr><td>AppointmentReminder</td><td>Diário 6h</td><td>Lembrete 24h antes da sessão</td></tr>
+            <tr><td>PaymentDueReminder</td><td>Diário 6h</td><td>Alerta de vencimento em 3 dias</td></tr>
+            <tr><td>WeeklyTrainerSummary</td><td>Segundas 7h</td><td>Resumo semanal</td></tr>
+            <tr><td>AutoBillingWorker</td><td>Diário 8h</td><td>Cobranças automáticas Asaas</td></tr>
+            <tr><td>MediaCleanupWorker</td><td>Diário 3h</td><td>Limpeza de arquivos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6: Stats -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>Estatísticas do Sistema</h2>
+    </div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="value">280+</div><div class="label">Arquivos</div></div>
+      <div class="stat-card"><div class="value">17k+</div><div class="label">Linhas de Código</div></div>
+      <div class="stat-card"><div class="value">70+</div><div class="label">Endpoints API</div></div>
+      <div class="stat-card"><div class="value">22+</div><div class="label">Tabelas no Banco</div></div>
+      <div class="stat-card"><div class="value">23</div><div class="label">Telas Testadas</div></div>
+      <div class="stat-card"><div class="value">600+</div><div class="label">Chaves i18n</div></div>
+    </div>
+  </div>
+
+  <!-- Section 7: Recommendations -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>Observações e Recomendações</h2>
+    </div>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <span class="sev sev-med">Média</span>
+        <div class="rec-text"><strong>Foto do profissional</strong> — Substituir placeholder por foto real do Guilherme Almeida</div>
+      </div>
+      <div class="rec-card">
+        <span class="sev sev-med">Média</span>
+        <div class="rec-text"><strong>Telefone de contato</strong> — Adicionar número real no site e nas configurações</div>
+      </div>
+      <div class="rec-card">
+        <span class="sev sev-low">Baixa</span>
+        <div class="rec-text"><strong>Nome do aluno</strong> — Preencher <code>full_name</code> dos alunos cadastrados para exibição no dashboard</div>
+      </div>
+      <div class="rec-card">
+        <span class="sev sev-low">Baixa</span>
+        <div class="rec-text"><strong>Logo SVG</strong> — Criar logotipo vetorial profissional</div>
+      </div>
+      <div class="rec-card">
+        <span class="sev sev-low">Baixa</span>
+        <div class="rec-text"><strong>Redes sociais</strong> — Atualizar links do Instagram e Facebook com perfis reais</div>
+      </div>
+      <div class="rec-card">
+        <span class="sev sev-low">Baixa</span>
+        <div class="rec-text"><strong>Configurar Asaas</strong> — Criar conta sandbox e configurar API key para cobranças</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 8: URLs -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>URLs de Produção</h2>
+    </div>
+    <div class="url-grid">
+      <div class="url-card">
+        <div class="url-label">API</div>
+        <a href="https://api.guialmeidapersonal.esp.br" target="_blank">api.guialmeidapersonal.esp.br</a>
+      </div>
+      <div class="url-card">
+        <div class="url-label">Painel Admin</div>
+        <a href="https://admin.guialmeidapersonal.esp.br" target="_blank">admin.guialmeidapersonal.esp.br</a>
+      </div>
+      <div class="url-card">
+        <div class="url-label">Portal do Aluno</div>
+        <a href="https://app.guialmeidapersonal.esp.br" target="_blank">app.guialmeidapersonal.esp.br</a>
+      </div>
+      <div class="url-card">
+        <div class="url-label">Site Institucional</div>
+        <a href="https://guialmeidapersonal.esp.br" target="_blank">guialmeidapersonal.esp.br</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conclusion -->
+  <div class="exec-summary" style="border-left:3px solid var(--lime)">
+    <h2>Conclusão</h2>
+    <p>A plataforma GA Personal encontra-se em pleno funcionamento em ambiente de produção. Todos os módulos — gestão de alunos, treinos, agenda, financeiro, comunicação, evolução e site institucional — operam conforme especificado, com suporte completo a dois idiomas.</p>
+    <p style="margin-bottom:0">O sistema está pronto para uso em ambiente real, pendente apenas da configuração de dados reais (foto, contato, logo) e da sessão de validação com o usuário final.</p>
+  </div>
+
+</div>
+
+<footer class="doc-footer">
+  <span>Validado em 28 de fevereiro de 2026</span>
+  <span>GA Personal — Documento Interno</span>
+</footer>
+
+</body>
+</html>

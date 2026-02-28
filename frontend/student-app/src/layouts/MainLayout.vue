@@ -10,7 +10,7 @@
         <div class="flex items-center justify-between px-6 py-4 border-b border-surface-3">
           <div class="flex items-center gap-3">
             <img src="@ga-personal/shared/src/assets/logo-monogram-64.png" alt="GA" class="h-8 w-8" />
-            <span class="text-xs font-medium text-stone uppercase tracking-wider">Aluno</span>
+            <span class="text-xs font-medium text-stone uppercase tracking-wider">{{ t('nav.studentLabel') }}</span>
           </div>
           <button
             type="button"
