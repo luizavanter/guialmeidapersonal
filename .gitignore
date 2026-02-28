@@ -77,3 +77,21 @@ frontend/shared/src/types/generated/
 # VitePress cache
 frontend/site/.vitepress/cache/
 frontend/site/.vitepress/dist/
+frontend/site/docs/.vitepress/cache/
+frontend/site/docs/.vitepress/dist/
+
+# macOS resource forks
+._*
+._.DS_Store
+
+# Local tool configs
+.playwright-mcp/
+.serena/
+
+# Test screenshots
+test-screenshots/
+
+# Design preview files
+*.png
+!frontend/**/src/assets/*.png
+!frontend/site/docs/public/images/*.png
