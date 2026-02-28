@@ -54,23 +54,20 @@ defmodule GaPersonalWeb.WorkoutLogController do
       duration_seconds: workout_log.duration_seconds,
       notes: workout_log.notes,
       completed_at: workout_log.completed_at,
-      exercise: if(Map.get(workout_log, :exercise), do: exercise_json(workout_log.exercise), else: nil),
-      workout_plan: if(Map.get(workout_log, :workout_plan), do: workout_plan_json(workout_log.workout_plan), else: nil)
+      exercise: safe_exercise_json(workout_log),
+      workout_plan: safe_workout_plan_json(workout_log)
     }
   end
 
-  defp exercise_json(exercise) do
-    %{
-      id: exercise.id,
-      name: exercise.name,
-      category: exercise.category
-    }
+  defp safe_exercise_json(%{exercise: %Ecto.Association.NotLoaded{}}), do: nil
+  defp safe_exercise_json(%{exercise: nil}), do: nil
+  defp safe_exercise_json(%{exercise: exercise}) do
+    %{id: exercise.id, name: exercise.name, category: exercise.category}
   end
 
-  defp workout_plan_json(workout_plan) do
-    %{
-      id: workout_plan.id,
-      name: workout_plan.name
-    }
+  defp safe_workout_plan_json(%{workout_plan: %Ecto.Association.NotLoaded{}}), do: nil
+  defp safe_workout_plan_json(%{workout_plan: nil}), do: nil
+  defp safe_workout_plan_json(%{workout_plan: plan}) do
+    %{id: plan.id, name: plan.name}
   end
 end
