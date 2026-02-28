@@ -4,6 +4,27 @@ import { useApi } from '@ga-personal/shared'
 import { API_ENDPOINTS } from '@ga-personal/shared'
 import type { Payment, Subscription, Plan } from '@ga-personal/shared'
 
+// Normalize backend snake_case payment to frontend format
+function normalizePayment(raw: any): Payment {
+  const amountCents = raw.amount_cents ?? raw.amountCents ?? 0
+  return {
+    id: raw.id,
+    subscriptionId: raw.subscription_id || raw.subscriptionId || '',
+    amount: raw.amount ?? (amountCents / 100),
+    amountCents,
+    currency: raw.currency || 'BRL',
+    status: raw.status || 'pending',
+    method: raw.payment_method || raw.method || undefined,
+    paidAt: raw.payment_date || raw.paidAt || undefined,
+    dueDate: raw.due_date || raw.dueDate || '',
+    notes: raw.notes || undefined,
+    createdAt: raw.inserted_at || raw.createdAt || '',
+    updatedAt: raw.updated_at || raw.updatedAt || '',
+    subscription: raw.subscription,
+    student: raw.student,
+  }
+}
+
 export const useFinanceStore = defineStore('finance', () => {
   const api = useApi()
 
@@ -21,9 +42,10 @@ export const useFinanceStore = defineStore('finance', () => {
 
   const overduePayments = computed(() => {
     const now = new Date()
-    return payments.value.filter(p =>
-      p.status === 'pending' && new Date(p.dueDate) < now
-    )
+    return payments.value.filter(p => {
+      const dueDate = p.dueDate || ''
+      return p.status === 'pending' && dueDate && new Date(dueDate) < now
+    })
   })
 
   const monthRevenue = computed(() => {
@@ -37,16 +59,16 @@ export const useFinanceStore = defineStore('finance', () => {
         const paidDate = new Date(p.paidAt)
         return paidDate.getMonth() === month && paidDate.getFullYear() === year
       })
-      .reduce((sum, p) => sum + p.amount, 0)
+      .reduce((sum, p) => sum + (p.amount || 0), 0)
   })
 
   // Actions - Payments
   async function fetchPayments(filters: Record<string, any> = {}) {
     loading.value = true
     try {
-      const response = await api.get<Payment[]>(API_ENDPOINTS.PAYMENTS, { params: filters })
-      payments.value = response
-      return response
+      const response = await api.get<any[]>(API_ENDPOINTS.PAYMENTS, { params: filters })
+      payments.value = (response || []).map(normalizePayment)
+      return payments.value
     } catch (err: any) {
       error.value = err.message
       throw err
@@ -59,9 +81,10 @@ export const useFinanceStore = defineStore('finance', () => {
     loading.value = true
     try {
       // Backend expects data wrapped in "payment" key
-      const response = await api.post<Payment>(API_ENDPOINTS.PAYMENTS, { payment: data })
-      payments.value.push(response)
-      return response
+      const response = await api.post<any>(API_ENDPOINTS.PAYMENTS, { payment: data })
+      const normalized = normalizePayment(response)
+      payments.value.push(normalized)
+      return normalized
     } catch (err: any) {
       error.value = err.message
       throw err

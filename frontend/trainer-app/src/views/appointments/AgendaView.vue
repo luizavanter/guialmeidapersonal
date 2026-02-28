@@ -426,7 +426,7 @@ async function handleDeleteAppointment() {
           {{ t('agenda.deleteConfirmation') }}
           <strong class="block mt-2 text-smoke">
             {{ selectedAppointment?.student?.user?.firstName }} {{ selectedAppointment?.student?.user?.lastName }}
-            - {{ formatDate(selectedAppointment?.startTime) }}
+            - {{ formatDate(selectedAppointment?.scheduledAt || selectedAppointment?.startTime) }}
           </strong>
         </p>
 

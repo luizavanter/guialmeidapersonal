@@ -33,6 +33,10 @@ export interface Appointment {
   studentId: string
   startTime: string
   endTime: string
+  scheduledAt?: string
+  durationMinutes?: number
+  appointmentType?: string
+  location?: string
   status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'no_show'
   notes?: string
   createdAt: string
@@ -201,14 +205,17 @@ export interface Payment {
   id: string
   subscriptionId: string
   amount: number
+  amountCents?: number
   currency: string
   status: 'pending' | 'paid' | 'failed' | 'refunded'
   method?: 'cash' | 'credit_card' | 'debit_card' | 'pix' | 'bank_transfer' | 'other'
   paidAt?: string
+  dueDate?: string
   notes?: string
   createdAt: string
   updatedAt: string
   subscription?: Subscription
+  student?: any
 }
 
 // API Response types

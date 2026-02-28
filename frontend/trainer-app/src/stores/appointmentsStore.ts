@@ -4,6 +4,40 @@ import { useApi } from '@ga-personal/shared'
 import { API_ENDPOINTS } from '@ga-personal/shared'
 import type { Appointment } from '@ga-personal/shared'
 
+// Transform backend snake_case appointment to frontend format
+function normalizeAppointment(raw: any): Appointment {
+  const scheduledAt = raw.scheduled_at || raw.scheduledAt || raw.startTime || ''
+  const durationMinutes = raw.duration_minutes || raw.durationMinutes || 60
+
+  let startTime = ''
+  let endTime = ''
+  if (scheduledAt) {
+    startTime = scheduledAt
+    const startDate = new Date(scheduledAt)
+    if (!isNaN(startDate.getTime())) {
+      const endDate = new Date(startDate.getTime() + durationMinutes * 60000)
+      endTime = endDate.toISOString()
+    }
+  }
+
+  return {
+    id: raw.id,
+    trainerId: raw.trainer_id || raw.trainerId || '',
+    studentId: raw.student_id || raw.studentId || '',
+    startTime,
+    endTime,
+    scheduledAt,
+    durationMinutes,
+    status: raw.status || 'scheduled',
+    appointmentType: raw.appointment_type || raw.appointmentType || '',
+    location: raw.location || '',
+    notes: raw.notes || '',
+    createdAt: raw.created_at || raw.createdAt || '',
+    updatedAt: raw.updated_at || raw.updatedAt || '',
+    student: raw.student,
+  }
+}
+
 export const useAppointmentsStore = defineStore('appointments', () => {
   const api = useApi()
 
@@ -16,18 +50,22 @@ export const useAppointmentsStore = defineStore('appointments', () => {
   // Getters
   const todayAppointments = computed(() => {
     const today = new Date().toISOString().split('T')[0]
-    return appointments.value.filter(a =>
-      a.startTime.startsWith(today)
-    )
+    return appointments.value.filter(a => {
+      const time = a.startTime || a.scheduledAt || ''
+      return time && time.startsWith(today)
+    })
   })
 
   const upcomingAppointments = computed(() => {
     const now = new Date()
-    return appointments.value.filter(a =>
-      new Date(a.startTime) > now
-    ).sort((a, b) =>
-      new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
-    )
+    return appointments.value.filter(a => {
+      const time = a.startTime || a.scheduledAt || ''
+      return time && new Date(time) > now
+    }).sort((a, b) => {
+      const ta = a.startTime || a.scheduledAt || ''
+      const tb = b.startTime || b.scheduledAt || ''
+      return new Date(ta).getTime() - new Date(tb).getTime()
+    })
   })
 
   // Actions
@@ -36,9 +74,9 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     error.value = null
 
     try {
-      const response = await api.get<Appointment[]>(API_ENDPOINTS.APPOINTMENTS, { params: filters })
-      appointments.value = response
-      return response
+      const response = await api.get<any[]>(API_ENDPOINTS.APPOINTMENTS, { params: filters })
+      appointments.value = (response || []).map(normalizeAppointment)
+      return appointments.value
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to fetch appointments'
       throw err
@@ -52,9 +90,9 @@ export const useAppointmentsStore = defineStore('appointments', () => {
     error.value = null
 
     try {
-      const response = await api.get<Appointment>(API_ENDPOINTS.APPOINTMENT(id))
-      currentAppointment.value = response
-      return response
+      const response = await api.get<any>(API_ENDPOINTS.APPOINTMENT(id))
+      currentAppointment.value = normalizeAppointment(response)
+      return currentAppointment.value
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to fetch appointment'
       throw err
@@ -69,9 +107,10 @@ export const useAppointmentsStore = defineStore('appointments', () => {
 
     try {
       // Backend expects data wrapped in "appointment" key
-      const response = await api.post<Appointment>(API_ENDPOINTS.APPOINTMENTS, { appointment: data })
-      appointments.value.push(response)
-      return response
+      const response = await api.post<any>(API_ENDPOINTS.APPOINTMENTS, { appointment: data })
+      const normalized = normalizeAppointment(response)
+      appointments.value.push(normalized)
+      return normalized
     } catch (err: any) {
       error.value = err.response?.data?.errors?.[0]?.message || 'Failed to create appointment'
       throw err
