@@ -148,9 +148,21 @@ defmodule GaPersonal.Schedule do
   end
 
   def create_appointment(attrs \\ %{}) do
-    %Appointment{}
-    |> Appointment.changeset(attrs)
-    |> Repo.insert()
+    result =
+      %Appointment{}
+      |> Appointment.changeset(attrs)
+      |> Repo.insert()
+
+    case result do
+      {:ok, appointment} ->
+        if appointment.student_id do
+          GaPersonal.NotificationService.on_appointment_created(appointment, appointment.student_id)
+        end
+        {:ok, appointment}
+
+      error ->
+        error
+    end
   end
 
   def update_appointment(%Appointment{} = appointment, attrs) do
@@ -164,11 +176,22 @@ defmodule GaPersonal.Schedule do
   end
 
   def cancel_appointment(%Appointment{} = appointment, reason) do
-    update_appointment(appointment, %{
+    result = update_appointment(appointment, %{
       status: "cancelled",
       cancellation_reason: reason,
       cancelled_at: DateTime.utc_now()
     })
+
+    case result do
+      {:ok, cancelled} ->
+        if cancelled.student_id do
+          GaPersonal.NotificationService.on_appointment_cancelled(cancelled, cancelled.student_id, reason)
+        end
+        {:ok, cancelled}
+
+      error ->
+        error
+    end
   end
 
   @doc """

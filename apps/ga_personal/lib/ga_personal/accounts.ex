@@ -264,7 +264,7 @@ defmodule GaPersonal.Accounts do
   Creates a student (creates user and profile together).
   """
   def create_student(trainer_id, attrs \\ %{}) do
-    Repo.transaction(fn ->
+    result = Repo.transaction(fn ->
       user_attrs = Map.take(attrs, ["email", "password", "full_name", "phone"])
       |> Map.put("role", "student")
 
@@ -278,6 +278,15 @@ defmodule GaPersonal.Accounts do
         {:error, changeset} -> Repo.rollback(changeset)
       end
     end)
+
+    case result do
+      {:ok, profile} ->
+        GaPersonal.NotificationService.on_student_created(profile.user)
+        {:ok, profile}
+
+      error ->
+        error
+    end
   end
 
   @doc """

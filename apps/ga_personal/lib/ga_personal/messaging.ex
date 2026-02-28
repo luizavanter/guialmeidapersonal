@@ -46,6 +46,10 @@ defmodule GaPersonal.Messaging do
     %Message{}
     |> Message.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, message} -> {:ok, Repo.preload(message, [:sender, :recipient])}
+      error -> error
+    end
   end
 
   def mark_as_read(%Message{} = message) do
@@ -86,6 +90,15 @@ defmodule GaPersonal.Messaging do
     notification
     |> Notification.changeset(%{is_read: true, read_at: DateTime.utc_now()})
     |> Repo.update()
+  end
+
+  def mark_all_notifications_as_read(user_id) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    from(n in Notification,
+      where: n.user_id == ^user_id and n.is_read == false
+    )
+    |> Repo.update_all(set: [is_read: true, read_at: now])
   end
 
   def delete_notification(%Notification{} = notification) do

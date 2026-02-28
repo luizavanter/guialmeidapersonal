@@ -186,9 +186,23 @@ defmodule GaPersonal.Workouts do
   end
 
   def update_workout_plan(%WorkoutPlan{} = plan, attrs) do
-    plan
-    |> WorkoutPlan.changeset(attrs)
-    |> Repo.update()
+    old_status = plan.status
+
+    result =
+      plan
+      |> WorkoutPlan.changeset(attrs)
+      |> Repo.update()
+
+    case result do
+      {:ok, updated} ->
+        if old_status != "active" and updated.status == "active" and updated.student_id do
+          GaPersonal.NotificationService.on_workout_plan_assigned(updated, updated.student_id)
+        end
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 
   def delete_workout_plan(%WorkoutPlan{} = plan) do

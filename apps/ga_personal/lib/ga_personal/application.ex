@@ -12,9 +12,8 @@ defmodule GaPersonal.Application do
       {DNSCluster, query: Application.get_env(:ga_personal, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: GaPersonal.PubSub},
       # Finch HTTP client for Swoosh/Resend email delivery
-      {Finch, name: Swoosh.Finch}
-      # Start a worker by calling: GaPersonal.Worker.start_link(arg)
-      # {GaPersonal.Worker, arg}
+      {Finch, name: Swoosh.Finch},
+      {Oban, Application.fetch_env!(:ga_personal, Oban)}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: GaPersonal.Supervisor)

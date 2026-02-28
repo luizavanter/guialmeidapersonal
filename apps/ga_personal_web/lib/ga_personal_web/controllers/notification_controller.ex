@@ -68,6 +68,12 @@ defmodule GaPersonalWeb.NotificationController do
     end
   end
 
+  def mark_all_read(conn, _params) do
+    user_id = conn.assigns.current_user_id
+    {count, _} = Messaging.mark_all_notifications_as_read(user_id)
+    json(conn, %{data: %{marked_read: count}})
+  end
+
   defp notification_json(notification) do
     %{
       id: notification.id,

@@ -142,6 +142,10 @@ defmodule GaPersonal.Finance do
     %Subscription{}
     |> Subscription.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, subscription} -> {:ok, Repo.preload(subscription, [:student, :plan])}
+      error -> error
+    end
   end
 
   def update_subscription(%Subscription{} = subscription, attrs) do
@@ -237,11 +241,29 @@ defmodule GaPersonal.Finance do
     %Payment{}
     |> Payment.changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, payment} -> {:ok, Repo.preload(payment, [:student, :subscription])}
+      error -> error
+    end
   end
 
   def update_payment(%Payment{} = payment, attrs) do
-    payment
-    |> Payment.changeset(attrs)
-    |> Repo.update()
+    old_status = payment.status
+
+    result =
+      payment
+      |> Payment.changeset(attrs)
+      |> Repo.update()
+
+    case result do
+      {:ok, updated} ->
+        if old_status != "paid" and updated.status == "paid" do
+          GaPersonal.NotificationService.on_payment_received(updated)
+        end
+        {:ok, updated}
+
+      error ->
+        error
+    end
   end
 end
