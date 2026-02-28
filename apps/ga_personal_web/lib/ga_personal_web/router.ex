@@ -152,6 +152,21 @@ defmodule GaPersonalWeb.Router do
     put "/bioimpedance/imports/:id", BioimpedanceController, :update
     post "/bioimpedance/imports/:id/apply", BioimpedanceController, :apply_import
     post "/bioimpedance/imports/:id/reject", BioimpedanceController, :reject
+
+    # AI Analysis - Claude-powered analysis features
+    post "/ai/analyze/visual", AIAnalysisController, :analyze_visual
+    post "/ai/analyze/trends", AIAnalysisController, :analyze_trends
+    post "/ai/analyze/document", AIAnalysisController, :analyze_document
+    get "/ai/analyses", AIAnalysisController, :index
+    get "/ai/analyses/:id", AIAnalysisController, :show
+    put "/ai/analyses/:id/review", AIAnalysisController, :review
+    post "/ai/analyses/:id/share", AIAnalysisController, :share
+    get "/ai/usage", AIAnalysisController, :usage
+
+    # Pose detection - results from client-side TensorFlow.js
+    get "/pose/results", PoseController, :index
+    get "/pose/results/:id", PoseController, :show
+    get "/students/:student_id/pose", PoseController, :student_history
   end
 
   # Student-accessible routes (read-only or limited write)
@@ -187,6 +202,15 @@ defmodule GaPersonalWeb.Router do
     post "/media/confirm-upload", MediaController, :confirm_upload
     get "/media/:id/download", MediaController, :download
     get "/my-media", MediaController, :my_files
+
+    # AI Analysis - students can view shared analyses
+    get "/ai/analyses", AIAnalysisController, :index_for_student
+    get "/ai/analyses/:id", AIAnalysisController, :show_for_student
+
+    # Pose detection - students save and view their own results
+    post "/pose/results", PoseController, :create
+    get "/pose/results", PoseController, :my_results
+    get "/pose/results/:id", PoseController, :show_for_student
   end
 
   # Enable LiveDashboard in development

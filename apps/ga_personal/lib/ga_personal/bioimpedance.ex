@@ -9,7 +9,6 @@ defmodule GaPersonal.Bioimpedance do
   alias GaPersonal.Bioimpedance.BioimpedanceImport
   alias GaPersonal.Evolution
   alias GaPersonal.Media
-  alias GaPersonal.Privacy
 
   @doc """
   Starts extraction for an uploaded bioimpedance report.
