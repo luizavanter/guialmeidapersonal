@@ -1,22 +1,31 @@
 # GA Personal — Projeto Guilherme Almeida
 
 ## Status do Projeto
-✅ **Sistema em PRODUÇÃO** (2026-02-03)
+✅ **Sistema em PRODUÇÃO** (2026-02-03, hardened 2026-02-27)
 - Backend Phoenix com 8 contextos - **DEPLOYED**
 - 3 aplicações frontend (Trainer, Student, Site) - **DEPLOYED**
 - Suporte bilíngue completo (PT-BR/EN-US)
-- 15.000+ linhas de código em produção
+- 17.000+ linhas de código em produção
 - **Todos os endpoints funcionando**
 - **Login e navegação testados e funcionando**
+- **Security hardening completo** (JWT refresh tokens, rate limiting, input sanitization)
+- **Test coverage** (ExMachina factories, context + controller tests)
+- **Email transacional** (Oban + Swoosh/Resend, 6 tipos de email automático)
+- **Asaas payment integration** (Pix, Boleto, Cartão de crédito)
 
 ## Stack Tecnológica
 
 ### Backend
 - **Elixir 1.15+ / Phoenix 1.8.3** - API REST com autenticação JWT
-- **PostgreSQL 16** - Banco de dados com 20 tabelas
-- **Guardian 2.4** - Autenticação JWT com refresh tokens
-- **Redis 7** - Cache e blacklist de tokens
+- **PostgreSQL 16** - Banco de dados com 22 tabelas
+- **Guardian 2.4** - Autenticação JWT (access 15min + refresh 30 dias)
+- **Oban 2.18** - Background jobs (cron workers, async email delivery)
+- **Hammer** - Rate limiting (ETS-backed)
+- **Swoosh + Resend** - Email transacional (10 templates bilíngues)
+- **Req** - HTTP client (Asaas API)
+- **Bcrypt** - Password hashing
 - **Gettext** - Internacionalização (PT-BR/EN-US)
+- **ExMachina** - Test factories (20 schemas)
 
 ### Frontend
 - **Vue 3 (Composition API)** - 3 aplicações SPA
@@ -48,7 +57,14 @@
 ga-personal/
 ├── apps/
 │   ├── ga_personal/           # Core - 8 contextos de negócio
-│   └── ga_personal_web/       # API Phoenix - 60+ endpoints
+│   │   ├── lib/ga_personal/
+│   │   │   ├── asaas/         # Asaas payment gateway client
+│   │   │   ├── workers/       # Oban background workers (5)
+│   │   │   ├── emails/        # Email templates (Swoosh)
+│   │   │   └── notification_service.ex  # Dual delivery hub
+│   │   └── test/              # Context + factory tests
+│   └── ga_personal_web/       # API Phoenix - 70+ endpoints
+│       └── test/              # Controller tests
 ├── frontend/
 │   ├── shared/                # @ga-personal/shared - Design system
 │   ├── trainer-app/           # Painel do Personal (porta 3001)
@@ -56,7 +72,7 @@ ga-personal/
 │   └── site/                  # Site Marketing VitePress (porta 3003)
 ├── reference/                 # Designs e especificações originais
 ├── docs/
-│   └── plans/                 # Documentação de design
+│   └── plans/                 # Documentação de design e roadmaps
 ├── docker-compose.yml
 ├── MASTER_SUMMARY.md          # Resumo completo do sistema
 └── CLAUDE.md                  # Este arquivo
@@ -154,8 +170,10 @@ npm install && npm run dev    # http://localhost:3003
 ### 1. Accounts
 - Usuários, autenticação, perfis
 - Roles: `:trainer`, `:student`, `:admin`
-- JWT com refresh tokens
+- JWT access tokens (15min) + opaque refresh tokens (30 dias, DB-backed)
+- Token rotation on refresh, revocation on logout
 - Multi-tenant (dados isolados por trainer)
+- Asaas customer sync automático na criação de aluno
 
 ### 2. Schedule
 - Time slots (horários disponíveis)
@@ -177,13 +195,16 @@ npm install && npm run dev    # http://localhost:3003
 
 ### 5. Finance
 - Plans (planos de treino: mensal, trimestral)
-- Subscriptions (assinaturas dos alunos)
-- Payments (controle de pagamentos)
-- Status: pending, paid, overdue, cancelled
+- Subscriptions (assinaturas dos alunos, auto-renew, next_billing_date)
+- Payments (controle de pagamentos com integração Asaas)
+- Status: pending, completed, failed, refunded
+- Métodos: pix, boleto, credit_card, debit_card, cash, bank_transfer
+- Asaas: charge creation, QR code Pix, boleto URL, webhook sync
 
 ### 6. Messaging
 - Messages (mensagens diretas trainer ↔ aluno)
-- Notifications (notificações do sistema)
+- Notifications (notificações in-app com dual delivery email + in-app)
+- NotificationService centralizado (5 event triggers)
 - Broadcast (avisos em massa)
 
 ### 7. Content
@@ -298,7 +319,7 @@ npm install && npm run dev    # http://localhost:3003
 - Hero (gradiente, dual CTAs)
 - ServiceCard (checkmarks lima)
 - TestimonialCard (5 estrelas)
-- ContactForm (Formspree)
+- ContactForm (API Backend)
 - LanguageSwitcher (PT/EN)
 
 **SEO:**
@@ -350,13 +371,20 @@ npm install && npm run dev    # http://localhost:3003
 - Student App: Todas as telas (290+ keys)
 - Website: Todo o conteúdo (13.000+ palavras)
 
-## APIs REST (60+ endpoints)
+## APIs REST (70+ endpoints)
 
 ### Autenticação
 - `POST /api/v1/auth/register` - Registro
-- `POST /api/v1/auth/login` - Login (retorna access + refresh token)
-- `POST /api/v1/auth/refresh` - Renovar access token
-- `POST /api/v1/auth/logout` - Logout (blacklist refresh token)
+- `POST /api/v1/auth/login` - Login (retorna access token JWT + refresh token opaco)
+- `POST /api/v1/auth/refresh` - Rotação de tokens (novo access + novo refresh)
+- `POST /api/v1/auth/logout` - Logout (revoga refresh token no DB)
+- `GET /api/v1/auth/me` - Dados do usuário autenticado
+
+### Health Check
+- `GET /api/v1/health` - Status do sistema (sem auth, usado por Cloud Run)
+
+### Contact (Publico)
+- `POST /api/v1/contact` - Enviar formulario de contato do site
 
 ### Students
 - `GET /api/v1/students` - Listar (com filtros)
@@ -388,6 +416,8 @@ npm install && npm run dev    # http://localhost:3003
 ### Finance
 - `GET /api/v1/payments` - Listar pagamentos
 - `POST /api/v1/payments` - Registrar pagamento
+- `PUT /api/v1/payments/:id` - Atualizar pagamento
+- `POST /api/v1/payments/:id/charge` - Criar cobrança Asaas (Pix/Boleto/Cartão)
 - `GET /api/v1/subscriptions` - Listar assinaturas
 - `POST /api/v1/subscriptions` - Criar assinatura
 
@@ -396,11 +426,67 @@ npm install && npm run dev    # http://localhost:3003
 - `POST /api/v1/messages` - Enviar mensagem
 - `PUT /api/v1/messages/:id/read` - Marcar como lida
 
-**Autenticação:** Todas as rotas (exceto login/register) requerem `Authorization: Bearer <access_token>`
+### Notifications
+- `GET /api/v1/notifications` - Listar notificações
+- `POST /api/v1/notifications/:id/read` - Marcar como lida
+- `POST /api/v1/notifications/read-all` - Marcar todas como lidas
+- `DELETE /api/v1/notifications/:id` - Excluir notificação
+
+### Webhooks
+- `POST /api/v1/webhooks/calcom` - Cal.com booking events
+- `POST /api/v1/webhooks/asaas` - Asaas payment events (PAYMENT_CONFIRMED, PAYMENT_RECEIVED, etc.)
+
+**Autenticação:** Todas as rotas (exceto login/register/health/webhooks) requerem `Authorization: Bearer <access_token>`
+
+**Rate Limiting:**
+- Auth (login/register/logout): 5 req/min por IP
+- Refresh: 10 req/min por IP
+- Contact: 3 req/min por IP
 
 **Multi-tenant:** Todas as queries são automaticamente filtradas por `trainer_id`
 
-## Fase 2 (Futuro) - IA & Integrações
+## Roadmap de Robustez (2026-02-27) — Completo
+
+### ✅ Fase 1 — Security Hardening
+- JWT com refresh tokens opacos (DB-backed, rotação, revogação)
+- Access token TTL: 15 minutos, Refresh token TTL: 30 dias
+- Rate limiting via Hammer (login, register, contact, refresh)
+- Health check endpoint (`GET /api/v1/health`)
+- Input sanitization (HTML stripping via Sanitizer)
+
+### ✅ Fase 2 — Test Coverage
+- ExMachina factories para 20 schemas
+- ConnCase helpers com autenticação por role (trainer, student, admin)
+- Testes de contexto: Accounts, Schedule, Workouts, Evolution, Finance, Messaging, Content, Sanitizer
+- Testes de controller: Auth, Student, Health, Exercise, Message
+
+### ✅ Fase 3 — Email Transacional + Notifications
+- Oban background jobs (4 workers + cron schedule)
+- `EmailWorker` — Entrega assíncrona de emails via Resend
+- `AppointmentReminder` — Cron diário 6AM, lembrete 24h antes
+- `PaymentDueReminder` — Cron diário 6AM, vencimento em 3 dias + cobranças atrasadas
+- `WeeklyTrainerSummary` — Cron segunda 7AM, resumo semanal HTML
+- `NotificationService` — Dual delivery (email + in-app) para 5 eventos:
+  - student_created, appointment_created, appointment_cancelled, payment_received, workout_plan_assigned
+- Endpoint `POST /notifications/read-all` para marcar todas como lidas
+
+### ✅ Fase 4 — Asaas Payment Integration
+- `Asaas.Client` — HTTP client (Req) com suporte sandbox/production
+- `Asaas.Customers` — CRUD de clientes, busca por CPF/email
+- `Asaas.Charges` — Criação de cobranças (PIX, BOLETO, CREDIT_CARD), QR code, refund
+- `AsaasCustomerSync` worker — Sincroniza aluno com Asaas automaticamente na criação
+- `POST /payments/:id/charge` — Cria cobrança Asaas (retorna QR code Pix/URL boleto)
+- `POST /webhooks/asaas` — Webhook para atualizar status de pagamento
+- `AutoBillingWorker` — Cron diário 8AM, gera cobranças automáticas para assinaturas
+
+### Variáveis de Ambiente (Novas):
+| Variável | Descrição |
+|----------|-----------|
+| `ASAAS_API_KEY` | Chave da API Asaas |
+| `ASAAS_ENVIRONMENT` | `sandbox` ou `production` |
+| `ASAAS_WEBHOOK_TOKEN` | Token para verificar webhooks Asaas |
+
+## Próximas Fases (Futuro) - IA & Integrações
 
 ### IA Features (não implementado ainda)
 - **TensorFlow.js MoveNet** - Detecção de pose no browser
@@ -409,8 +495,6 @@ npm install && npm run dev    # http://localhost:3003
 
 ### Integrações Futuras
 - WhatsApp Business API - Lembretes automáticos
-- Gateway de Pagamento - Pix, cartão
-- Email Service - Emails transacionais
 - PWA - Progressive Web App
 - Analytics - Métricas de uso
 
@@ -455,26 +539,31 @@ npm install && npm run dev    # http://localhost:3003
 ## Estatísticas do Projeto
 
 ### Código
-- **250+ arquivos criados**
-- **15.000+ linhas de código em produção**
+- **280+ arquivos criados**
+- **17.000+ linhas de código em produção**
 - **13.000+ palavras de conteúdo**
 - **600+ chaves de tradução**
 - **30+ interfaces TypeScript**
-- **60+ endpoints de API**
+- **70+ endpoints de API**
+- **100+ test cases**
 
 ### Componentes
-- Backend: 8 contextos, 100+ funções, 20 tabelas
+- Backend: 8 contextos, 120+ funções, 22 tabelas, 5 Oban workers
+- Asaas: 3 módulos (Client, Customers, Charges)
 - Shared: 30 arquivos, 10 componentes, 60+ utils
 - Trainer: 60+ arquivos, 15 telas
 - Student: 40+ arquivos, 8 telas
 - Website: 20+ arquivos, 16 páginas
 
 ### Tecnologias
-- Elixir, Phoenix, Ecto
+- Elixir, Phoenix, Ecto, Oban
 - Vue 3, TypeScript, Vite
 - PostgreSQL, Redis
+- Swoosh, Resend, Req
+- Hammer, Guardian, Bcrypt
 - Tailwind CSS, Chart.js
 - VitePress, Vue I18n
+- ExMachina (testes)
 
 ## Status de Produção
 
@@ -484,7 +573,7 @@ npm install && npm run dev    # http://localhost:3003
 - [x] Cloud SQL PostgreSQL 16 (private IP)
 - [x] Memorystore Redis 7.0 (private IP)
 - [x] Service Accounts (backend-sa, cicd-sa)
-- [x] Secret Manager (database-url, redis-url, jwt-secret, secret-key-base)
+- [x] Secret Manager (database-url, redis-url, jwt-secret, secret-key-base, asaas-api-key*)
 - [x] Cloud Storage buckets (admin, app, site, media)
 - [x] Artifact Registry (Docker images)
 - [x] Cloud Run service (ga-personal-api)
@@ -500,13 +589,17 @@ npm install && npm run dev    # http://localhost:3003
 - [ ] Favicon (`/frontend/site/docs/public/favicon.ico`)
 
 ### Configurações Pendentes
-- [ ] Formspree form ID no ContactForm.vue
+- [x] ~~Formspree form ID no ContactForm.vue~~ - Substituido por endpoint proprio no backend
 - [ ] Info de contato real (telefone, social links)
 - [ ] Configurar GitHub Secrets (GCP_WORKLOAD_IDENTITY_PROVIDER, GCP_SERVICE_ACCOUNT)
+- [ ] Configurar Asaas: `ASAAS_API_KEY`, `ASAAS_ENVIRONMENT`, `ASAAS_WEBHOOK_TOKEN` no Secret Manager
+- [ ] Criar conta Asaas sandbox e obter API key
 
-### Testes Pendentes
+### Testes
+- [x] Test infrastructure (ExMachina factories, ConnCase/DataCase helpers)
+- [x] Context tests (8 contextos, 100+ test cases)
+- [x] Controller tests (Auth, Student, Health, Exercise, Message)
 - [ ] Testes E2E (Playwright ou Cypress)
-- [ ] Testes de integração
 - [ ] Testes de carga
 - [ ] UAT com Guilherme
 
@@ -617,6 +710,21 @@ echo -n "new-value" | gcloud secrets versions add jwt-secret --data-file=- --pro
 ### Documentação
 - Detalhes completos em: `/docs/plans/2026-02-03-frontend-fixes-deployment.md`
 
+## Fixes Aplicados (2026-02-04)
+
+### Formulario de Contato
+1. **Substituido Formspree por endpoint proprio** - Criado endpoint `POST /api/v1/contact` no backend Phoenix
+2. **Arquivos criados:**
+   - `/apps/ga_personal/lib/ga_personal/emails/contact_email.ex` - Templates de email bilingues
+   - `/apps/ga_personal_web/lib/ga_personal_web/controllers/contact_controller.ex` - Controller
+3. **ContactForm.vue atualizado** - Agora usa fetch API para enviar dados ao backend
+4. **Funcionalidades:**
+   - Email enviado ao trainer com dados do formulario
+   - Email de confirmacao enviado ao remetente
+   - Suporte bilingue (PT-BR/EN-US)
+   - Validacao de campos obrigatorios
+   - Estados de loading e erro
+
 ## API Payload Requirements
 
 ### IMPORTANTE: Formato dos Dados
@@ -641,6 +749,7 @@ api.post('/students', { student: { email: 'test@test.com', full_name: 'Test' } }
 | Plans | `plan` | `{ plan: { name, price_cents, duration_days } }` |
 | Exercises | `exercise` | `{ exercise: { name, category, muscle_groups } }` |
 | Workout Plans | `workout_plan` | `{ workout_plan: { name, description, status } }` |
+| Contact | `contact` | `{ contact: { name, email, phone, goal, message, locale } }` |
 
 ### Campos em Centavos:
 - `amount_cents` - Valor em centavos (integer), não float
@@ -689,6 +798,7 @@ curl http://localhost:4000/api/v1/health
 ---
 
 **Sistema completo desenvolvido e deployado em 2026-02-03**
+**Robustez & Integrações completas em 2026-02-27**
 **Status:** ✅ EM PRODUÇÃO
 **URLs:**
 - API: https://api.guialmeidapersonal.esp.br
@@ -696,4 +806,7 @@ curl http://localhost:4000/api/v1/health
 - App: https://app.guialmeidapersonal.esp.br
 - Site: https://guialmeidapersonal.esp.br
 
-**Próximo passo:** Upload de assets (imagens) e UAT com Guilherme
+**Próximos passos:**
+- Criar conta Asaas sandbox e configurar API key
+- Upload de assets (imagens) e UAT com Guilherme
+- Deploy das fases 1-4 em produção (migrations + env vars)
