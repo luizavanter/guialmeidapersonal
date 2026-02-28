@@ -8,6 +8,15 @@ export const formatDate = (date: string | Date, locale: string = 'pt-BR'): strin
 }
 
 export const formatTime = (time: string, locale: string = 'pt-BR'): string => {
+  // Handle ISO datetime strings (e.g. "2026-03-01T13:00:00Z")
+  if (time.includes('T')) {
+    const d = new Date(time)
+    return new Intl.DateTimeFormat(locale, {
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(d)
+  }
+  // Handle HH:MM format
   const [hours, minutes] = time.split(':')
   const date = new Date()
   date.setHours(parseInt(hours), parseInt(minutes))

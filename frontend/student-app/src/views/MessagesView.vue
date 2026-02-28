@@ -26,7 +26,7 @@
               :key="message.id"
               :class="[
                 'p-4 rounded-lg border transition-colors',
-                !message.readAt
+                !message.read_at && !message.readAt
                   ? 'bg-lime/5 border-lime/20'
                   : 'bg-surface-2 border-surface-3',
               ]"
@@ -42,10 +42,10 @@
                     </p>
                     <div class="flex items-center gap-2">
                       <span class="text-xs text-stone whitespace-nowrap">
-                        {{ formatRelativeTime(message.insertedAt) }}
+                        {{ formatRelativeTime(message.inserted_at || message.insertedAt) }}
                       </span>
                       <span
-                        v-if="!message.readAt"
+                        v-if="!message.read_at && !message.readAt"
                         class="flex-shrink-0 w-2 h-2 bg-lime rounded-full"
                       ></span>
                     </div>
@@ -156,16 +156,16 @@ const handleSendMessage = async () => {
   isSubmitting.value = true
 
   try {
-    const trainerId = profileStore.profile?.trainerId
+    const trainerId = (profileStore.profile as any)?.trainer_id || (profileStore.profile as any)?.trainerId
     if (!trainerId) {
       messageErrors.general = t('messages.noTrainerAssigned')
       return
     }
 
     await messagesStore.sendMessage({
-      receiverId: trainerId,
+      receiver_id: trainerId,
       content: messageForm.content,
-    })
+    } as any)
 
     toast.success(t('messages.messageSent'))
     messageForm.content = ''
@@ -189,7 +189,7 @@ onMounted(async () => {
   await messagesStore.fetchMessages()
 
   // Mark messages as read when viewing
-  const unread = sortedMessages.value.filter((m) => !m.readAt)
+  const unread = sortedMessages.value.filter((m: any) => !m.read_at && !m.readAt)
   unread.forEach((m) => {
     messagesStore.markAsRead(m.id)
   })

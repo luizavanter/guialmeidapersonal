@@ -10,12 +10,12 @@ export const useMessagesStore = defineStore('messages', () => {
   const error = ref<string | null>(null)
 
   const unreadCount = computed(() => {
-    return messages.value.filter((m) => !m.readAt).length
+    return messages.value.filter((m: any) => !m.read_at && !m.readAt).length
   })
 
   const sortedMessages = computed(() => {
     return [...messages.value].sort(
-      (a, b) => new Date(b.insertedAt).getTime() - new Date(a.insertedAt).getTime()
+      (a: any, b: any) => new Date(b.inserted_at || b.insertedAt).getTime() - new Date(a.inserted_at || a.insertedAt).getTime()
     )
   })
 
@@ -40,7 +40,7 @@ export const useMessagesStore = defineStore('messages', () => {
     error.value = null
 
     try {
-      const response = await api.post<Message>(API_ENDPOINTS.MESSAGES, input)
+      const response = await api.post<Message>(API_ENDPOINTS.MESSAGES, { message: input })
       messages.value.unshift(response.data)
       return response.data
     } catch (err) {
@@ -54,10 +54,10 @@ export const useMessagesStore = defineStore('messages', () => {
 
   const markAsRead = async (messageId: string) => {
     try {
-      await api.post(API_ENDPOINTS.MARK_READ(messageId))
-      const message = messages.value.find((m) => m.id === messageId)
+      await api.put(API_ENDPOINTS.MARK_READ(messageId))
+      const message = messages.value.find((m) => m.id === messageId) as any
       if (message) {
-        message.readAt = new Date().toISOString()
+        message.read_at = new Date().toISOString()
       }
     } catch (err) {
       // Silently fail
@@ -65,7 +65,7 @@ export const useMessagesStore = defineStore('messages', () => {
   }
 
   const markAllAsRead = async () => {
-    const unreadMessages = messages.value.filter((m) => !m.readAt)
+    const unreadMessages = messages.value.filter((m: any) => !m.read_at && !m.readAt)
     await Promise.all(unreadMessages.map((m) => markAsRead(m.id)))
   }
 
