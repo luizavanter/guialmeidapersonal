@@ -38,7 +38,7 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-start justify-between mb-1">
                     <p class="text-sm font-semibold text-smoke">
-                      {{ message.sender?.name || t('messages.trainer') }}
+                      {{ message.sender?.full_name || message.sender?.name || t('messages.trainer') }}
                     </p>
                     <div class="flex items-center gap-2">
                       <span class="text-xs text-stone whitespace-nowrap">
@@ -50,7 +50,7 @@
                       ></span>
                     </div>
                   </div>
-                  <p class="text-sm text-smoke/90 whitespace-pre-wrap break-words">{{ message.content }}</p>
+                  <p class="text-sm text-smoke/90 whitespace-pre-wrap break-words">{{ message.body || message.content }}</p>
                 </div>
               </div>
             </div>
@@ -163,8 +163,8 @@ const handleSendMessage = async () => {
     }
 
     await messagesStore.sendMessage({
-      receiver_id: trainerId,
-      content: messageForm.content,
+      recipient_id: trainerId,
+      body: messageForm.content,
     } as any)
 
     toast.success(t('messages.messageSent'))
