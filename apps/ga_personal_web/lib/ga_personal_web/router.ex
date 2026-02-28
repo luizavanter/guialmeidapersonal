@@ -88,6 +88,7 @@ defmodule GaPersonalWeb.Router do
     get "/messages/inbox", MessageController, :inbox
     get "/messages/sent", MessageController, :sent
     resources "/messages", MessageController, only: [:index, :create, :show, :delete]
+    put "/messages/:id/read", MessageController, :mark_read
 
     # Notifications - all users receive notifications
     post "/notifications/read-all", NotificationController, :mark_all_read

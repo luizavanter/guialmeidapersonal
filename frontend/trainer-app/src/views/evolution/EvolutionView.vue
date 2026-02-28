@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useStudentsStore } from '@/stores/studentsStore'
@@ -10,10 +10,16 @@ const route = useRoute()
 const router = useRouter()
 const studentsStore = useStudentsStore()
 
-const studentId = route.params.studentId as string
+const studentId = computed(() => route.params.studentId as string)
 
 onMounted(async () => {
-  if (!studentId) {
+  if (!studentId.value) {
+    await studentsStore.fetchStudents()
+  }
+})
+
+watch(studentId, async (newId) => {
+  if (!newId) {
     await studentsStore.fetchStudents()
   }
 })

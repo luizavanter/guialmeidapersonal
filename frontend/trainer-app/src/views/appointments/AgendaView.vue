@@ -11,6 +11,17 @@ const { t } = useI18n()
 const appointmentsStore = useAppointmentsStore()
 const studentsStore = useStudentsStore()
 
+// Build ISO string with local timezone offset so backend stores the correct UTC time
+function toLocalISOString(date: string, time: string): string {
+  const dt = new Date(`${date}T${time}:00`)
+  const offsetMin = dt.getTimezoneOffset()
+  const sign = offsetMin <= 0 ? '+' : '-'
+  const absOffset = Math.abs(offsetMin)
+  const offsetH = String(Math.floor(absOffset / 60)).padStart(2, '0')
+  const offsetM = String(absOffset % 60).padStart(2, '0')
+  return `${date}T${time}:00${sign}${offsetH}:${offsetM}`
+}
+
 const view = ref<'day' | 'week' | 'month'>('week')
 const currentDate = ref(new Date())
 const showAddModal = ref(false)
@@ -99,7 +110,7 @@ async function handleAddAppointment() {
 
     await appointmentsStore.createAppointment({
       student_id: newAppointment.studentId,
-      scheduled_at: `${newAppointment.date}T${newAppointment.startTime}:00`,
+      scheduled_at: toLocalISOString(newAppointment.date, newAppointment.startTime),
       duration_minutes: durationMinutes > 0 ? durationMinutes : 60,
       notes: newAppointment.notes,
       status: newAppointment.status,
@@ -122,7 +133,10 @@ function openEditModal(appointment: any) {
   const dateTime = appointment.scheduledAt || appointment.startTime || ''
   if (dateTime) {
     const dt = new Date(dateTime)
-    editAppointment.date = dt.toISOString().split('T')[0]
+    const y = dt.getFullYear()
+    const m = String(dt.getMonth() + 1).padStart(2, '0')
+    const d = String(dt.getDate()).padStart(2, '0')
+    editAppointment.date = `${y}-${m}-${d}`
     editAppointment.startTime = dt.toTimeString().slice(0, 5)
     // Calculate end time from duration
     const endDt = new Date(dt.getTime() + (appointment.durationMinutes || 60) * 60000)
@@ -156,7 +170,7 @@ async function handleEditAppointment() {
     await appointmentsStore.updateAppointment(editAppointment.id, {
       appointment: {
         student_id: editAppointment.studentId,
-        scheduled_at: `${editAppointment.date}T${editAppointment.startTime}:00`,
+        scheduled_at: toLocalISOString(editAppointment.date, editAppointment.startTime),
         duration_minutes: durationMinutes > 0 ? durationMinutes : 60,
         notes: editAppointment.notes,
         status: editAppointment.status
