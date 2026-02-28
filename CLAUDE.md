@@ -1,28 +1,30 @@
 # GA Personal — Projeto Guilherme Almeida
 
 ## Status do Projeto
-✅ **Sistema em PRODUÇÃO** (2026-02-03, hardened 2026-02-27)
-- Backend Phoenix com 8 contextos - **DEPLOYED**
+✅ **Sistema em PRODUÇÃO** (2026-02-03, hardened 2026-02-27, AI Media Suite 2026-02-28)
+- Backend Phoenix com 12 contextos - **DEPLOYED**
 - 3 aplicações frontend (Trainer, Student, Site) - **DEPLOYED**
 - Suporte bilíngue completo (PT-BR/EN-US)
-- 17.000+ linhas de código em produção
-- **Todos os endpoints funcionando**
+- 20.000+ linhas de código em produção
+- **Todos os endpoints funcionando** (90+ endpoints)
 - **Login e navegação testados e funcionando**
 - **Security hardening completo** (JWT refresh tokens, rate limiting, input sanitization)
 - **Test coverage** (ExMachina factories, context + controller tests)
 - **Email transacional** (Oban + Swoosh/Resend, 6 tipos de email automático)
 - **Asaas payment integration** (Pix, Boleto, Cartão de crédito)
+- **AI Media Suite** (GCS upload, Claude AI analysis, bioimpedance OCR, pose detection, LGPD compliance)
 
 ## Stack Tecnológica
 
 ### Backend
 - **Elixir 1.15+ / Phoenix 1.8.3** - API REST com autenticação JWT
-- **PostgreSQL 16** - Banco de dados com 22 tabelas
+- **PostgreSQL 16** - Banco de dados com 28 tabelas
 - **Guardian 2.4** - Autenticação JWT (access 15min + refresh 30 dias)
-- **Oban 2.18** - Background jobs (cron workers, async email delivery)
+- **Oban 2.18** - Background jobs (10 workers, cron + async)
 - **Hammer** - Rate limiting (ETS-backed)
 - **Swoosh + Resend** - Email transacional (10 templates bilíngues)
-- **Req** - HTTP client (Asaas API)
+- **Goth 1.4** - Google Cloud auth (metadata server, credentials)
+- **Req** - HTTP client (Asaas API, Claude API, GCS)
 - **Bcrypt** - Password hashing
 - **Gettext** - Internacionalização (PT-BR/EN-US)
 - **ExMachina** - Test factories (20 schemas)
@@ -57,14 +59,21 @@
 ```
 ga-personal/
 ├── apps/
-│   ├── ga_personal/           # Core - 8 contextos de negócio
+│   ├── ga_personal/           # Core - 12 contextos de negócio
 │   │   ├── lib/ga_personal/
+│   │   │   ├── ai/            # Claude API client (Haiku + Sonnet)
+│   │   │   ├── ai_analysis/   # AI analysis records schema
 │   │   │   ├── asaas/         # Asaas payment gateway client
-│   │   │   ├── workers/       # Oban background workers (5)
+│   │   │   ├── bioimpedance/  # Bioimpedance import schema
+│   │   │   ├── gcs/           # Google Cloud Storage client
+│   │   │   ├── media/         # Media file schema
+│   │   │   ├── pose/          # Pose analysis schema
+│   │   │   ├── privacy/       # LGPD consent + access logs
+│   │   │   ├── workers/       # Oban background workers (10)
 │   │   │   ├── emails/        # Email templates (Swoosh)
 │   │   │   └── notification_service.ex  # Dual delivery hub
 │   │   └── test/              # Context + factory tests
-│   └── ga_personal_web/       # API Phoenix - 70+ endpoints
+│   └── ga_personal_web/       # API Phoenix - 90+ endpoints
 │       └── test/              # Controller tests
 ├── frontend/
 │   ├── shared/                # @ga-personal/shared - Design system
@@ -155,7 +164,7 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 - Hover effects sutis
 - Mobile-first responsive
 
-## Contextos do Backend (8 Módulos)
+## Contextos do Backend (12 Módulos)
 
 ### 1. Accounts
 - Usuários, autenticação, perfis
@@ -361,7 +370,7 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 - Student App: Todas as telas (290+ keys)
 - Website: Todo o conteúdo (13.000+ palavras)
 
-## APIs REST (70+ endpoints)
+## APIs REST (90+ endpoints)
 
 ### Autenticação
 - `POST /api/v1/auth/register` - Registro
@@ -426,6 +435,57 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 - `POST /api/v1/webhooks/calcom` - Cal.com booking events
 - `POST /api/v1/webhooks/asaas` - Asaas payment events (PAYMENT_CONFIRMED, PAYMENT_RECEIVED, etc.)
 
+### Media (Trainer)
+- `POST /api/v1/media/upload-url` - Gerar URL assinada para upload
+- `POST /api/v1/media/confirm-upload` - Confirmar upload completo
+- `GET /api/v1/media/:id/download` - Gerar URL assinada para download
+- `DELETE /api/v1/media/:id` - Soft delete de arquivo
+- `GET /api/v1/students/:student_id/media` - Listar arquivos do aluno
+
+### Media (Student)
+- `POST /api/v1/student/media/upload-url` - Upload URL para aluno
+- `POST /api/v1/student/media/confirm-upload` - Confirmar upload
+- `GET /api/v1/student/media/:id/download` - Download
+- `GET /api/v1/student/my-media` - Meus arquivos
+
+### Privacy (LGPD)
+- `POST /api/v1/privacy/consent` - Registrar consentimento
+- `DELETE /api/v1/privacy/consent/:type` - Revogar consentimento
+- `GET /api/v1/privacy/my-data` - Exportar dados pessoais
+- `DELETE /api/v1/privacy/my-data` - Deletar dados pessoais
+
+### Bioimpedance
+- `POST /api/v1/bioimpedance/extract` - Iniciar extração OCR (Claude Haiku)
+- `GET /api/v1/bioimpedance/imports` - Listar importações
+- `GET /api/v1/bioimpedance/imports/:id` - Detalhe
+- `PUT /api/v1/bioimpedance/imports/:id` - Atualizar (review)
+- `POST /api/v1/bioimpedance/imports/:id/apply` - Aplicar dados extraídos
+- `POST /api/v1/bioimpedance/imports/:id/reject` - Rejeitar
+
+### AI Analysis (Trainer)
+- `POST /api/v1/ai/analyze/visual` - Análise visual (Claude Sonnet)
+- `POST /api/v1/ai/analyze/trends` - Análise de tendências (Claude Haiku)
+- `POST /api/v1/ai/analyze/document` - Análise de documento (Haiku+Sonnet)
+- `GET /api/v1/ai/analyses` - Listar análises
+- `GET /api/v1/ai/analyses/:id` - Detalhe
+- `PUT /api/v1/ai/analyses/:id/review` - Revisar análise
+- `POST /api/v1/ai/analyses/:id/share` - Compartilhar com aluno
+- `GET /api/v1/ai/usage` - Estatísticas de uso
+
+### AI Analysis (Student)
+- `GET /api/v1/student/ai/analyses` - Análises compartilhadas
+- `GET /api/v1/student/ai/analyses/:id` - Detalhe
+
+### Pose Detection (Trainer)
+- `GET /api/v1/pose/results` - Listar resultados
+- `GET /api/v1/pose/results/:id` - Detalhe
+- `GET /api/v1/students/:student_id/pose` - Histórico do aluno
+
+### Pose Detection (Student)
+- `POST /api/v1/student/pose/results` - Salvar resultado
+- `GET /api/v1/student/pose/results` - Meus resultados
+- `GET /api/v1/student/pose/results/:id` - Detalhe
+
 **Autenticação:** Todas as rotas (exceto login/register/health/webhooks) requerem `Authorization: Bearer <access_token>`
 
 **Rate Limiting:**
@@ -469,29 +529,85 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 - `POST /webhooks/asaas` — Webhook para atualizar status de pagamento
 - `AutoBillingWorker` — Cron diário 8AM, gera cobranças automáticas para assinaturas
 
-### Variáveis de Ambiente (Novas):
+### Variáveis de Ambiente (Novas — Fase 1-4):
 | Variável | Descrição |
 |----------|-----------|
 | `ASAAS_API_KEY` | Chave da API Asaas |
 | `ASAAS_ENVIRONMENT` | `sandbox` ou `production` |
 | `ASAAS_WEBHOOK_TOKEN` | Token para verificar webhooks Asaas |
 
-## Próximas Fases (Futuro) - IA & Integrações
+## AI Media Suite (2026-02-28) — Completo
 
-### IA Features (não implementado ainda)
-- **TensorFlow.js MoveNet** - Detecção de pose no browser
-- **Claude API Sonnet** - Análise visual corporal
-- **Anovator Collector** - Import automático de bioimpedância
+### ✅ Phase A — Media Upload Infrastructure
+- **GCS Signed URLs** (V4) para upload direto do browser para Cloud Storage
+- **Goth** para autenticação GCP (metadata server no Cloud Run)
+- **Media context** — upload URL, confirm, download com signed URLs, soft delete
+- **Privacy context** — LGPD compliance (consent records, access logs, data export/deletion)
+- **MediaCleanupWorker** — Cron diário 3AM, hard-delete após 30 dias
+- GCS path: `media/{trainer_id}/{student_id}/{file_type}/{uuid}.{ext}`
+- MIME types: jpeg, png, webp, pdf, xlsx, xls, csv
+- Tabelas: media_files, consent_records, access_logs
 
-### Integrações Futuras
+### ✅ Phase B — Bioimpedance Import
+- **Claude Haiku OCR** — Extração automática de dados de relatórios (PDF/foto)
+- **Workflow** — pending_extraction → extracting → extracted → reviewed → applied/rejected
+- **6 dispositivos** — Anovator, Relaxmedic, InBody, Tanita, Omron, Outro
+- **BioimpedanceExtractionWorker** — Oban worker (:ai queue), Claude Haiku multimodal
+- **apply_to_assessment** — Cria BodyAssessment automaticamente dos dados extraídos
+- Tabela: bioimpedance_imports
+
+### ✅ Phase C — AI Analysis
+- **3 tipos de análise:**
+  - `visual_body` — Claude Sonnet analisa fotos de evolução (composição, postura, músculo)
+  - `numeric_trends` — Claude Haiku analisa histórico de avaliações (tendências, alertas)
+  - `medical_document` — Two-step: Haiku extrai valores → Sonnet interpreta para fitness
+- **Rate limiting** — 10 análises por trainer por hora (contagem DB)
+- **Trainer review obrigatório** antes de compartilhar com aluno
+- **Usage stats** — Agregação por hora e por mês
+- Tabela: ai_analyses
+- Workers: VisualAnalysisWorker, TrendsAnalysisWorker, DocumentAnalysisWorker
+
+### ✅ Phase D — Pose Detection
+- **Storage only** — Resultados de detecção de pose do browser (TensorFlow.js MoveNet)
+- **Tipos** — posture (análise postural), exercise (avaliação de exercício)
+- **Exercícios** — squat, deadlift, shoulder_press, plank, lunge
+- **Auto-resolve trainer** — Para alunos, busca trainer_id via Accounts
+- Tabela: pose_analyses
+
+### Módulos de IA
+- `GaPersonal.AI.Client` — Cliente Claude API centralizado (text + multimodal, haiku/sonnet)
+- `GaPersonal.GCS.Client` — GCS V4 signed URL generation (upload/download)
+- Modelos: claude-haiku-4-5-20241022, claude-sonnet-4-5-20250514
+
+### Novos Controllers (5)
+- `MediaController` — 6 ações (upload URL, confirm, download, index, my_files, delete)
+- `PrivacyController` — 4 ações (grant/revoke consent, export/delete data)
+- `BioimpedanceController` — 6 ações (extract, index, show, update, apply, reject)
+- `AIAnalysisController` — 10 ações (analyze visual/trends/doc, CRUD, review, share, usage)
+- `PoseController` — 6 ações (create, index, show, student_history, my_results, show_for_student)
+
+### Novos Oban Workers (5)
+- `MediaCleanupWorker` — Cron diário 3AM (cleanup)
+- `BioimpedanceExtractionWorker` — Async Claude Haiku OCR (:ai queue)
+- `VisualAnalysisWorker` — Claude Sonnet body analysis (:ai queue)
+- `TrendsAnalysisWorker` — Claude Haiku trends (:ai queue)
+- `DocumentAnalysisWorker` — Two-step Haiku+Sonnet (:ai queue)
+
+### Variáveis de Ambiente (Novas):
+| Variável | Descrição |
+|----------|-----------|
+| `GCS_BUCKET` | Bucket GCS (default: ga-personal-media) |
+| `ANTHROPIC_API_KEY` | Chave Claude API (GCP Secret Manager) |
+
+## Integrações Futuras
 - WhatsApp Business API - Lembretes automáticos
 - PWA - Progressive Web App
 - Analytics - Métricas de uso
 
-## Aparelhos Bioimpedância (Fase 2)
-- **Anovator** - Torre profissional, import via URL
-- **Relaxmedic Intelligence Plus** - Balança Bluetooth, app RelaxFIT
-- **InBody, Tanita, Omron** - Entrada manual
+## Aparelhos Bioimpedância (Suportados)
+- **Anovator** - Torre profissional, import via OCR (Claude Haiku)
+- **Relaxmedic Intelligence Plus** - Balança Bluetooth, import via OCR
+- **InBody, Tanita, Omron** - Import via OCR ou entrada manual
 - **Manual Entry** - Formulário completo de avaliação
 
 ## Documentação
@@ -529,17 +645,18 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 ## Estatísticas do Projeto
 
 ### Código
-- **280+ arquivos criados**
-- **17.000+ linhas de código em produção**
+- **320+ arquivos criados**
+- **20.000+ linhas de código em produção**
 - **13.000+ palavras de conteúdo**
 - **600+ chaves de tradução**
 - **30+ interfaces TypeScript**
-- **70+ endpoints de API**
+- **90+ endpoints de API**
 - **100+ test cases**
 
 ### Componentes
-- Backend: 8 contextos, 120+ funções, 22 tabelas, 5 Oban workers
+- Backend: 12 contextos, 180+ funções, 28 tabelas, 10 Oban workers
 - Asaas: 3 módulos (Client, Customers, Charges)
+- AI: 2 módulos (AI.Client, GCS.Client)
 - Shared: 30 arquivos, 10 componentes, 60+ utils
 - Trainer: 60+ arquivos, 15 telas
 - Student: 40+ arquivos, 8 telas
@@ -549,11 +666,13 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
 - Elixir, Phoenix, Ecto, Oban
 - Vue 3, TypeScript, Vite
 - PostgreSQL, Redis
-- Swoosh, Resend, Req
+- Goth, Swoosh, Resend, Req
 - Hammer, Guardian, Bcrypt
 - Tailwind CSS, Chart.js
 - VitePress, Vue I18n
 - ExMachina (testes)
+- Claude API (Haiku + Sonnet)
+- Google Cloud Storage (signed URLs)
 
 ## Status de Produção
 
@@ -802,6 +921,8 @@ gcloud dns record-sets list --zone=guialmeidapersonal --project=guialmeidaperson
 - Site: https://guialmeidapersonal.esp.br
 
 **Próximos passos:**
+- Deploy AI Media Suite em produção (4 migrations + env vars GCS_BUCKET, ANTHROPIC_API_KEY)
+- Configurar CORS no bucket GCS ga-personal-media
 - Criar conta Asaas sandbox e configurar API key
 - Upload de assets (imagens) e UAT com Guilherme
-- Deploy das fases 1-4 em produção (migrations + env vars)
+- Testes E2E completos via browser
