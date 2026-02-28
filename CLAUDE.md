@@ -49,7 +49,8 @@
 - **Workload Identity Federation:** Secure CI/CD (no service account keys)
 
 ### Infraestrutura (Desenvolvimento)
-- **Docker Compose** - PostgreSQL + Redis local
+- **100% Cloud (GCP)** - Sem ambiente local. Não há Docker, PostgreSQL ou Redis local.
+- Todo desenvolvimento e teste acontece contra os serviços em produção no GCP.
 
 ## Estrutura do Projeto
 
@@ -78,39 +79,28 @@ ga-personal/
 └── CLAUDE.md                  # Este arquivo
 ```
 
-## Como Rodar
+## IMPORTANTE: Ambiente 100% Cloud (GCP)
 
-### Primeira vez (Setup):
+> **MANDATÓRIO:** Este projeto NÃO roda localmente. Não há PostgreSQL, Redis, ou Docker local.
+> Todo desenvolvimento, testes, e deploy acontecem exclusivamente no projeto GCP `guialmeidapersonal`.
+> Nunca sugerir ou tentar rodar serviços locais (docker-compose, mix phx.server, npm run dev local).
+
+### Como Fazer Deploy (Único Workflow)
 ```bash
-# 1. Backend
-cd /Users/luizpenha/guipersonal
-./bin/setup        # Cria banco, roda migrations, seeds
-mix phx.server     # http://localhost:4000
+# 1. Build e deploy backend
+./infrastructure/gcp/09-build-backend.sh
+./infrastructure/gcp/10-deploy-backend.sh
 
-# 2. Shared Package (em outro terminal)
-cd frontend/shared
-npm install && npm run build
+# 2. Run migrations
+gcloud run jobs execute ga-personal-migrations --region=southamerica-east1 --project=guialmeidapersonal --wait
 
-# 3. Trainer App (em outro terminal)
-cd frontend/trainer-app
-npm install && npm run dev    # http://localhost:3001
-
-# 4. Student App (em outro terminal)
-cd frontend/student-app
-npm install && npm run dev    # http://localhost:3002
-
-# 5. Site Marketing (em outro terminal)
-cd frontend/site
-npm install && npm run dev    # http://localhost:3003
+# 3. Deploy frontends
+./infrastructure/gcp/13-deploy-frontends.sh
 ```
 
-### Uso diário:
-```bash
-# Terminal 1: mix phx.server
-# Terminal 2: cd frontend/trainer-app && npm run dev
-# Terminal 3: cd frontend/student-app && npm run dev
-# Terminal 4: cd frontend/site && npm run dev
-```
+### Como Rodar Testes
+Testes que precisam de banco de dados devem rodar contra o Cloud SQL no GCP.
+Testes unitários sem dependência de banco podem ser compilados localmente com `mix compile`.
 
 ## URLs de Produção
 
@@ -624,11 +614,9 @@ npm run type-check          # TypeScript check
 npm run lint                # ESLint
 ```
 
-### Docker
-```bash
-docker-compose up           # Start PostgreSQL + Redis
-docker-compose down         # Stop services
-```
+### Nota: Sem Ambiente Local
+Não há Docker, PostgreSQL ou Redis local. Todos os serviços rodam no GCP.
+Ver seção "IMPORTANTE: Ambiente 100% Cloud (GCP)" acima.
 
 ## Comandos GCP (Produção)
 
@@ -763,29 +751,36 @@ api.post('/students', { student: { email: 'test@test.com', full_name: 'Test' } }
 
 ## Troubleshooting
 
-### Backend não inicia
+### Backend não responde (Produção)
 ```bash
-# Verificar se PostgreSQL está rodando
-docker-compose up -d postgres
+# Verificar status do Cloud Run
+gcloud run services describe ga-personal-api --region=southamerica-east1 --project=guialmeidapersonal
 
-# Recriar banco
-mix ecto.reset
+# Verificar logs
+gcloud run services logs read ga-personal-api --region=southamerica-east1 --project=guialmeidapersonal --limit=50
+
+# Health check
+curl https://api.guialmeidapersonal.esp.br/api/v1/health
 ```
 
-### Frontend não conecta na API
+### Frontend não carrega (Produção)
 ```bash
-# Verificar .env
-cat frontend/trainer-app/.env
-# Deve ter: VITE_API_URL=http://localhost:4000
+# Verificar se os buckets estão acessíveis
+curl -I https://admin.guialmeidapersonal.esp.br
+curl -I https://app.guialmeidapersonal.esp.br
+curl -I https://guialmeidapersonal.esp.br
 
-# Verificar se backend está rodando
-curl http://localhost:4000/api/v1/health
+# Re-deploy frontends se necessário
+./infrastructure/gcp/13-deploy-frontends.sh
 ```
 
-### Erro de CORS
+### Erro de SSL/DNS
 ```bash
-# Verificar configuração em config/dev.exs
-# Endpoint deve ter origins: ["http://localhost:3001", "http://localhost:3002", "http://localhost:3003"]
+# Verificar certificado
+gcloud certificate-manager certificates describe ga-personal-cert --project=guialmeidapersonal
+
+# Verificar DNS
+gcloud dns record-sets list --zone=guialmeidapersonal --project=guialmeidapersonal
 ```
 
 ## Contato & Suporte
