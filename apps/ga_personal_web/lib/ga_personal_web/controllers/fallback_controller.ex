@@ -58,6 +58,16 @@ defmodule GaPersonalWeb.FallbackController do
     |> json(%{errors: %{message: message}})
   end
 
+  # Catch-all for unhandled error tuples
+  def call(conn, {:error, reason}) do
+    require Logger
+    Logger.warning("Unhandled error in FallbackController: #{inspect(reason)}")
+
+    conn
+    |> put_status(:internal_server_error)
+    |> json(%{errors: %{detail: "Internal Server Error"}})
+  end
+
   defp translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Enum.reduce(opts, msg, fn {key, value}, acc ->

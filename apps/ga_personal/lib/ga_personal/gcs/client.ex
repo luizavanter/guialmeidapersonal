@@ -3,8 +3,8 @@ defmodule GaPersonal.GCS.Client do
   Google Cloud Storage client for media file operations.
   Uses Goth for authentication and Req for HTTP requests.
 
-  On Cloud Run, Goth auto-discovers the service account from the metadata server.
-  For local development, set GOOGLE_APPLICATION_CREDENTIALS env var.
+  On Cloud Run, uses IAM signBlob API for V4 signed URLs.
+  For local development, set GCS_CREDENTIALS_JSON env var.
   """
 
   require Logger
@@ -14,20 +14,12 @@ defmodule GaPersonal.GCS.Client do
 
   def generate_signed_upload_url(gcs_path, content_type, opts \\ []) do
     ttl = Keyword.get(opts, :ttl, @signed_url_ttl)
-
-    case generate_signed_url(gcs_path, "PUT", ttl, content_type) do
-      {:ok, url} -> {:ok, url}
-      {:error, reason} -> {:error, reason}
-    end
+    generate_signed_url(gcs_path, "PUT", ttl, content_type)
   end
 
   def generate_signed_download_url(gcs_path, opts \\ []) do
     ttl = Keyword.get(opts, :ttl, @signed_url_ttl)
-
-    case generate_signed_url(gcs_path, "GET", ttl) do
-      {:ok, url} -> {:ok, url}
-      {:error, reason} -> {:error, reason}
-    end
+    generate_signed_url(gcs_path, "GET", ttl)
   end
 
   def delete_object(gcs_path) do
@@ -78,19 +70,18 @@ defmodule GaPersonal.GCS.Client do
   # V4 signed URL generation
   defp generate_signed_url(gcs_path, http_method, ttl, content_type \\ nil) do
     bucket = bucket()
+    now = DateTime.utc_now()
+    datestamp = Calendar.strftime(now, "%Y%m%d")
+    timestamp = Calendar.strftime(now, "%Y%m%dT%H%M%SZ")
 
-    case get_service_account_credentials() do
-      {:ok, %{client_email: client_email, private_key: private_key}} ->
-        now = DateTime.utc_now()
-        datestamp = Calendar.strftime(now, "%Y%m%d")
-        timestamp = Calendar.strftime(now, "%Y%m%dT%H%M%SZ")
+    case get_signing_identity() do
+      {:ok, identity} ->
         credential_scope = "#{datestamp}/auto/storage/goog4_request"
-        credential = "#{client_email}/#{credential_scope}"
+        credential = "#{identity.client_email}/#{credential_scope}"
 
         host = "#{bucket}.storage.googleapis.com"
         resource = "/#{gcs_path}"
 
-        headers = %{"host" => host}
         signed_headers = "host"
 
         query_params = %{
@@ -114,11 +105,7 @@ defmodule GaPersonal.GCS.Client do
           |> Enum.map(fn {k, v} -> "#{URI.encode(k, &URI.char_unreserved?/1)}=#{URI.encode(v, &URI.char_unreserved?/1)}" end)
           |> Enum.join("&")
 
-        canonical_headers =
-          headers
-          |> Enum.sort_by(&elem(&1, 0))
-          |> Enum.map(fn {k, v} -> "#{k}:#{v}\n" end)
-          |> Enum.join()
+        canonical_headers = "host:#{host}\n"
 
         canonical_request = Enum.join([
           http_method,
@@ -136,7 +123,7 @@ defmodule GaPersonal.GCS.Client do
           :crypto.hash(:sha256, canonical_request) |> Base.encode16(case: :lower)
         ], "\n")
 
-        case sign_string(string_to_sign, private_key) do
+        case sign_bytes(string_to_sign, identity) do
           {:ok, signature} ->
             signed_url = "https://#{host}#{resource}?#{canonical_query_string}&X-Goog-Signature=#{signature}"
             {:ok, signed_url}
@@ -150,7 +137,8 @@ defmodule GaPersonal.GCS.Client do
     end
   end
 
-  defp sign_string(string, private_key) do
+  # Sign using local private key
+  defp sign_bytes(string, %{private_key: private_key}) when is_binary(private_key) do
     try do
       [pem_entry | _] = :public_key.pem_decode(private_key)
       key = :public_key.pem_entry_decode(pem_entry)
@@ -158,8 +146,42 @@ defmodule GaPersonal.GCS.Client do
       {:ok, Base.encode16(signature, case: :lower)}
     rescue
       e ->
-        Logger.error("Failed to sign GCS URL: #{inspect(e)}")
+        Logger.error("Failed to sign GCS URL locally: #{inspect(e)}")
         {:error, :signing_failed}
+    end
+  end
+
+  # Sign using IAM signBlob API (for Cloud Run / metadata server auth)
+  defp sign_bytes(string, %{client_email: client_email, use_iam: true}) do
+    case get_access_token() do
+      {:ok, token} ->
+        url = "https://iam.googleapis.com/v1/projects/-/serviceAccounts/#{client_email}:signBlob"
+        body = Jason.encode!(%{payload: Base.encode64(string)})
+
+        case Req.request(
+          method: :post,
+          url: url,
+          headers: [
+            {"authorization", "Bearer #{token}"},
+            {"content-type", "application/json"}
+          ],
+          body: body
+        ) do
+          {:ok, %Req.Response{status: 200, body: %{"signedBlob" => signed_blob}}} ->
+            signature = signed_blob |> Base.decode64!() |> Base.encode16(case: :lower)
+            {:ok, signature}
+
+          {:ok, %Req.Response{status: status, body: resp_body}} ->
+            Logger.error("IAM signBlob failed: #{status} - #{inspect(resp_body)}")
+            {:error, :signing_failed}
+
+          {:error, reason} ->
+            Logger.error("IAM signBlob request failed: #{inspect(reason)}")
+            {:error, :signing_failed}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
@@ -172,25 +194,46 @@ defmodule GaPersonal.GCS.Client do
     end
   end
 
-  defp get_service_account_credentials do
-    case Application.get_env(:ga_personal, :gcs)[:credentials_json] do
-      nil ->
-        # On Cloud Run, try to get from metadata server via Goth config
-        case Application.get_env(:ga_personal, :goth_credentials) do
-          nil -> {:error, :no_credentials}
-          creds when is_map(creds) ->
-            {:ok, %{
-              client_email: creds["client_email"],
-              private_key: creds["private_key"]
-            }}
-        end
-
-      json_string when is_binary(json_string) ->
-        creds = Jason.decode!(json_string)
+  # Get signing identity — either from local credentials or Cloud Run metadata
+  defp get_signing_identity do
+    cond do
+      # Local credentials with private key
+      creds = Application.get_env(:ga_personal, :goth_credentials) ->
         {:ok, %{
           client_email: creds["client_email"],
           private_key: creds["private_key"]
         }}
+
+      # Cloud Run — use IAM signBlob API
+      System.get_env("K_SERVICE") ->
+        case get_service_account_email() do
+          {:ok, email} ->
+            {:ok, %{client_email: email, use_iam: true}}
+
+          {:error, reason} ->
+            {:error, reason}
+        end
+
+      true ->
+        {:error, :no_credentials}
+    end
+  end
+
+  # Get service account email from metadata server (Cloud Run)
+  defp get_service_account_email do
+    url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/email"
+
+    case Req.request(method: :get, url: url, headers: [{"metadata-flavor", "Google"}]) do
+      {:ok, %Req.Response{status: 200, body: email}} when is_binary(email) ->
+        {:ok, email}
+
+      {:ok, resp} ->
+        Logger.error("Failed to get SA email from metadata: #{inspect(resp)}")
+        {:error, :metadata_unavailable}
+
+      {:error, reason} ->
+        Logger.error("Metadata server request failed: #{inspect(reason)}")
+        {:error, :metadata_unavailable}
     end
   end
 
