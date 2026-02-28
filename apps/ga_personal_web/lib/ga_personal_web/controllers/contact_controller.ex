@@ -44,8 +44,26 @@ defmodule GaPersonalWeb.ContactController do
   """
   def create(conn, %{"contact" => contact_params}) do
     with :ok <- validate_required_fields(contact_params),
-         :ok <- validate_email_format(contact_params["email"]),
-         :ok <- send_contact_emails(contact_params) do
+         :ok <- validate_email_format(contact_params["email"]) do
+      # Log the contact submission regardless of email delivery
+      Logger.info(
+        "Contact form submission: name=#{contact_params["name"]}, " <>
+          "email=#{contact_params["email"]}, phone=#{contact_params["phone"]}, " <>
+          "goal=#{contact_params["goal"]}"
+      )
+
+      # Attempt email delivery (non-blocking — contact is accepted even if email fails)
+      case send_contact_emails(contact_params) do
+        :ok ->
+          Logger.info("Contact emails sent successfully for #{contact_params["email"]}")
+
+        {:error, reason} ->
+          Logger.warning(
+            "Contact form accepted but email delivery failed: #{inspect(reason)}. " <>
+              "Contact: #{contact_params["name"]} <#{contact_params["email"]}>"
+          )
+      end
+
       conn
       |> put_status(:created)
       |> json(%{
@@ -72,12 +90,6 @@ defmodule GaPersonalWeb.ContactController do
         conn
         |> put_status(:unprocessable_entity)
         |> json(%{error: "Invalid email format", field: "email"})
-
-      {:error, :email_delivery_failed} ->
-        Logger.error("Contact form: Email delivery failed")
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{error: "Failed to send message. Please try again later."})
 
       {:error, reason} ->
         Logger.error("Contact form error: #{inspect(reason)}")

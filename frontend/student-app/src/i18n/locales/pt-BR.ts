@@ -37,6 +37,7 @@ export default {
     loginSubtitle: 'Entre com suas credenciais para acessar o portal',
     invalidCredentials: 'E-mail ou senha inválidos',
     accessDenied: 'Acesso negado. Apenas alunos podem acessar este portal.',
+    tagline: 'Treino & Performance',
   },
   nav: {
     dashboard: 'Dashboard',
@@ -45,6 +46,7 @@ export default {
     schedule: 'Agenda',
     messages: 'Mensagens',
     profile: 'Perfil',
+    studentLabel: 'Aluno',
   },
   dashboard: {
     title: 'Dashboard',

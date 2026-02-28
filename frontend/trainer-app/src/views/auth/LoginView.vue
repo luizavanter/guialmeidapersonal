@@ -102,7 +102,7 @@ async function handleLogin() {
 
       <!-- Footer -->
       <p class="mt-8 text-center text-xs text-stone/50">
-        GA Personal &middot; Training & Performance
+        GA Personal &middot; {{ t('auth.tagline') }}
       </p>
     </div>
   </div>
