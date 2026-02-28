@@ -1,13 +1,16 @@
-export const formatWeight = (weight: number, locale: string = 'pt-BR'): string => {
-  return `${weight.toFixed(1)} kg`
+export const formatWeight = (weight: number | string, locale: string = 'pt-BR'): string => {
+  const num = typeof weight === 'string' ? parseFloat(weight) : weight
+  return isNaN(num) ? '—' : `${num.toFixed(1)} kg`
 }
 
-export const formatPercentage = (value: number, locale: string = 'pt-BR'): string => {
-  return `${value.toFixed(1)}%`
+export const formatPercentage = (value: number | string, locale: string = 'pt-BR'): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  return isNaN(num) ? '—' : `${num.toFixed(1)}%`
 }
 
-export const formatMeasurement = (value: number, unit: string = 'cm'): string => {
-  return `${value.toFixed(1)} ${unit}`
+export const formatMeasurement = (value: number | string, unit: string = 'cm'): string => {
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  return isNaN(num) ? '—' : `${num.toFixed(1)} ${unit}`
 }
 
 export const formatRPE = (rpe: number): string => {
