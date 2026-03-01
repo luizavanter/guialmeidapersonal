@@ -9,6 +9,7 @@ export { default as Badge } from './Badge.vue'
 export { default as Avatar } from './Avatar.vue'
 export { default as Table } from './Table.vue'
 export { default as Chart } from './Chart.vue'
+export { default as FileUpload } from './FileUpload.vue'
 
 // Export types
 export type { ButtonProps } from './Button.vue'
@@ -21,3 +22,4 @@ export type { BadgeProps } from './Badge.vue'
 export type { AvatarProps } from './Avatar.vue'
 export type { TableProps } from './Table.vue'
 export type { ChartProps } from './Chart.vue'
+export type { FileUploadProps } from './FileUpload.vue'

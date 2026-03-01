@@ -37,6 +37,16 @@ export const API_ENDPOINTS = {
 
   // Dashboard (student scope)
   DASHBOARD: '/student/dashboard',
+
+  // Media (student scope)
+  MEDIA_UPLOAD_URL: '/student/media/upload-url',
+  MEDIA_CONFIRM: '/student/media/confirm-upload',
+  MEDIA_DOWNLOAD: (id: string) => `/student/media/${id}/download`,
+  MY_MEDIA: '/student/my-media',
+
+  // AI Analyses (student scope - read-only, shared by trainer)
+  AI_ANALYSES: '/student/ai/analyses',
+  AI_ANALYSIS: (id: string) => `/student/ai/analyses/${id}`,
 } as const
 
 export const STORAGE_KEYS = {

@@ -1,37 +1,212 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useStudentsStore } from '@/stores/studentsStore'
-import { Activity, Camera, Target } from 'lucide-vue-next'
+import { useMediaStore } from '@/stores/mediaStore'
+import { useAIAnalysisStore } from '@/stores/aiAnalysisStore'
+import { useBioimpedanceStore } from '@/stores/bioimpedanceStore'
+import { FileUpload } from '@ga-personal/shared'
+import { Activity, Camera, Target, Upload, Brain, FileText, TrendingUp, Share2, CheckCircle, XCircle, ArrowLeft } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const studentsStore = useStudentsStore()
+const mediaStore = useMediaStore()
+const aiStore = useAIAnalysisStore()
+const bioStore = useBioimpedanceStore()
 
 const studentId = computed(() => route.params.studentId as string)
 
+// UI state
+const showPhotoUpload = ref(false)
+const showDocUpload = ref(false)
+const showBioUpload = ref(false)
+const selectedPhotoFile = ref<File | null>(null)
+const selectedDocFile = ref<File | null>(null)
+const selectedBioFile = ref<File | null>(null)
+const selectedDeviceType = ref('anovator')
+const showReviewModal = ref(false)
+const reviewText = ref('')
+const reviewingAnalysisId = ref('')
+const uploadSuccess = ref('')
+const photoUploadRef = ref<InstanceType<typeof FileUpload>>()
+const docUploadRef = ref<InstanceType<typeof FileUpload>>()
+const bioUploadRef = ref<InstanceType<typeof FileUpload>>()
+
+const deviceTypes = [
+  { value: 'anovator', label: 'Anovator' },
+  { value: 'relaxmedic', label: 'Relaxmedic Intelligence Plus' },
+  { value: 'inbody', label: 'InBody' },
+  { value: 'tanita', label: 'Tanita' },
+  { value: 'omron', label: 'Omron' },
+  { value: 'other', label: t('bioimpedance.other') },
+]
+
+const mediaPhotos = computed(() =>
+  mediaStore.mediaFiles.filter((f: any) => f.file_type === 'evolution_photo' || (f.content_type?.startsWith('image/') && f.file_type !== 'document'))
+)
+const mediaDocs = computed(() =>
+  mediaStore.mediaFiles.filter((f: any) => f.file_type === 'document' || f.content_type === 'application/pdf')
+)
+
+const currentStudent = computed(() =>
+  studentsStore.students.find((s: any) => s.id === studentId.value)
+)
+
 onMounted(async () => {
-  if (!studentId.value) {
-    await studentsStore.fetchStudents()
+  await studentsStore.fetchStudents()
+  if (studentId.value) {
+    loadStudentData()
   }
 })
 
-watch(studentId, async (newId) => {
-  if (!newId) {
-    await studentsStore.fetchStudents()
-  }
+watch(studentId, (newId) => {
+  if (newId) loadStudentData()
 })
+
+async function loadStudentData() {
+  await Promise.all([
+    mediaStore.fetchStudentMedia(studentId.value).catch(() => {}),
+    aiStore.fetchAnalyses({ student_id: studentId.value }).catch(() => {}),
+    bioStore.fetchImports({ student_id: studentId.value }).catch(() => {}),
+    aiStore.fetchUsage().catch(() => {}),
+  ])
+}
 
 function selectStudent(id: string) {
   router.push(`/evolution/${id}`)
 }
+
+function goBack() {
+  router.push('/evolution')
+}
+
+// Photo upload
+async function handlePhotoUpload() {
+  if (!selectedPhotoFile.value) return
+  try {
+    const mediaFile = await mediaStore.uploadFile(selectedPhotoFile.value, 'evolution_photo', studentId.value)
+    uploadSuccess.value = 'photo'
+    selectedPhotoFile.value = null
+    photoUploadRef.value?.clearFile()
+    setTimeout(() => { showPhotoUpload.value = false; uploadSuccess.value = '' }, 2000)
+  } catch { /* error from store */ }
+}
+
+// Document upload
+async function handleDocUpload() {
+  if (!selectedDocFile.value) return
+  try {
+    await mediaStore.uploadFile(selectedDocFile.value, 'document', studentId.value)
+    uploadSuccess.value = 'doc'
+    selectedDocFile.value = null
+    docUploadRef.value?.clearFile()
+    setTimeout(() => { showDocUpload.value = false; uploadSuccess.value = '' }, 2000)
+  } catch { /* error from store */ }
+}
+
+// Bioimpedance upload + extract
+async function handleBioUpload() {
+  if (!selectedBioFile.value) return
+  try {
+    const mediaFile = await mediaStore.uploadFile(selectedBioFile.value, 'bioimpedance', studentId.value)
+    await bioStore.extractFromMedia(mediaFile.id, selectedDeviceType.value, studentId.value)
+    uploadSuccess.value = 'bio'
+    selectedBioFile.value = null
+    bioUploadRef.value?.clearFile()
+    setTimeout(() => { showBioUpload.value = false; uploadSuccess.value = '' }, 2000)
+  } catch { /* error from store */ }
+}
+
+// AI actions
+async function analyzeVisual(mediaFileId: string) {
+  await aiStore.analyzeVisual(mediaFileId, studentId.value)
+}
+
+async function analyzeTrends() {
+  await aiStore.analyzeTrends(studentId.value)
+}
+
+async function analyzeDocument(mediaFileId: string) {
+  await aiStore.analyzeDocument(mediaFileId, studentId.value)
+}
+
+function openReviewModal(analysisId: string) {
+  reviewingAnalysisId.value = analysisId
+  const existing = aiStore.analyses.find((a: any) => a.id === analysisId)
+  reviewText.value = existing?.trainer_review || ''
+  showReviewModal.value = true
+}
+
+async function submitReview() {
+  if (!reviewingAnalysisId.value) return
+  await aiStore.reviewAnalysis(reviewingAnalysisId.value, reviewText.value)
+  showReviewModal.value = false
+  reviewText.value = ''
+}
+
+async function shareAnalysis(id: string) {
+  await aiStore.shareWithStudent(id)
+}
+
+async function applyBioImport(id: string) {
+  await bioStore.applyImport(id)
+}
+
+async function rejectBioImport(id: string) {
+  await bioStore.rejectImport(id)
+}
+
+async function downloadFile(fileId: string) {
+  try {
+    const url = await mediaStore.getDownloadUrl(fileId)
+    window.open(url, '_blank')
+  } catch { /* silent */ }
+}
+
+function getStatusClass(status: string) {
+  const classes: Record<string, string> = {
+    completed: 'bg-green-500/20 text-green-500',
+    processing: 'bg-ocean/20 text-ocean',
+    queued: 'bg-stone/20 text-stone',
+    error: 'bg-red-500/20 text-red-500',
+    extracted: 'bg-lime/20 text-lime',
+    applied: 'bg-green-500/20 text-green-500',
+    rejected: 'bg-red-500/20 text-red-500',
+    extracting: 'bg-ocean/20 text-ocean',
+    pending_extraction: 'bg-stone/20 text-stone',
+  }
+  return classes[status] || 'bg-stone/20 text-stone'
+}
+
+function getAnalysisTypeLabel(type: string) {
+  const labels: Record<string, string> = {
+    visual_body: t('ai.analyzeVisual'),
+    numeric_trends: t('ai.analyzeTrends'),
+    medical_document: t('ai.analyzeDocument'),
+  }
+  return labels[type] || type
+}
+
+function formatFileDate(dateStr: string) {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString()
+}
 </script>
 
 <template>
-  <div class="space-y-8">
-    <h1 class="text-display-md text-smoke">{{ t('evolution.title') }}</h1>
+  <div class="space-y-6">
+    <div class="flex items-center gap-4">
+      <button v-if="studentId" @click="goBack" class="p-2 text-stone hover:text-smoke rounded-lg hover:bg-surface-2 transition-colors">
+        <ArrowLeft :size="20" />
+      </button>
+      <h1 class="text-display-md text-smoke">{{ t('evolution.title') }}</h1>
+      <span v-if="currentStudent" class="text-stone text-lg">
+        — {{ currentStudent.user?.firstName }} {{ currentStudent.user?.lastName }}
+      </span>
+    </div>
 
     <!-- Student Selection -->
     <div v-if="!studentId">
@@ -61,35 +236,311 @@ function selectStudent(id: string) {
       </div>
     </div>
 
-    <!-- Evolution Dashboard -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-      <div class="card group hover:border-lime/30 cursor-pointer transition-all">
-        <div class="flex flex-col items-center text-center py-4">
-          <div class="w-14 h-14 bg-lime/8 rounded-ga-lg flex items-center justify-center mb-4 group-hover:bg-lime/15 transition-colors">
-            <Activity :size="28" :stroke-width="1.5" class="text-lime" />
+    <!-- Student Evolution Dashboard -->
+    <div v-else class="space-y-6">
+
+      <!-- Photos Section -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <Camera :size="20" class="text-ocean" />
+            <h2 class="font-display text-xl text-smoke">{{ t('evolution.photos') }}</h2>
           </div>
-          <h3 class="text-lg font-display font-semibold text-smoke mb-1">{{ t('evolution.bodyAssessments') }}</h3>
-          <p class="text-sm text-stone">{{ t('evolution.weight') }}, {{ t('evolution.measurements') }}, {{ t('evolution.bodyFat') }}</p>
+          <button @click="showPhotoUpload = !showPhotoUpload" class="btn btn-primary text-sm">
+            <Upload :size="16" class="mr-1" /> {{ t('media.uploadPhoto') }}
+          </button>
         </div>
+
+        <div v-if="showPhotoUpload" class="mb-4 p-4 bg-surface-2 rounded-lg border border-surface-3">
+          <FileUpload
+            ref="photoUploadRef"
+            accept="image/jpeg,image/png,image/webp"
+            :max-size-mb="10"
+            :uploading="mediaStore.isUploading"
+            :progress="mediaStore.uploadProgress"
+            @file-selected="selectedPhotoFile = $event"
+            @upload-start="handlePhotoUpload"
+          />
+          <p v-if="uploadSuccess === 'photo'" class="text-lime text-sm mt-2">{{ t('media.uploadSuccess') }}</p>
+          <p v-if="mediaStore.error" class="text-red-400 text-sm mt-2">{{ mediaStore.error }}</p>
+        </div>
+
+        <div v-if="mediaPhotos.length > 0" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div
+            v-for="photo in mediaPhotos"
+            :key="photo.id"
+            class="relative aspect-square rounded-lg overflow-hidden bg-surface-2 border border-surface-3 group"
+          >
+            <div class="w-full h-full flex items-center justify-center bg-lime/5 cursor-pointer" @click="downloadFile(photo.id)">
+              <Camera :size="24" class="text-lime/40" />
+            </div>
+            <div class="absolute bottom-0 left-0 right-0 bg-surface-1/90 p-2">
+              <p class="text-xs text-smoke truncate">{{ photo.original_filename }}</p>
+              <div class="flex items-center justify-between mt-1">
+                <p class="text-xs text-stone">{{ formatFileDate(photo.inserted_at) }}</p>
+                <button
+                  @click.stop="analyzeVisual(photo.id)"
+                  :disabled="aiStore.isAnalyzing"
+                  class="text-xs text-lime hover:text-lime-dark"
+                  :title="t('ai.analyze')"
+                >
+                  <Brain :size="14" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p v-else class="text-center py-6 text-stone">{{ t('evolution.noPhotos') || t('media.noFiles') }}</p>
       </div>
 
-      <div class="card group hover:border-lime/30 cursor-pointer transition-all">
-        <div class="flex flex-col items-center text-center py-4">
-          <div class="w-14 h-14 bg-ocean/8 rounded-ga-lg flex items-center justify-center mb-4 group-hover:bg-ocean/15 transition-colors">
-            <Camera :size="28" :stroke-width="1.5" class="text-ocean" />
+      <!-- Bioimpedance Section -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <Activity :size="20" class="text-lime" />
+            <h2 class="font-display text-xl text-smoke">{{ t('bioimpedance.import') }}</h2>
           </div>
-          <h3 class="text-lg font-display font-semibold text-smoke mb-1">{{ t('evolution.photos') }}</h3>
-          <p class="text-sm text-stone">{{ t('evolution.photoComparison') }}</p>
+          <button @click="showBioUpload = !showBioUpload" class="btn btn-primary text-sm">
+            <Upload :size="16" class="mr-1" /> {{ t('media.uploadExam') }}
+          </button>
         </div>
+
+        <div v-if="showBioUpload" class="mb-4 p-4 bg-surface-2 rounded-lg border border-surface-3 space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-smoke mb-1">{{ t('bioimpedance.deviceType') }}</label>
+            <select v-model="selectedDeviceType" class="input w-full">
+              <option v-for="device in deviceTypes" :key="device.value" :value="device.value">
+                {{ device.label }}
+              </option>
+            </select>
+          </div>
+          <FileUpload
+            ref="bioUploadRef"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            :max-size-mb="10"
+            :uploading="mediaStore.isUploading"
+            :progress="mediaStore.uploadProgress"
+            @file-selected="selectedBioFile = $event"
+            @upload-start="handleBioUpload"
+          />
+          <p v-if="uploadSuccess === 'bio'" class="text-lime text-sm">{{ t('media.uploadSuccess') }}</p>
+        </div>
+
+        <div v-if="bioStore.imports.length > 0" class="space-y-3">
+          <div
+            v-for="imp in bioStore.imports"
+            :key="imp.id"
+            class="p-4 bg-surface-2 rounded-lg border border-surface-3"
+          >
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <p class="text-sm font-medium text-smoke">{{ imp.device_type }} — {{ formatFileDate(imp.inserted_at) }}</p>
+              </div>
+              <span :class="getStatusClass(imp.status)" class="text-xs px-2 py-1 rounded-full font-medium">
+                {{ t(`bioimpedance.${imp.status}`) || imp.status }}
+              </span>
+            </div>
+
+            <!-- Extracted data preview -->
+            <div v-if="imp.status === 'extracted' && imp.extracted_data" class="mt-3 p-3 bg-[#1a1a1a] rounded-lg">
+              <p class="text-xs font-medium text-smoke mb-2">{{ t('bioimpedance.reviewData') }}</p>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                <div v-for="(value, key) in imp.extracted_data" :key="key">
+                  <span class="text-stone">{{ key }}:</span>
+                  <span class="text-smoke ml-1 font-mono">{{ value }}</span>
+                </div>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button @click="applyBioImport(imp.id)" class="btn btn-primary text-xs px-3 py-1">
+                  <CheckCircle :size="14" class="mr-1" /> {{ t('bioimpedance.apply') }}
+                </button>
+                <button @click="rejectBioImport(imp.id)" class="btn btn-ghost text-xs px-3 py-1 text-red-400">
+                  <XCircle :size="14" class="mr-1" /> {{ t('bioimpedance.reject') }}
+                </button>
+              </div>
+            </div>
+
+            <div v-if="imp.confidence_score" class="mt-2 text-xs text-stone">
+              {{ t('ai.confidence') }}: {{ Math.round(imp.confidence_score * 100) }}%
+            </div>
+          </div>
+        </div>
+        <p v-else-if="!showBioUpload" class="text-center py-6 text-stone">{{ t('bioimpedance.noImports') }}</p>
       </div>
 
-      <div class="card group hover:border-lime/30 cursor-pointer transition-all">
-        <div class="flex flex-col items-center text-center py-4">
-          <div class="w-14 h-14 bg-surface-3 rounded-ga-lg flex items-center justify-center mb-4 group-hover:bg-surface-4 transition-colors">
-            <Target :size="28" :stroke-width="1.5" class="text-smoke" />
+      <!-- Documents Section -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <FileText :size="20" class="text-ocean" />
+            <h2 class="font-display text-xl text-smoke">{{ t('media.documents') }}</h2>
           </div>
-          <h3 class="text-lg font-display font-semibold text-smoke mb-1">{{ t('evolution.goals') }}</h3>
-          <p class="text-sm text-stone">{{ t('evolution.progress') }}</p>
+          <button @click="showDocUpload = !showDocUpload" class="btn btn-ghost text-sm">
+            <Upload :size="16" class="mr-1" /> {{ t('media.uploadDocument') }}
+          </button>
+        </div>
+
+        <div v-if="showDocUpload" class="mb-4 p-4 bg-surface-2 rounded-lg border border-surface-3">
+          <FileUpload
+            ref="docUploadRef"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            :max-size-mb="10"
+            :uploading="mediaStore.isUploading"
+            :progress="mediaStore.uploadProgress"
+            @file-selected="selectedDocFile = $event"
+            @upload-start="handleDocUpload"
+          />
+          <p v-if="uploadSuccess === 'doc'" class="text-lime text-sm mt-2">{{ t('media.uploadSuccess') }}</p>
+        </div>
+
+        <div v-if="mediaDocs.length > 0" class="space-y-2">
+          <div
+            v-for="doc in mediaDocs"
+            :key="doc.id"
+            class="flex items-center justify-between p-3 bg-surface-2 rounded-lg border border-surface-3"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 bg-ocean/10 rounded flex items-center justify-center flex-shrink-0">
+                <FileText :size="16" class="text-ocean" />
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm text-smoke truncate">{{ doc.original_filename }}</p>
+                <p class="text-xs text-stone">{{ formatFileDate(doc.inserted_at) }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+              <button @click="analyzeDocument(doc.id)" :disabled="aiStore.isAnalyzing" class="text-lime hover:text-lime-dark text-sm" :title="t('ai.analyzeDocument')">
+                <Brain :size="16" />
+              </button>
+              <button @click="downloadFile(doc.id)" class="text-ocean hover:text-ocean-light text-sm">
+                {{ t('media.download') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <p v-else-if="!showDocUpload" class="text-center py-6 text-stone">{{ t('media.noFiles') }}</p>
+      </div>
+
+      <!-- Trends Analysis -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <TrendingUp :size="20" class="text-lime" />
+            <h2 class="font-display text-xl text-smoke">{{ t('ai.analyzeTrends') }}</h2>
+          </div>
+          <button @click="analyzeTrends" :disabled="aiStore.isAnalyzing" class="btn btn-primary text-sm">
+            <Brain :size="16" class="mr-1" />
+            {{ aiStore.isAnalyzing ? t('ai.analyzing') : t('ai.generateTrends') }}
+          </button>
+        </div>
+        <p class="text-sm text-stone">{{ t('ai.analyzeTrends') }} — analisa o histórico de avaliações corporais para identificar tendências, alertas e recomendações.</p>
+      </div>
+
+      <!-- AI Analyses List -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <Brain :size="20" class="text-lime" />
+            <h2 class="font-display text-xl text-smoke">{{ t('ai.analyses') }}</h2>
+          </div>
+          <div v-if="aiStore.usage" class="text-xs text-stone">
+            {{ t('ai.usageThisHour') }}: {{ aiStore.usage.total_this_hour }}/{{ aiStore.usage.limit_per_hour }}
+          </div>
+        </div>
+
+        <div v-if="aiStore.analyses.length > 0" class="space-y-4">
+          <div
+            v-for="analysis in aiStore.analyses"
+            :key="analysis.id"
+            class="p-4 bg-surface-2 rounded-lg border border-surface-3"
+          >
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <p class="text-sm font-medium text-smoke">{{ getAnalysisTypeLabel(analysis.analysis_type) }}</p>
+                <p class="text-xs text-stone">{{ formatFileDate(analysis.inserted_at) }}</p>
+              </div>
+              <span :class="getStatusClass(analysis.status)" class="text-xs px-2 py-1 rounded-full font-medium">
+                {{ t(`ai.${analysis.status}`) || analysis.status }}
+              </span>
+            </div>
+
+            <!-- Results -->
+            <div v-if="analysis.status === 'completed' && analysis.result" class="mt-3 space-y-2 text-sm">
+              <div v-if="analysis.result.body_composition">
+                <span class="text-stone">{{ t('ai.bodyComposition') }}:</span>
+                <p class="text-smoke/90 ml-2">{{ analysis.result.body_composition }}</p>
+              </div>
+              <div v-if="analysis.result.muscle_development">
+                <span class="text-stone">{{ t('ai.muscleDevelopment') }}:</span>
+                <p class="text-smoke/90 ml-2">{{ analysis.result.muscle_development }}</p>
+              </div>
+              <div v-if="analysis.result.posture_alignment">
+                <span class="text-stone">{{ t('ai.postureAlignment') }}:</span>
+                <p class="text-smoke/90 ml-2">{{ analysis.result.posture_alignment }}</p>
+              </div>
+              <div v-if="analysis.result.overall_notes || analysis.result.summary">
+                <span class="text-stone">{{ t('ai.overallNotes') }}:</span>
+                <p class="text-smoke/90 ml-2">{{ analysis.result.overall_notes || analysis.result.summary }}</p>
+              </div>
+              <div v-if="analysis.result.focus_areas">
+                <span class="text-stone">{{ t('ai.focusAreas') }}:</span>
+                <p class="text-smoke/90 ml-2">{{ Array.isArray(analysis.result.focus_areas) ? analysis.result.focus_areas.join(', ') : analysis.result.focus_areas }}</p>
+              </div>
+            </div>
+
+            <!-- Trainer review -->
+            <div v-if="analysis.trainer_review" class="mt-3 p-3 bg-lime/5 border border-lime/20 rounded-lg">
+              <p class="text-xs text-lime font-medium mb-1">{{ t('ai.trainerReview') }}</p>
+              <p class="text-sm text-smoke/90">{{ analysis.trainer_review }}</p>
+            </div>
+
+            <!-- Actions -->
+            <div v-if="analysis.status === 'completed'" class="flex items-center gap-3 mt-3 pt-3 border-t border-surface-3">
+              <button @click="openReviewModal(analysis.id)" class="text-sm text-ocean hover:text-ocean-light flex items-center gap-1">
+                <FileText :size="14" /> {{ t('ai.review') }}
+              </button>
+              <button
+                v-if="!analysis.visible_to_student"
+                @click="shareAnalysis(analysis.id)"
+                class="text-sm text-lime hover:text-lime-dark flex items-center gap-1"
+              >
+                <Share2 :size="14" /> {{ t('ai.share') }}
+              </button>
+              <span v-else class="text-xs text-green-500 flex items-center gap-1">
+                <CheckCircle :size="14" /> {{ t('ai.sharedWithStudent') }}
+              </span>
+              <span v-if="analysis.confidence_score" class="text-xs text-stone ml-auto">
+                {{ t('ai.confidence') }}: {{ Math.round(analysis.confidence_score * 100) }}%
+              </span>
+            </div>
+          </div>
+        </div>
+        <p v-else class="text-center py-6 text-stone">{{ t('ai.noAnalyses') }}</p>
+      </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div v-if="showReviewModal" class="fixed inset-0 z-50 flex items-center justify-center">
+      <div class="absolute inset-0 bg-black/70" @click="showReviewModal = false"></div>
+      <div class="relative bg-surface-1 border border-surface-3 rounded-xl p-6 w-full max-w-lg mx-4">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="font-display text-2xl text-lime">{{ t('ai.review') }}</h2>
+          <button @click="showReviewModal = false" class="text-stone hover:text-smoke text-2xl">&times;</button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-smoke mb-2">{{ t('ai.trainerReview') }}</label>
+            <textarea
+              v-model="reviewText"
+              class="input w-full"
+              rows="6"
+              :placeholder="t('ai.trainerReview')"
+            ></textarea>
+          </div>
+          <div class="flex justify-end gap-3">
+            <button @click="showReviewModal = false" class="btn btn-ghost">{{ t('common.cancel') }}</button>
+            <button @click="submitReview" class="btn btn-primary">{{ t('common.save') }}</button>
+          </div>
         </div>
       </div>
     </div>

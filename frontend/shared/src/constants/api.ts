@@ -78,6 +78,30 @@ export const API_ENDPOINTS = {
   // Messages
   MESSAGES: '/messages',
   MESSAGE: (id: string) => `/messages/${id}`,
+
+  // Media (Trainer)
+  MEDIA_UPLOAD_URL: '/media/upload-url',
+  MEDIA_CONFIRM: '/media/confirm-upload',
+  MEDIA_DOWNLOAD: (id: string) => `/media/${id}/download`,
+  MEDIA_DELETE: (id: string) => `/media/${id}`,
+  STUDENT_MEDIA: (studentId: string) => `/students/${studentId}/media`,
+
+  // Bioimpedance (Trainer)
+  BIOIMPEDANCE_EXTRACT: '/bioimpedance/extract',
+  BIOIMPEDANCE_IMPORTS: '/bioimpedance/imports',
+  BIOIMPEDANCE_IMPORT: (id: string) => `/bioimpedance/imports/${id}`,
+  BIOIMPEDANCE_APPLY: (id: string) => `/bioimpedance/imports/${id}/apply`,
+  BIOIMPEDANCE_REJECT: (id: string) => `/bioimpedance/imports/${id}/reject`,
+
+  // AI Analysis (Trainer)
+  AI_ANALYZE_VISUAL: '/ai/analyze/visual',
+  AI_ANALYZE_TRENDS: '/ai/analyze/trends',
+  AI_ANALYZE_DOCUMENT: '/ai/analyze/document',
+  AI_ANALYSES: '/ai/analyses',
+  AI_ANALYSIS: (id: string) => `/ai/analyses/${id}`,
+  AI_REVIEW: (id: string) => `/ai/analyses/${id}/review`,
+  AI_SHARE: (id: string) => `/ai/analyses/${id}/share`,
+  AI_USAGE: '/ai/usage',
 }
 
 export const HTTP_STATUS = {

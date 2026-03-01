@@ -218,6 +218,66 @@ export interface Payment {
   student?: any
 }
 
+// Media Types
+export interface MediaFile {
+  id: string
+  file_type: string
+  original_filename: string
+  content_type: string
+  file_size_bytes: number
+  metadata: Record<string, any>
+  student_id: string
+  trainer_id: string
+  inserted_at: string
+  updated_at: string
+}
+
+export interface UploadUrlResponse {
+  upload_url: string
+  file_id: string
+  gcs_path: string
+}
+
+// AI Analysis Types
+export interface AIAnalysis {
+  id: string
+  analysis_type: 'visual_body' | 'numeric_trends' | 'medical_document'
+  status: 'queued' | 'processing' | 'completed' | 'error'
+  result: Record<string, any>
+  confidence_score: number | null
+  model_used: string | null
+  tokens_used: number | null
+  processing_time_ms: number | null
+  trainer_review: string | null
+  reviewed_at: string | null
+  visible_to_student: boolean
+  student_id: string
+  media_file_id: string | null
+  inserted_at: string
+  updated_at: string
+}
+
+export interface BioimpedanceImport {
+  id: string
+  device_type: string
+  status: string
+  extracted_data: Record<string, any>
+  confidence_score: number | null
+  trainer_notes: string | null
+  applied_at: string | null
+  media_file_id: string
+  student_id: string
+  body_assessment_id: string | null
+  inserted_at: string
+  updated_at: string
+}
+
+export interface AIUsage {
+  total_this_hour: number
+  total_this_month: number
+  limit_per_hour: number
+}
+
 // API Response types
 export interface ApiResponse<T> {
   data: T

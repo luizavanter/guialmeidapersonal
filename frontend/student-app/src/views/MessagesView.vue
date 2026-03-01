@@ -73,7 +73,7 @@
                 <textarea
                   v-model="messageForm.content"
                   rows="8"
-                  class="block w-full rounded-lg bg-surface-2 border border-surface-3 px-4 py-2 text-smoke placeholder-stone focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime resize-none"
+                  class="block w-full rounded-lg bg-[#1a1a1a] border border-surface-3 px-4 py-2 text-smoke placeholder-smoke/40 focus:outline-none focus:ring-2 focus:border-lime focus:ring-lime resize-none"
                   :placeholder="t('messages.typeMessage')"
                   required
                 ></textarea>
