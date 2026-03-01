@@ -14,20 +14,21 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <!-- Hidden file input - positioned off-screen, NOT display:none -->
+    <!-- File input: hidden via zero dimensions, NOT display:none -->
     <input
+      :id="inputId"
       ref="fileInput"
       type="file"
       :accept="accept"
-      style="position: fixed; top: -9999px; left: -9999px; opacity: 0;"
+      style="position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;"
       @change="onFileChange"
     />
 
-    <!-- Browse state: click anywhere to open file chooser -->
-    <div
+    <!-- Browse state -->
+    <label
       v-if="!selectedFile && !uploading"
-      class="p-8 cursor-pointer"
-      @click="triggerFileInput"
+      :for="inputId"
+      class="block p-8 cursor-pointer"
     >
       <div class="w-14 h-14 mx-auto mb-4 bg-lime/10 rounded-full flex items-center justify-center">
         <svg class="w-7 h-7 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,7 +38,7 @@
       <p class="text-smoke font-semibold mb-1 text-base">{{ label || t('media.dragDrop') }}</p>
       <p class="text-lime text-sm font-medium">{{ t('media.browse') }}</p>
       <p v-if="maxSizeMb" class="text-stone/60 text-xs mt-3">{{ t('media.maxSize', { size: maxSizeMb }) }}</p>
-    </div>
+    </label>
 
     <!-- Selected file preview -->
     <div v-else-if="selectedFile && !uploading" class="p-8 space-y-3">
@@ -113,6 +114,10 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// Unique ID per component instance for label-input association
+const inputId = `file-upload-${Math.random().toString(36).slice(2, 9)}`
+
 const fileInput = ref<HTMLInputElement>()
 const selectedFile = ref<File | null>(null)
 const isDragging = ref(false)
@@ -125,12 +130,6 @@ const previewUrl = computed(() => {
   }
   return null
 })
-
-function triggerFileInput() {
-  if (!props.disabled) {
-    fileInput.value?.click()
-  }
-}
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
