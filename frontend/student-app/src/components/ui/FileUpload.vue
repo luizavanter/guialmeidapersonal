@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'relative border-2 border-dashed rounded-xl p-8 text-center transition-all',
+      'border-2 border-dashed rounded-xl text-center transition-all',
       isDragging
         ? 'border-lime bg-lime/10'
         : selectedFile
@@ -14,19 +14,15 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <!-- Native file input - covers entire area when in browse state -->
-    <input
-      v-if="!selectedFile && !uploading"
-      ref="fileInput"
-      type="file"
-      :accept="accept"
-      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-      style="z-index: 10;"
-      @change="onFileChange"
-    />
-
-    <!-- Browse state -->
-    <div v-if="!selectedFile && !uploading" class="pointer-events-none">
+    <!-- Browse state: entire area is a clickable label -->
+    <label v-if="!selectedFile && !uploading" class="block p-8 cursor-pointer">
+      <input
+        ref="fileInput"
+        type="file"
+        :accept="accept"
+        class="sr-only"
+        @change="onFileChange"
+      />
       <div class="w-14 h-14 mx-auto mb-4 bg-lime/10 rounded-full flex items-center justify-center">
         <svg class="w-7 h-7 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -35,10 +31,10 @@
       <p class="text-smoke font-semibold mb-1 text-base">{{ label || 'Arraste um arquivo ou clique para selecionar' }}</p>
       <p class="text-lime text-sm font-medium">Clique aqui para navegar</p>
       <p v-if="maxSizeMb" class="text-stone/60 text-xs mt-3">Tamanho máximo: {{ maxSizeMb }} MB</p>
-    </div>
+    </label>
 
     <!-- Selected file preview -->
-    <div v-else-if="selectedFile && !uploading" class="space-y-3">
+    <div v-else-if="selectedFile && !uploading" class="p-8 space-y-3">
       <div v-if="previewUrl" class="mx-auto w-24 h-24 rounded-lg overflow-hidden border border-surface-3">
         <img :src="previewUrl" alt="Preview" class="w-full h-full object-cover" />
       </div>
@@ -68,7 +64,7 @@
     </div>
 
     <!-- Uploading state -->
-    <div v-else-if="uploading" class="space-y-3">
+    <div v-else-if="uploading" class="p-8 space-y-3">
       <div class="w-12 h-12 mx-auto flex items-center justify-center">
         <div class="w-8 h-8 border-2 border-lime border-t-transparent rounded-full animate-spin"></div>
       </div>
@@ -79,7 +75,7 @@
     </div>
 
     <!-- Error -->
-    <p v-if="errorMessage" class="text-red-400 text-xs mt-2">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="text-red-400 text-xs mt-2 pb-2">{{ errorMessage }}</p>
   </div>
 </template>
 
