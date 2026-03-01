@@ -197,7 +197,7 @@
       <Card>
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-lg font-semibold text-smoke">{{ t('media.documents') }}</h3>
-          <Button variant="ghost" size="sm" @click="showDocUpload = true">
+          <Button variant="primary" size="sm" @click="showDocUpload = true">
             {{ t('media.uploadExam') }}
           </Button>
         </div>
@@ -348,7 +348,7 @@ const mediaPhotos = computed(() =>
   mediaStore.mediaFiles.filter((f) => f.file_type === 'evolution_photo' || f.content_type?.startsWith('image/'))
 )
 const mediaDocs = computed(() =>
-  mediaStore.mediaFiles.filter((f) => f.file_type === 'document' || f.file_type === 'exam' || f.content_type === 'application/pdf')
+  mediaStore.mediaFiles.filter((f) => f.file_type === 'medical_document' || f.file_type === 'bioimpedance_report' || f.content_type === 'application/pdf')
 )
 
 const showPhotoUpload = ref(false)
@@ -453,7 +453,7 @@ async function handleDocUpload() {
   if (!selectedDocFile.value) return
   docUploadSuccess.value = false
   try {
-    await mediaStore.uploadFile(selectedDocFile.value, 'document')
+    await mediaStore.uploadFile(selectedDocFile.value, 'medical_document')
     docUploadSuccess.value = true
     selectedDocFile.value = null
     docUploadRef.value?.clearFile()

@@ -62,8 +62,11 @@ class ApiClient {
               refreshToken,
             })
 
-            const { accessToken } = response.data.data
+            const { accessToken, refreshToken: newRefreshToken } = response.data.data.tokens
             localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
+            if (newRefreshToken) {
+              localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newRefreshToken)
+            }
 
             this.isRefreshing = false
             this.refreshSubscribers.forEach((callback) => callback(accessToken))

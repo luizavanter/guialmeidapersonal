@@ -1,36 +1,40 @@
 <template>
   <div
     :class="[
-      'relative border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer',
+      'relative border-2 border-dashed rounded-xl p-8 text-center transition-all',
       isDragging
-        ? 'border-lime bg-lime/5'
-        : 'border-surface-3 hover:border-lime/40 bg-[#1a1a1a]',
+        ? 'border-lime bg-lime/10'
+        : selectedFile
+          ? 'border-surface-3 bg-surface-2'
+          : 'border-stone/40 hover:border-lime hover:bg-lime/5 bg-surface-2',
       disabled ? 'opacity-50 cursor-not-allowed' : '',
     ]"
     @dragenter.prevent="onDragEnter"
     @dragover.prevent="onDragOver"
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
-    @click="openFilePicker"
   >
+    <!-- Native file input - covers entire area when in browse state -->
     <input
+      v-if="!selectedFile && !uploading"
       ref="fileInput"
       type="file"
       :accept="accept"
-      class="hidden"
+      class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+      style="z-index: 10;"
       @change="onFileChange"
     />
 
-    <!-- Upload state -->
-    <div v-if="!selectedFile && !uploading">
-      <div class="w-12 h-12 mx-auto mb-3 bg-surface-3 rounded-full flex items-center justify-center">
-        <svg class="w-6 h-6 text-stone" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Browse state -->
+    <div v-if="!selectedFile && !uploading" class="pointer-events-none">
+      <div class="w-14 h-14 mx-auto mb-4 bg-lime/10 rounded-full flex items-center justify-center">
+        <svg class="w-7 h-7 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
         </svg>
       </div>
-      <p class="text-smoke font-medium mb-1">{{ label || t('media.dragDrop') }}</p>
-      <p class="text-stone text-sm">{{ t('media.browse') }}</p>
-      <p v-if="maxSizeMb" class="text-stone/60 text-xs mt-2">{{ t('media.maxSize', { size: maxSizeMb }) }}</p>
+      <p class="text-smoke font-semibold mb-1 text-base">{{ label || t('media.dragDrop') }}</p>
+      <p class="text-lime text-sm font-medium">{{ t('media.browse') }}</p>
+      <p v-if="maxSizeMb" class="text-stone/60 text-xs mt-3">{{ t('media.maxSize', { size: maxSizeMb }) }}</p>
     </div>
 
     <!-- Selected file preview -->
@@ -45,18 +49,18 @@
       </div>
       <p class="text-smoke text-sm font-medium truncate">{{ selectedFile.name }}</p>
       <p class="text-stone text-xs">{{ formatFileSize(selectedFile.size) }}</p>
-      <div class="flex justify-center gap-2">
+      <div class="flex justify-center gap-3 mt-2">
         <button
           type="button"
-          class="px-3 py-1.5 text-xs rounded-lg bg-surface-3 text-stone hover:text-smoke transition-colors"
-          @click.stop="clearFile"
+          class="px-4 py-2 text-sm rounded-lg bg-surface-3 text-stone hover:text-smoke transition-colors"
+          @click="clearFile"
         >
           {{ t('common.cancel') }}
         </button>
         <button
           type="button"
-          class="px-3 py-1.5 text-xs rounded-lg bg-lime text-coal font-medium hover:bg-lime-dark transition-colors"
-          @click.stop="$emit('upload-start')"
+          class="px-4 py-2 text-sm rounded-lg bg-lime text-coal font-semibold hover:bg-lime/90 transition-colors"
+          @click="$emit('upload-start')"
         >
           {{ t('media.upload') }}
         </button>
@@ -120,11 +124,6 @@ const previewUrl = computed(() => {
   return null
 })
 
-function openFilePicker() {
-  if (props.disabled || props.uploading) return
-  fileInput.value?.click()
-}
-
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
   if (input.files?.[0]) {
@@ -154,14 +153,12 @@ function onDrop(event: DragEvent) {
 function validateAndSet(file: File) {
   errorMessage.value = ''
 
-  // Validate type
   const allowedTypes = props.accept.split(',').map((t) => t.trim())
   if (!allowedTypes.some((type) => file.type === type || type === '*/*')) {
     errorMessage.value = t('media.invalidType')
     return
   }
 
-  // Validate size
   if (props.maxSizeMb && file.size > props.maxSizeMb * 1024 * 1024) {
     errorMessage.value = t('media.maxSize', { size: props.maxSizeMb })
     return
