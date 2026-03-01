@@ -14,31 +14,25 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <!-- File input: hidden via zero dimensions, NOT display:none -->
-    <input
-      :id="inputId"
-      ref="fileInput"
-      type="file"
-      :accept="accept"
-      style="position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;"
-      @change="onFileChange"
-    />
-
     <!-- Browse state -->
-    <label
-      v-if="!selectedFile && !uploading"
-      :for="inputId"
-      class="block p-8 cursor-pointer"
-    >
+    <div v-if="!selectedFile && !uploading" class="p-8">
       <div class="w-14 h-14 mx-auto mb-4 bg-lime/10 rounded-full flex items-center justify-center">
         <svg class="w-7 h-7 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
         </svg>
       </div>
       <p class="text-smoke font-semibold mb-1 text-base">{{ label || 'Arraste um arquivo ou clique para selecionar' }}</p>
-      <p class="text-lime text-sm font-medium">Clique aqui para navegar</p>
-      <p v-if="maxSizeMb" class="text-stone/60 text-xs mt-3">Tamanho máximo: {{ maxSizeMb }} MB</p>
-    </label>
+      <p class="text-stone/60 text-xs mt-1 mb-4" v-if="maxSizeMb">Tamanho máximo: {{ maxSizeMb }} MB</p>
+
+      <!-- VISIBLE native file input - guaranteed to work -->
+      <input
+        ref="fileInput"
+        type="file"
+        :accept="accept"
+        class="block mx-auto text-sm text-stone file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-lime file:text-coal hover:file:bg-lime/90 file:cursor-pointer cursor-pointer"
+        @change="onFileChange"
+      />
+    </div>
 
     <!-- Selected file preview -->
     <div v-else-if="selectedFile && !uploading" class="p-8 space-y-3">
@@ -111,9 +105,6 @@ const emit = defineEmits<{
   'file-selected': [file: File]
   'upload-start': []
 }>()
-
-// Unique ID per component instance for label-input association
-const inputId = `file-upload-${Math.random().toString(36).slice(2, 9)}`
 
 const fileInput = ref<HTMLInputElement>()
 const selectedFile = ref<File | null>(null)
