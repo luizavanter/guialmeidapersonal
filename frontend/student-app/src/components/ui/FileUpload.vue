@@ -14,15 +14,21 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <!-- Browse state: entire area is a clickable label -->
-    <label v-if="!selectedFile && !uploading" class="block p-8 cursor-pointer">
-      <input
-        ref="fileInput"
-        type="file"
-        :accept="accept"
-        class="sr-only"
-        @change="onFileChange"
-      />
+    <!-- Hidden file input - positioned off-screen, NOT display:none -->
+    <input
+      ref="fileInput"
+      type="file"
+      :accept="accept"
+      style="position: fixed; top: -9999px; left: -9999px; opacity: 0;"
+      @change="onFileChange"
+    />
+
+    <!-- Browse state: click anywhere to open file chooser -->
+    <div
+      v-if="!selectedFile && !uploading"
+      class="p-8 cursor-pointer"
+      @click="triggerFileInput"
+    >
       <div class="w-14 h-14 mx-auto mb-4 bg-lime/10 rounded-full flex items-center justify-center">
         <svg class="w-7 h-7 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -31,7 +37,7 @@
       <p class="text-smoke font-semibold mb-1 text-base">{{ label || 'Arraste um arquivo ou clique para selecionar' }}</p>
       <p class="text-lime text-sm font-medium">Clique aqui para navegar</p>
       <p v-if="maxSizeMb" class="text-stone/60 text-xs mt-3">Tamanho máximo: {{ maxSizeMb }} MB</p>
-    </label>
+    </div>
 
     <!-- Selected file preview -->
     <div v-else-if="selectedFile && !uploading" class="p-8 space-y-3">
@@ -117,6 +123,12 @@ const previewUrl = computed(() => {
   }
   return null
 })
+
+function triggerFileInput() {
+  if (!props.disabled) {
+    fileInput.value?.click()
+  }
+}
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement
