@@ -13,8 +13,8 @@ defmodule GaPersonal.AI.Client do
   @api_url "https://api.anthropic.com/v1/messages"
   @api_version "2023-06-01"
 
-  @model_haiku "claude-haiku-4-5-20241022"
-  @model_sonnet "claude-sonnet-4-5-20250514"
+  @model_haiku "claude-haiku-4-5-20251001"
+  @model_sonnet "claude-haiku-4-5-20251001"
 
   @doc """
   Sends a text-only message to Claude.
