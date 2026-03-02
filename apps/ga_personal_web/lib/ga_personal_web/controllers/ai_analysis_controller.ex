@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.AIAnalysisController do
 
   alias GaPersonal.AIAnalysis
   alias GaPersonal.Privacy
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -10,15 +11,17 @@ defmodule GaPersonalWeb.AIAnalysisController do
   def analyze_visual(conn, %{"analysis" => %{"media_file_id" => media_file_id, "student_id" => student_id}}) do
     trainer_id = conn.assigns.current_user_id
 
-    case AIAnalysis.request_visual_analysis(media_file_id, student_id, trainer_id) do
-      {:ok, record} ->
-        Privacy.log_access(trainer_id, "ai_analyze", "ai_analysis", record.id, conn_info(conn))
-        conn |> put_status(:created) |> json(%{data: analysis_json(record)})
+    with {:ok, user_id} <- resolve_and_verify_student(student_id, trainer_id) do
+      case AIAnalysis.request_visual_analysis(media_file_id, user_id, trainer_id) do
+        {:ok, record} ->
+          Privacy.log_access(trainer_id, "ai_analyze", "ai_analysis", record.id, conn_info(conn))
+          conn |> put_status(:created) |> json(%{data: analysis_json(record)})
 
-      {:error, :rate_limited} ->
-        conn |> put_status(:too_many_requests) |> json(%{error: "Rate limit exceeded. Max 10 analyses per hour."})
+        {:error, :rate_limited} ->
+          conn |> put_status(:too_many_requests) |> json(%{error: "Rate limit exceeded. Max 10 analyses per hour."})
 
-      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+        {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+      end
     end
   end
 
@@ -27,15 +30,17 @@ defmodule GaPersonalWeb.AIAnalysisController do
     trainer_id = conn.assigns.current_user_id
     opts = Map.get(params["analysis"], "options", %{})
 
-    case AIAnalysis.request_trends_analysis(student_id, trainer_id, opts) do
-      {:ok, record} ->
-        Privacy.log_access(trainer_id, "ai_analyze", "ai_analysis", record.id, conn_info(conn))
-        conn |> put_status(:created) |> json(%{data: analysis_json(record)})
+    with {:ok, user_id} <- resolve_and_verify_student(student_id, trainer_id) do
+      case AIAnalysis.request_trends_analysis(user_id, trainer_id, opts) do
+        {:ok, record} ->
+          Privacy.log_access(trainer_id, "ai_analyze", "ai_analysis", record.id, conn_info(conn))
+          conn |> put_status(:created) |> json(%{data: analysis_json(record)})
 
-      {:error, :rate_limited} ->
-        conn |> put_status(:too_many_requests) |> json(%{error: "Rate limit exceeded. Max 10 analyses per hour."})
+        {:error, :rate_limited} ->
+          conn |> put_status(:too_many_requests) |> json(%{error: "Rate limit exceeded. Max 10 analyses per hour."})
 
-      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+        {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+      end
     end
   end
 
@@ -43,15 +48,17 @@ defmodule GaPersonalWeb.AIAnalysisController do
   def analyze_document(conn, %{"analysis" => %{"media_file_id" => media_file_id, "student_id" => student_id}}) do
     trainer_id = conn.assigns.current_user_id
 
-    case AIAnalysis.request_document_analysis(media_file_id, student_id, trainer_id) do
-      {:ok, record} ->
-        Privacy.log_access(trainer_id, "ai_analyze", "ai_analysis", record.id, conn_info(conn))
-        conn |> put_status(:created) |> json(%{data: analysis_json(record)})
+    with {:ok, user_id} <- resolve_and_verify_student(student_id, trainer_id) do
+      case AIAnalysis.request_document_analysis(media_file_id, user_id, trainer_id) do
+        {:ok, record} ->
+          Privacy.log_access(trainer_id, "ai_analyze", "ai_analysis", record.id, conn_info(conn))
+          conn |> put_status(:created) |> json(%{data: analysis_json(record)})
 
-      {:error, :rate_limited} ->
-        conn |> put_status(:too_many_requests) |> json(%{error: "Rate limit exceeded. Max 10 analyses per hour."})
+        {:error, :rate_limited} ->
+          conn |> put_status(:too_many_requests) |> json(%{error: "Rate limit exceeded. Max 10 analyses per hour."})
 
-      {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+        {:error, %Ecto.Changeset{} = changeset} -> {:error, changeset}
+      end
     end
   end
 
@@ -59,6 +66,17 @@ defmodule GaPersonalWeb.AIAnalysisController do
   def index(conn, params) do
     trainer_id = conn.assigns.current_user_id
     filters = Map.take(params, ["analysis_type", "status", "student_id"])
+
+    # Resolve student record ID to user ID if present
+    filters = case Map.get(filters, "student_id") do
+      nil -> filters
+      student_id ->
+        case resolve_and_verify_student(student_id, trainer_id) do
+          {:ok, user_id} -> Map.put(filters, "student_id", user_id)
+          _ -> filters
+        end
+    end
+
     analyses = AIAnalysis.list_analyses(trainer_id, filters)
     json(conn, %{data: Enum.map(analyses, &analysis_json/1)})
   end

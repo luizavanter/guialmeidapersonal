@@ -12,6 +12,9 @@ export default {
         lime: '#C4F53A',
         ocean: '#0EA5E9',
         smoke: '#F5F5F0',
+        'surface-1': '#121212',
+        'surface-2': '#1A1A1A',
+        'surface-3': '#2A2A2A',
       },
       fontFamily: {
         display: ['Bebas Neue', 'sans-serif'],

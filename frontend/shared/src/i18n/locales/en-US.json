@@ -240,7 +240,8 @@
     "abandoned": "Abandoned",
     "progress": "Progress",
     "charts": "Charts",
-    "selectStudent": "Select a student to view their evolution"
+    "selectStudent": "Select a student to view their evolution",
+    "noPhotos": "No evolution photos"
   },
   "finance": {
     "title": "Finance",

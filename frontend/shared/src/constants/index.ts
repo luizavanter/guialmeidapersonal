@@ -63,6 +63,45 @@ export const API_ENDPOINTS = {
   // Payments
   PAYMENTS: '/payments',
   PAYMENT: (id: string) => `/payments/${id}`,
+
+  // Media (Trainer)
+  MEDIA_UPLOAD_URL: '/media/upload-url',
+  MEDIA_CONFIRM: '/media/confirm-upload',
+  MEDIA_DOWNLOAD: (id: string) => `/media/${id}/download`,
+  MEDIA_DELETE: (id: string) => `/media/${id}`,
+  STUDENT_MEDIA: (studentId: string) => `/students/${studentId}/media`,
+
+  // Media (Student)
+  STUDENT_MEDIA_UPLOAD_URL: '/student/media/upload-url',
+  STUDENT_MEDIA_CONFIRM: '/student/media/confirm-upload',
+  STUDENT_MEDIA_DOWNLOAD: (id: string) => `/student/media/${id}/download`,
+  STUDENT_MY_MEDIA: '/student/my-media',
+
+  // Bioimpedance (Trainer)
+  BIOIMPEDANCE_EXTRACT: '/bioimpedance/extract',
+  BIOIMPEDANCE_IMPORTS: '/bioimpedance/imports',
+  BIOIMPEDANCE_IMPORT: (id: string) => `/bioimpedance/imports/${id}`,
+  BIOIMPEDANCE_APPLY: (id: string) => `/bioimpedance/imports/${id}/apply`,
+  BIOIMPEDANCE_REJECT: (id: string) => `/bioimpedance/imports/${id}/reject`,
+
+  // AI Analysis (Trainer)
+  AI_ANALYZE_VISUAL: '/ai/analyze/visual',
+  AI_ANALYZE_TRENDS: '/ai/analyze/trends',
+  AI_ANALYZE_DOCUMENT: '/ai/analyze/document',
+  AI_ANALYSES: '/ai/analyses',
+  AI_ANALYSIS: (id: string) => `/ai/analyses/${id}`,
+  AI_REVIEW: (id: string) => `/ai/analyses/${id}/review`,
+  AI_SHARE: (id: string) => `/ai/analyses/${id}/share`,
+  AI_USAGE: '/ai/usage',
+
+  // AI Analysis (Student)
+  STUDENT_AI_ANALYSES: '/student/ai/analyses',
+  STUDENT_AI_ANALYSIS: (id: string) => `/student/ai/analyses/${id}`,
+
+  // Privacy (LGPD)
+  PRIVACY_CONSENT: '/privacy/consent',
+  PRIVACY_CONSENT_REVOKE: (type: string) => `/privacy/consent/${type}`,
+  PRIVACY_MY_DATA: '/privacy/my-data',
 } as const
 
 // Storage Keys

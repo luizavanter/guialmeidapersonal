@@ -35,6 +35,11 @@ const photoUploadRef = ref<InstanceType<typeof FileUpload>>()
 const docUploadRef = ref<InstanceType<typeof FileUpload>>()
 const bioUploadRef = ref<InstanceType<typeof FileUpload>>()
 
+const thumbnailUrls = ref<Record<string, string>>({})
+const loadingThumbnails = ref(false)
+const analysisError = ref('')
+const analysisSuccess = ref('')
+
 const deviceTypes = [
   { value: 'anovator', label: 'Anovator' },
   { value: 'relaxmedic', label: 'Relaxmedic Intelligence Plus' },
@@ -48,7 +53,7 @@ const mediaPhotos = computed(() =>
   mediaStore.mediaFiles.filter((f: any) => f.file_type === 'evolution_photo' || (f.content_type?.startsWith('image/') && f.file_type !== 'document'))
 )
 const mediaDocs = computed(() =>
-  mediaStore.mediaFiles.filter((f: any) => f.file_type === 'document' || f.content_type === 'application/pdf')
+  mediaStore.mediaFiles.filter((f: any) => f.file_type === 'document' || f.file_type === 'medical_document' || f.content_type === 'application/pdf')
 )
 
 const currentStudent = computed(() =>
@@ -73,6 +78,25 @@ async function loadStudentData() {
     bioStore.fetchImports({ student_id: studentId.value }).catch(() => {}),
     aiStore.fetchUsage().catch(() => {}),
   ])
+  loadThumbnails()
+}
+
+async function loadThumbnails() {
+  const photos = mediaPhotos.value
+  if (!photos.length) return
+  loadingThumbnails.value = true
+  try {
+    await Promise.all(
+      photos.map(async (photo: any) => {
+        try {
+          const url = await mediaStore.getDownloadUrl(photo.id)
+          thumbnailUrls.value[photo.id] = url
+        } catch { /* skip failed thumbnails */ }
+      })
+    )
+  } finally {
+    loadingThumbnails.value = false
+  }
 }
 
 function selectStudent(id: string) {
@@ -122,15 +146,42 @@ async function handleBioUpload() {
 
 // AI actions
 async function analyzeVisual(mediaFileId: string) {
-  await aiStore.analyzeVisual(mediaFileId, studentId.value)
+  analysisError.value = ''
+  analysisSuccess.value = ''
+  try {
+    await aiStore.analyzeVisual(mediaFileId, studentId.value)
+    analysisSuccess.value = t('ai.analyzing')
+    setTimeout(() => { analysisSuccess.value = '' }, 5000)
+  } catch (err: any) {
+    analysisError.value = err.message || 'Analysis failed'
+    setTimeout(() => { analysisError.value = '' }, 5000)
+  }
 }
 
 async function analyzeTrends() {
-  await aiStore.analyzeTrends(studentId.value)
+  analysisError.value = ''
+  analysisSuccess.value = ''
+  try {
+    await aiStore.analyzeTrends(studentId.value)
+    analysisSuccess.value = t('ai.analyzing')
+    setTimeout(() => { analysisSuccess.value = '' }, 5000)
+  } catch (err: any) {
+    analysisError.value = err.message || 'Analysis failed'
+    setTimeout(() => { analysisError.value = '' }, 5000)
+  }
 }
 
 async function analyzeDocument(mediaFileId: string) {
-  await aiStore.analyzeDocument(mediaFileId, studentId.value)
+  analysisError.value = ''
+  analysisSuccess.value = ''
+  try {
+    await aiStore.analyzeDocument(mediaFileId, studentId.value)
+    analysisSuccess.value = t('ai.analyzing')
+    setTimeout(() => { analysisSuccess.value = '' }, 5000)
+  } catch (err: any) {
+    analysisError.value = err.message || 'Analysis failed'
+    setTimeout(() => { analysisError.value = '' }, 5000)
+  }
 }
 
 function openReviewModal(analysisId: string) {
@@ -271,8 +322,15 @@ function formatFileDate(dateStr: string) {
             :key="photo.id"
             class="relative aspect-square rounded-lg overflow-hidden bg-surface-2 border border-surface-3 group"
           >
-            <div class="w-full h-full flex items-center justify-center bg-lime/5 cursor-pointer" @click="downloadFile(photo.id)">
-              <Camera :size="24" class="text-lime/40" />
+            <div class="w-full h-full flex items-center justify-center cursor-pointer" @click="downloadFile(photo.id)">
+              <img
+                v-if="thumbnailUrls[photo.id]"
+                :src="thumbnailUrls[photo.id]"
+                :alt="photo.original_filename"
+                class="w-full h-full object-cover"
+              />
+              <div v-else-if="loadingThumbnails" class="w-6 h-6 border-2 border-lime border-t-transparent rounded-full animate-spin"></div>
+              <Camera v-else :size="24" class="text-lime/40" />
             </div>
             <div class="absolute bottom-0 left-0 right-0 bg-surface-1/90 p-2">
               <p class="text-xs text-smoke truncate">{{ photo.original_filename }}</p>
@@ -434,6 +492,9 @@ function formatFileDate(dateStr: string) {
           </button>
         </div>
         <p class="text-sm text-stone">{{ t('ai.analyzeTrends') }} — analisa o histórico de avaliações corporais para identificar tendências, alertas e recomendações.</p>
+        <p v-if="analysisSuccess" class="text-lime text-sm mt-2">{{ analysisSuccess }}</p>
+        <p v-if="analysisError" class="text-red-400 text-sm mt-2">{{ analysisError }}</p>
+        <p v-if="aiStore.error" class="text-red-400 text-sm mt-2">{{ aiStore.error }}</p>
       </div>
 
       <!-- AI Analyses List -->
@@ -444,7 +505,7 @@ function formatFileDate(dateStr: string) {
             <h2 class="font-display text-xl text-smoke">{{ t('ai.analyses') }}</h2>
           </div>
           <div v-if="aiStore.usage" class="text-xs text-stone">
-            {{ t('ai.usageThisHour') }}: {{ aiStore.usage.total_this_hour }}/{{ aiStore.usage.limit_per_hour }}
+            {{ t('ai.usageThisHour') }}: {{ aiStore.usage.rate_limit?.used ?? 0 }}/{{ aiStore.usage.rate_limit?.limit ?? 10 }}
           </div>
         </div>
 

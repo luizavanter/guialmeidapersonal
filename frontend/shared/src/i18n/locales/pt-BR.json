@@ -240,7 +240,8 @@
     "abandoned": "Abandonada",
     "progress": "Progresso",
     "charts": "Gráficos",
-    "selectStudent": "Selecione um aluno para ver sua evolução"
+    "selectStudent": "Selecione um aluno para ver sua evolução",
+    "noPhotos": "Nenhuma foto de evolução"
   },
   "finance": {
     "title": "Financeiro",

@@ -3,6 +3,7 @@ defmodule GaPersonalWeb.BioimpedanceController do
 
   alias GaPersonal.Bioimpedance
   alias GaPersonal.Privacy
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -14,10 +15,11 @@ defmodule GaPersonalWeb.BioimpedanceController do
     trainer_id = conn.assigns.current_user_id
 
     with :ok <- validate_required(params, ~w(media_file_id device_type student_id)),
+         {:ok, user_id} <- resolve_and_verify_student(params["student_id"], trainer_id),
          {:ok, import_record} <- Bioimpedance.start_extraction(
            params["media_file_id"],
            params["device_type"],
-           params["student_id"],
+           user_id,
            trainer_id
          ) do
       Privacy.log_access(trainer_id, "ai_analyze", "bioimpedance_import", import_record.id, conn_info(conn))
@@ -41,6 +43,17 @@ defmodule GaPersonalWeb.BioimpedanceController do
   def index(conn, params) do
     trainer_id = conn.assigns.current_user_id
     filters = Map.take(params, ["status", "student_id", "device_type"])
+
+    # Resolve student record ID to user ID if present
+    filters = case Map.get(filters, "student_id") do
+      nil -> filters
+      student_id ->
+        case resolve_and_verify_student(student_id, trainer_id) do
+          {:ok, user_id} -> Map.put(filters, "student_id", user_id)
+          _ -> filters
+        end
+    end
+
     imports = Bioimpedance.list_imports(trainer_id, filters)
     json(conn, %{data: Enum.map(imports, &import_json/1)})
   end

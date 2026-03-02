@@ -160,8 +160,15 @@
             class="relative aspect-square rounded-lg overflow-hidden bg-surface-2 border border-surface-3 hover:border-lime/30 transition-colors group cursor-pointer"
             @click="openMediaPhoto(media)"
           >
-            <div class="w-full h-full flex items-center justify-center bg-lime/5">
-              <svg class="w-8 h-8 text-lime/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <img
+              v-if="thumbnailUrls[media.id]"
+              :src="thumbnailUrls[media.id]"
+              :alt="media.original_filename"
+              class="w-full h-full object-cover"
+            />
+            <div v-else class="w-full h-full flex items-center justify-center bg-lime/5">
+              <div v-if="loadingThumbnails" class="w-6 h-6 border-2 border-lime border-t-transparent rounded-full animate-spin"></div>
+              <svg v-else class="w-8 h-8 text-lime/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
@@ -359,6 +366,8 @@ const uploadSuccess = ref(false)
 const docUploadSuccess = ref(false)
 const photoUploadRef = ref<InstanceType<typeof FileUpload>>()
 const docUploadRef = ref<InstanceType<typeof FileUpload>>()
+const thumbnailUrls = ref<Record<string, string>>({})
+const loadingThumbnails = ref(false)
 
 const weightHistory = computed(() => evolutionStore.getWeightHistory())
 const bodyFatHistory = computed(() => evolutionStore.getBodyFatHistory())
@@ -474,10 +483,30 @@ async function downloadFile(fileId: string) {
 
 async function openMediaPhoto(media: MediaFile) {
   try {
-    const url = await mediaStore.getDownloadUrl(media.id)
+    const url = thumbnailUrls.value[media.id] || await mediaStore.getDownloadUrl(media.id)
     window.open(url, '_blank')
   } catch {
     // silent fail
+  }
+}
+
+async function loadThumbnails() {
+  const photos = mediaPhotos.value
+  if (!photos.length) return
+  loadingThumbnails.value = true
+  try {
+    await Promise.all(
+      photos.map(async (photo) => {
+        try {
+          const url = await mediaStore.getDownloadUrl(photo.id)
+          thumbnailUrls.value[photo.id] = url
+        } catch {
+          // skip failed thumbnails
+        }
+      })
+    )
+  } finally {
+    loadingThumbnails.value = false
   }
 }
 
@@ -489,5 +518,7 @@ onMounted(async () => {
     mediaStore.fetchMyMedia().catch(() => {}),
     mediaStore.fetchAIAnalyses().catch(() => {}),
   ])
+  // Load photo thumbnails after media is fetched
+  await loadThumbnails()
 })
 </script>

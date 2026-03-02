@@ -4,6 +4,7 @@ defmodule GaPersonalWeb.MediaController do
   alias GaPersonal.Media
   alias GaPersonal.Accounts
   alias GaPersonal.Privacy
+  import GaPersonalWeb.Helpers.StudentResolver, only: [resolve_and_verify_student: 2]
 
   action_fallback GaPersonalWeb.FallbackController
 
@@ -73,9 +74,12 @@ defmodule GaPersonalWeb.MediaController do
 
   def index(conn, %{"student_id" => student_id} = params) do
     trainer_id = conn.assigns.current_user_id
-    filters = Map.take(params, ["file_type"]) |> Map.put("student_id", student_id)
-    files = Media.list_files_for_trainer(trainer_id, filters)
-    json(conn, %{data: Enum.map(files, &media_file_json/1)})
+
+    with {:ok, user_id} <- resolve_and_verify_student(student_id, trainer_id) do
+      filters = Map.take(params, ["file_type"]) |> Map.put("student_id", user_id)
+      files = Media.list_files_for_trainer(trainer_id, filters)
+      json(conn, %{data: Enum.map(files, &media_file_json/1)})
+    end
   end
 
   def my_files(conn, params) do
