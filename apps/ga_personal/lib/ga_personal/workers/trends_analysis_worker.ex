@@ -37,13 +37,13 @@ defmodule GaPersonal.Workers.TrendsAnalysisWorker do
 
         {:error, reason} ->
           Logger.error("TrendsAnalysisWorker: Parse failed for #{analysis_id}: #{inspect(reason)}")
-          AIAnalysis.mark_failed(analysis_id)
+          AIAnalysis.mark_failed(analysis_id, reason)
           {:error, reason}
       end
     else
       {:error, reason} ->
         Logger.error("TrendsAnalysisWorker: Failed for #{analysis_id}: #{inspect(reason)}")
-        AIAnalysis.mark_failed(analysis_id)
+        AIAnalysis.mark_failed(analysis_id, reason)
         {:error, reason}
     end
   end
@@ -76,10 +76,11 @@ defmodule GaPersonal.Workers.TrendsAnalysisWorker do
     end)
 
     prompt = """
-    Analyze this body composition data series for a fitness client:
+    Analise esta série de dados de composição corporal de um cliente fitness:
     #{Jason.encode!(assessment_data)}
 
-    Provide analysis as JSON:
+    IMPORTANTE: Todas as respostas devem ser em português brasileiro.
+    Forneça a análise como JSON:
     {
       "trends": {
         "weight": {"direction": "improving|stable|declining", "details": "..."},
@@ -92,10 +93,10 @@ defmodule GaPersonal.Workers.TrendsAnalysisWorker do
       "overall_assessment": "...",
       "confidence": 0.0-1.0
     }
-    Return ONLY valid JSON, no markdown.
+    Retorne APENAS JSON válido, sem markdown.
     """
 
-    system = "You are a fitness data analyst. Analyze body composition trends objectively. Flag concerning patterns but do not provide medical advice."
+    system = "Você é um analista de dados fitness. Analise tendências de composição corporal de forma objetiva. Sinalize padrões preocupantes mas não forneça aconselhamento médico. Responda sempre em português brasileiro."
 
     AIClient.chat(prompt, model: :haiku, system: system)
   end

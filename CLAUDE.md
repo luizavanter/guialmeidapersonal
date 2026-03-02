@@ -580,7 +580,7 @@ Testes unitários sem dependência de banco podem ser compilados localmente com 
   - Local: RSA signing com private key do credentials JSON
   - Cloud Run: IAM `signBlob` API (detecta via `K_SERVICE` env var)
   - Requer `roles/iam.serviceAccountTokenCreator` no service account
-- Modelos: claude-haiku-4-5-20241022, claude-sonnet-4-5-20250514
+- Modelos: claude-haiku-4-5-20251001, claude-sonnet-4-6
 
 ### Novos Controllers (5)
 - `MediaController` — 6 ações (upload URL, confirm, download, index, my_files, delete)

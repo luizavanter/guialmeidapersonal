@@ -38,13 +38,13 @@ defmodule GaPersonal.Workers.VisualAnalysisWorker do
 
         {:error, reason} ->
           Logger.error("VisualAnalysisWorker: Parse failed for #{analysis_id}: #{inspect(reason)}")
-          AIAnalysis.mark_failed(analysis_id)
+          AIAnalysis.mark_failed(analysis_id, reason)
           {:error, reason}
       end
     else
       {:error, reason} ->
         Logger.error("VisualAnalysisWorker: Failed for #{analysis_id}: #{inspect(reason)}")
-        AIAnalysis.mark_failed(analysis_id)
+        AIAnalysis.mark_failed(analysis_id, reason)
         {:error, reason}
     end
   end
@@ -57,7 +57,8 @@ defmodule GaPersonal.Workers.VisualAnalysisWorker do
 
   defp run_analysis(image_url, content_type) do
     prompt = """
-    Analyze these fitness progress photos. Provide a professional assessment as JSON:
+    Analise estas fotos de progresso fitness. Forneça uma avaliação profissional em JSON.
+    IMPORTANTE: Todas as respostas devem ser em português brasileiro.
     {
       "muscle_development": {"observations": ["..."], "areas_of_progress": ["..."]},
       "posture_alignment": {"observations": ["..."], "concerns": ["..."]},
@@ -66,11 +67,11 @@ defmodule GaPersonal.Workers.VisualAnalysisWorker do
       "overall_notes": "...",
       "confidence": 0.0-1.0
     }
-    Do NOT provide medical diagnoses. This is for a personal trainer's reference only.
-    Return ONLY valid JSON, no markdown.
+    NÃO forneça diagnósticos médicos. Isto é apenas para referência do personal trainer.
+    Retorne APENAS JSON válido, sem markdown.
     """
 
-    system = "You are a fitness assessment AI assistant helping a personal trainer. Provide objective, professional observations about visible physical characteristics. Never diagnose medical conditions."
+    system = "Você é um assistente de IA especializado em avaliação fitness, ajudando um personal trainer. Forneça observações objetivas e profissionais sobre características físicas visíveis. Nunca diagnostique condições médicas. Responda sempre em português brasileiro."
 
     AIClient.analyze_image_url(image_url, content_type, prompt, model: :sonnet, system: system)
   end

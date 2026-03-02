@@ -63,17 +63,25 @@ defmodule GaPersonal.AIAnalysis do
     end
   end
 
-  def mark_failed(analysis_id) do
+  def mark_failed(analysis_id, reason \\ nil) do
     case get_analysis(analysis_id) do
       {:ok, record} ->
+        changes = %{status: "failed"}
+        changes = if reason, do: Map.put(changes, :result, %{"error" => format_error(reason)}), else: changes
+
         record
-        |> Ecto.Changeset.change(%{status: "failed"})
+        |> Ecto.Changeset.change(changes)
         |> Repo.update()
 
       error ->
         error
     end
   end
+
+  defp format_error(:insufficient_data), do: "Dados insuficientes. São necessárias pelo menos 2 avaliações corporais para gerar análise de tendências."
+  defp format_error(:json_parse_failed), do: "Falha ao processar resposta da IA. Tente novamente."
+  defp format_error(reason) when is_binary(reason), do: reason
+  defp format_error(reason), do: "Erro na análise: #{inspect(reason)}"
 
   def mark_processing(analysis_id) do
     case get_analysis(analysis_id) do

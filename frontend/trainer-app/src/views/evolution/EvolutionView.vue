@@ -582,6 +582,56 @@ function formatFileDate(dateStr: string) {
               <div v-if="analysis.result.confidence" class="text-xs text-stone mt-1">
                 {{ t('ai.confidence') }}: {{ Math.round(analysis.result.confidence * 100) }}%
               </div>
+
+              <!-- Document analysis results (extraction + analysis) -->
+              <template v-if="analysis.result.extraction || analysis.result.analysis">
+                <div v-if="analysis.result.extraction?.values?.length" class="mt-2">
+                  <span class="text-stone font-medium">Valores Extraídos:</span>
+                  <div class="mt-1 grid grid-cols-1 sm:grid-cols-2 gap-1 ml-2">
+                    <div v-for="(val, i) in analysis.result.extraction.values" :key="i" class="text-xs">
+                      <span class="text-smoke">{{ val.name }}:</span>
+                      <span class="font-medium" :class="val.status === 'normal' ? 'text-green-400' : val.status === 'critical' ? 'text-red-400' : 'text-yellow-400'">
+                        {{ val.value }} {{ val.unit }}
+                      </span>
+                      <span v-if="val.reference_range" class="text-stone/60"> (ref: {{ val.reference_range }})</span>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="analysis.result.analysis?.fitness_relevant_observations?.length">
+                  <span class="text-stone font-medium">Observações Fitness:</span>
+                  <ul class="list-disc list-inside text-smoke/90 ml-2">
+                    <li v-for="(obs, i) in analysis.result.analysis.fitness_relevant_observations" :key="i">{{ obs }}</li>
+                  </ul>
+                </div>
+                <div v-if="analysis.result.analysis?.exercise_considerations?.length">
+                  <span class="text-stone font-medium">Considerações para Exercício:</span>
+                  <ul class="list-disc list-inside text-smoke/90 ml-2">
+                    <li v-for="(c, i) in analysis.result.analysis.exercise_considerations" :key="i">{{ c }}</li>
+                  </ul>
+                </div>
+                <div v-if="analysis.result.analysis?.nutritional_indicators?.length">
+                  <span class="text-stone font-medium">Indicadores Nutricionais:</span>
+                  <ul class="list-disc list-inside text-smoke/90 ml-2">
+                    <li v-for="(n, i) in analysis.result.analysis.nutritional_indicators" :key="i">{{ n }}</li>
+                  </ul>
+                </div>
+                <div v-if="analysis.result.analysis?.requires_medical_attention?.length" class="p-2 bg-red-500/10 border border-red-500/20 rounded">
+                  <span class="text-red-400 font-medium">Requer Atenção Médica:</span>
+                  <ul class="list-disc list-inside text-red-300 ml-2">
+                    <li v-for="(a, i) in analysis.result.analysis.requires_medical_attention" :key="i">{{ a }}</li>
+                  </ul>
+                </div>
+                <div v-if="analysis.result.analysis?.overall_fitness_clearance">
+                  <span class="text-stone font-medium">Liberação Fitness:</span>
+                  <span :class="{
+                    'text-green-400': analysis.result.analysis.overall_fitness_clearance === 'cleared',
+                    'text-yellow-400': analysis.result.analysis.overall_fitness_clearance === 'caution',
+                    'text-red-400': analysis.result.analysis.overall_fitness_clearance === 'needs_review'
+                  }" class="ml-1 font-medium">
+                    {{ analysis.result.analysis.overall_fitness_clearance === 'cleared' ? 'Liberado' : analysis.result.analysis.overall_fitness_clearance === 'caution' ? 'Cautela' : 'Necessita Revisão' }}
+                  </span>
+                </div>
+              </template>
             </div>
 
             <!-- Trainer review -->

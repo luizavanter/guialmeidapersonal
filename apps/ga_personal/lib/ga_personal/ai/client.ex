@@ -14,7 +14,7 @@ defmodule GaPersonal.AI.Client do
   @api_version "2023-06-01"
 
   @model_haiku "claude-haiku-4-5-20251001"
-  @model_sonnet "claude-haiku-4-5-20251001"
+  @model_sonnet "claude-sonnet-4-6"
 
   @doc """
   Sends a text-only message to Claude.
@@ -61,16 +61,50 @@ defmodule GaPersonal.AI.Client do
   @doc """
   Sends an image from a URL to Claude for analysis.
   Downloads the image first, then sends as base64.
+  For PDFs, uses the document content block type.
   """
   def analyze_image_url(image_url, media_type, prompt, opts \\ []) do
     case download_image(image_url) do
       {:ok, image_bytes} ->
         image_data = Base.encode64(image_bytes)
-        analyze_image(image_data, media_type, prompt, opts)
+
+        if media_type == "application/pdf" do
+          analyze_document(image_data, media_type, prompt, opts)
+        else
+          analyze_image(image_data, media_type, prompt, opts)
+        end
 
       {:error, reason} ->
         {:error, {:download_failed, reason}}
     end
+  end
+
+  @doc """
+  Sends a PDF document to Claude for analysis using the document content block.
+  """
+  def analyze_document(document_data, media_type, prompt, opts \\ []) do
+    model = Keyword.get(opts, :model, :haiku)
+    max_tokens = Keyword.get(opts, :max_tokens, 4096)
+    system = Keyword.get(opts, :system)
+
+    messages = [
+      %{
+        role: "user",
+        content: [
+          %{
+            type: "document",
+            source: %{
+              type: "base64",
+              media_type: media_type,
+              data: document_data
+            }
+          },
+          %{type: "text", text: prompt}
+        ]
+      }
+    ]
+
+    request(messages, model, max_tokens, system)
   end
 
   defp request(messages, model, max_tokens, system) do

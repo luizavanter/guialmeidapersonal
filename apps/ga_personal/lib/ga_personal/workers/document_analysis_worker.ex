@@ -42,13 +42,13 @@ defmodule GaPersonal.Workers.DocumentAnalysisWorker do
 
         {:error, reason} ->
           Logger.error("DocumentAnalysisWorker: Parse failed for #{analysis_id}: #{inspect(reason)}")
-          AIAnalysis.mark_failed(analysis_id)
+          AIAnalysis.mark_failed(analysis_id, reason)
           {:error, reason}
       end
     else
       {:error, reason} ->
         Logger.error("DocumentAnalysisWorker: Failed for #{analysis_id}: #{inspect(reason)}")
-        AIAnalysis.mark_failed(analysis_id)
+        AIAnalysis.mark_failed(analysis_id, reason)
         {:error, reason}
     end
   end
@@ -61,17 +61,18 @@ defmodule GaPersonal.Workers.DocumentAnalysisWorker do
 
   defp step1_extract(download_url, content_type) do
     prompt = """
-    Extract ALL numeric values, test names, and reference ranges from this medical document.
-    Return as JSON:
+    Extraia TODOS os valores numéricos, nomes de exames e faixas de referência deste documento médico.
+    IMPORTANTE: Responda em português brasileiro.
+    Retorne como JSON:
     {
-      "document_type": "blood_work|medical_clearance|other",
-      "date": "YYYY-MM-DD or null",
+      "document_type": "blood_work|medical_clearance|bioimpedance|other",
+      "date": "YYYY-MM-DD ou null",
       "values": [
         {"name": "...", "value": ..., "unit": "...", "reference_range": "...", "status": "normal|high|low|critical"}
       ],
       "notes": "..."
     }
-    Return ONLY valid JSON, no markdown.
+    Retorne APENAS JSON válido, sem markdown.
     """
 
     AIClient.analyze_image_url(download_url, content_type, prompt, model: :haiku)
@@ -79,10 +80,11 @@ defmodule GaPersonal.Workers.DocumentAnalysisWorker do
 
   defp step2_analyze(extraction_result) do
     prompt = """
-    Given these extracted lab values from a medical document:
+    Dados estes valores extraídos de um documento médico:
     #{extraction_result.text}
 
-    Provide fitness-relevant analysis as JSON:
+    IMPORTANTE: Responda em português brasileiro.
+    Forneça análise relevante para fitness como JSON:
     {
       "abnormal_values": [{"name": "...", "concern": "...", "fitness_impact": "..."}],
       "nutritional_indicators": ["..."],
@@ -92,11 +94,11 @@ defmodule GaPersonal.Workers.DocumentAnalysisWorker do
       "overall_fitness_clearance": "cleared|caution|needs_review",
       "confidence": 0.0-1.0
     }
-    IMPORTANT: This is NOT medical advice. Flag anything requiring medical attention.
-    Return ONLY valid JSON, no markdown.
+    IMPORTANTE: Isto NÃO é aconselhamento médico. Sinalize qualquer coisa que requeira atenção médica.
+    Retorne APENAS JSON válido, sem markdown.
     """
 
-    system = "You are a fitness-oriented health data interpreter. Highlight values relevant to exercise and nutrition. Always recommend medical consultation for abnormal values. Never diagnose."
+    system = "Você é um interpretador de dados de saúde orientado para fitness. Destaque valores relevantes para exercício e nutrição. Sempre recomende consulta médica para valores anormais. Nunca diagnostique. Responda sempre em português brasileiro."
 
     AIClient.chat(prompt, model: :sonnet, system: system)
   end
