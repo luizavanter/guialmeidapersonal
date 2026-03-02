@@ -7,7 +7,7 @@ import { useMediaStore } from '@/stores/mediaStore'
 import { useAIAnalysisStore } from '@/stores/aiAnalysisStore'
 import { useBioimpedanceStore } from '@/stores/bioimpedanceStore'
 import { FileUpload } from '@ga-personal/shared'
-import { Activity, Camera, Target, Upload, Brain, FileText, TrendingUp, Share2, CheckCircle, XCircle, ArrowLeft } from 'lucide-vue-next'
+import { Activity, Camera, Target, Upload, Brain, FileText, TrendingUp, Share2, CheckCircle, XCircle, ArrowLeft, Trash2 } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -123,7 +123,7 @@ async function handlePhotoUpload() {
 async function handleDocUpload() {
   if (!selectedDocFile.value) return
   try {
-    await mediaStore.uploadFile(selectedDocFile.value, 'document', studentId.value)
+    await mediaStore.uploadFile(selectedDocFile.value, 'medical_document', studentId.value)
     uploadSuccess.value = 'doc'
     selectedDocFile.value = null
     docUploadRef.value?.clearFile()
@@ -135,7 +135,7 @@ async function handleDocUpload() {
 async function handleBioUpload() {
   if (!selectedBioFile.value) return
   try {
-    const mediaFile = await mediaStore.uploadFile(selectedBioFile.value, 'bioimpedance', studentId.value)
+    const mediaFile = await mediaStore.uploadFile(selectedBioFile.value, 'bioimpedance_report', studentId.value)
     await bioStore.extractFromMedia(mediaFile.id, selectedDeviceType.value, studentId.value)
     uploadSuccess.value = 'bio'
     selectedBioFile.value = null
@@ -151,6 +151,38 @@ async function analyzeVisual(mediaFileId: string) {
   try {
     await aiStore.analyzeVisual(mediaFileId, studentId.value)
     analysisSuccess.value = t('ai.analyzing')
+    setTimeout(() => { analysisSuccess.value = '' }, 5000)
+  } catch (err: any) {
+    analysisError.value = err.message || 'Analysis failed'
+    setTimeout(() => { analysisError.value = '' }, 5000)
+  }
+}
+
+async function analyzeAllPhotos() {
+  if (!mediaPhotos.value.length) return
+  analysisError.value = ''
+  analysisSuccess.value = ''
+  try {
+    for (const photo of mediaPhotos.value) {
+      await aiStore.analyzeVisual(photo.id, studentId.value)
+    }
+    analysisSuccess.value = `${mediaPhotos.value.length} foto(s) enviadas para análise`
+    setTimeout(() => { analysisSuccess.value = '' }, 5000)
+  } catch (err: any) {
+    analysisError.value = err.message || 'Analysis failed'
+    setTimeout(() => { analysisError.value = '' }, 5000)
+  }
+}
+
+async function analyzeAllDocs() {
+  if (!mediaDocs.value.length) return
+  analysisError.value = ''
+  analysisSuccess.value = ''
+  try {
+    for (const doc of mediaDocs.value) {
+      await aiStore.analyzeDocument(doc.id, studentId.value)
+    }
+    analysisSuccess.value = `${mediaDocs.value.length} documento(s) enviados para análise`
     setTimeout(() => { analysisSuccess.value = '' }, 5000)
   } catch (err: any) {
     analysisError.value = err.message || 'Analysis failed'
@@ -214,6 +246,24 @@ async function downloadFile(fileId: string) {
   try {
     const url = await mediaStore.getDownloadUrl(fileId)
     window.open(url, '_blank')
+  } catch { /* silent */ }
+}
+
+async function deleteMedia(fileId: string) {
+  if (!confirm(t('common.confirmDelete') || 'Tem certeza que deseja excluir?')) return
+  try {
+    await mediaStore.deleteFile(fileId)
+    if (studentId.value) {
+      await mediaStore.fetchStudentMedia(studentId.value)
+      loadThumbnails()
+    }
+  } catch { /* silent */ }
+}
+
+async function deleteAIAnalysis(analysisId: string) {
+  if (!confirm(t('common.confirmDelete') || 'Tem certeza que deseja excluir?')) return
+  try {
+    await aiStore.deleteAnalysis(analysisId)
   } catch { /* silent */ }
 }
 
@@ -298,9 +348,19 @@ function formatFileDate(dateStr: string) {
             <Camera :size="20" class="text-ocean" />
             <h2 class="font-display text-xl text-smoke">{{ t('evolution.photos') }}</h2>
           </div>
-          <button @click="showPhotoUpload = !showPhotoUpload" class="btn btn-primary text-sm">
-            <Upload :size="16" class="mr-1" /> {{ t('media.uploadPhoto') }}
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="mediaPhotos.length > 0"
+              @click="analyzeAllPhotos"
+              :disabled="aiStore.isAnalyzing"
+              class="btn btn-ghost text-sm border border-lime/30 text-lime hover:bg-lime/10"
+            >
+              <Brain :size="16" class="mr-1" /> Analisar Todas ({{ mediaPhotos.length }})
+            </button>
+            <button @click="showPhotoUpload = !showPhotoUpload" class="btn btn-primary text-sm">
+              <Upload :size="16" class="mr-1" /> {{ t('media.uploadPhoto') }}
+            </button>
+          </div>
         </div>
 
         <div v-if="showPhotoUpload" class="mb-4 p-4 bg-surface-2 rounded-lg border border-surface-3">
@@ -338,12 +398,11 @@ function formatFileDate(dateStr: string) {
               <div class="flex items-center justify-between mt-1">
                 <p class="text-xs text-stone">{{ formatFileDate(photo.inserted_at) }}</p>
                 <button
-                  @click.stop="analyzeVisual(photo.id)"
-                  :disabled="aiStore.isAnalyzing"
-                  class="text-xs text-lime hover:text-lime-dark"
-                  :title="t('ai.analyze')"
+                  @click.stop="deleteMedia(photo.id)"
+                  class="text-xs text-red-400 hover:text-red-300"
+                  :title="t('common.delete')"
                 >
-                  <Brain :size="14" />
+                  <Trash2 :size="14" />
                 </button>
               </div>
             </div>
@@ -434,9 +493,19 @@ function formatFileDate(dateStr: string) {
             <FileText :size="20" class="text-ocean" />
             <h2 class="font-display text-xl text-smoke">{{ t('media.documents') }}</h2>
           </div>
-          <button @click="showDocUpload = !showDocUpload" class="btn btn-ghost text-sm">
-            <Upload :size="16" class="mr-1" /> {{ t('media.uploadDocument') }}
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              v-if="mediaDocs.length > 0"
+              @click="analyzeAllDocs"
+              :disabled="aiStore.isAnalyzing"
+              class="btn btn-ghost text-sm border border-lime/30 text-lime hover:bg-lime/10"
+            >
+              <Brain :size="16" class="mr-1" /> Analisar Todos ({{ mediaDocs.length }})
+            </button>
+            <button @click="showDocUpload = !showDocUpload" class="btn btn-primary text-sm">
+              <Upload :size="16" class="mr-1" /> {{ t('media.uploadDocument') }}
+            </button>
+          </div>
         </div>
 
         <div v-if="showDocUpload" class="mb-4 p-4 bg-surface-2 rounded-lg border border-surface-3">
@@ -468,11 +537,11 @@ function formatFileDate(dateStr: string) {
               </div>
             </div>
             <div class="flex items-center gap-2 flex-shrink-0 ml-2">
-              <button @click="analyzeDocument(doc.id)" :disabled="aiStore.isAnalyzing" class="text-lime hover:text-lime-dark text-sm" :title="t('ai.analyzeDocument')">
-                <Brain :size="16" />
-              </button>
               <button @click="downloadFile(doc.id)" class="text-ocean hover:text-ocean-light text-sm">
                 {{ t('media.download') }}
+              </button>
+              <button @click="deleteMedia(doc.id)" class="text-red-400 hover:text-red-300 text-sm" :title="t('common.delete')">
+                <Trash2 :size="16" />
               </button>
             </div>
           </div>
@@ -492,7 +561,7 @@ function formatFileDate(dateStr: string) {
             {{ aiStore.isAnalyzing ? t('ai.analyzing') : t('ai.generateTrends') }}
           </button>
         </div>
-        <p class="text-sm text-stone">{{ t('ai.analyzeTrends') }} — analisa o histórico de avaliações corporais para identificar tendências, alertas e recomendações.</p>
+        <p class="text-sm text-stone">Analisa dados numéricos do aluno (avaliações corporais, bioimpedância, peso, gordura) para identificar tendências de progresso, alertas de saúde e recomendações de treino.</p>
         <p v-if="analysisSuccess" class="text-lime text-sm mt-2">{{ analysisSuccess }}</p>
         <p v-if="analysisError" class="text-red-400 text-sm mt-2">{{ analysisError }}</p>
         <p v-if="aiStore.error" class="text-red-400 text-sm mt-2">{{ aiStore.error }}</p>
@@ -505,8 +574,8 @@ function formatFileDate(dateStr: string) {
             <Brain :size="20" class="text-lime" />
             <h2 class="font-display text-xl text-smoke">{{ t('ai.analyses') }}</h2>
           </div>
-          <div v-if="aiStore.usage" class="text-xs text-stone">
-            {{ t('ai.usageThisHour') }}: {{ aiStore.usage.rate_limit?.used ?? 0 }}/{{ aiStore.usage.rate_limit?.limit ?? 10 }}
+          <div v-if="aiStore.usage" class="text-xs text-stone bg-surface-2 px-3 py-1 rounded-full">
+            Créditos IA: {{ aiStore.usage.rate_limit?.limit ? (aiStore.usage.rate_limit.limit - (aiStore.usage.rate_limit.used ?? 0)) : 10 }} restantes/hora
           </div>
         </div>
 
@@ -641,23 +710,32 @@ function formatFileDate(dateStr: string) {
             </div>
 
             <!-- Actions -->
-            <div v-if="analysis.status === 'completed'" class="flex items-center gap-3 mt-3 pt-3 border-t border-surface-3">
-              <button @click="openReviewModal(analysis.id)" class="text-sm text-ocean hover:text-ocean-light flex items-center gap-1">
-                <FileText :size="14" /> {{ t('ai.review') }}
-              </button>
+            <div class="flex items-center gap-3 mt-3 pt-3 border-t border-surface-3">
+              <template v-if="analysis.status === 'completed'">
+                <button @click="openReviewModal(analysis.id)" class="text-sm text-ocean hover:text-ocean-light flex items-center gap-1">
+                  <FileText :size="14" /> {{ t('ai.review') }}
+                </button>
+                <button
+                  v-if="!analysis.visible_to_student"
+                  @click="shareAnalysis(analysis.id)"
+                  class="text-sm text-lime hover:text-lime-dark flex items-center gap-1"
+                >
+                  <Share2 :size="14" /> {{ t('ai.share') }}
+                </button>
+                <span v-else class="text-xs text-green-500 flex items-center gap-1">
+                  <CheckCircle :size="14" /> {{ t('ai.sharedWithStudent') }}
+                </span>
+                <span v-if="analysis.confidence_score" class="text-xs text-stone ml-auto">
+                  {{ t('ai.confidence') }}: {{ Math.round(analysis.confidence_score * 100) }}%
+                </span>
+              </template>
               <button
-                v-if="!analysis.visible_to_student"
-                @click="shareAnalysis(analysis.id)"
-                class="text-sm text-lime hover:text-lime-dark flex items-center gap-1"
+                @click="deleteAIAnalysis(analysis.id)"
+                class="text-sm text-red-400 hover:text-red-300 flex items-center gap-1"
+                :class="{ 'ml-auto': analysis.status !== 'completed' }"
               >
-                <Share2 :size="14" /> {{ t('ai.share') }}
+                <Trash2 :size="14" /> {{ t('common.delete') }}
               </button>
-              <span v-else class="text-xs text-green-500 flex items-center gap-1">
-                <CheckCircle :size="14" /> {{ t('ai.sharedWithStudent') }}
-              </span>
-              <span v-if="analysis.confidence_score" class="text-xs text-stone ml-auto">
-                {{ t('ai.confidence') }}: {{ Math.round(analysis.confidence_score * 100) }}%
-              </span>
             </div>
           </div>
         </div>

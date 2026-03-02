@@ -14,17 +14,18 @@
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop"
   >
-    <!-- File input: hidden, triggered programmatically -->
-    <input
-      ref="fileInput"
-      type="file"
-      :accept="accept"
-      style="display: none;"
-      @change="onFileChange"
-    />
-
-    <!-- Browse state -->
-    <div v-if="!selectedFile && !uploading" class="p-8 cursor-pointer" @click="openFilePicker">
+    <!-- Browse state: relative container with full-coverage invisible input on top -->
+    <div
+      v-if="!selectedFile && !uploading"
+      style="position: relative; padding: 2rem; cursor: pointer;"
+    >
+      <input
+        ref="fileInput"
+        type="file"
+        :accept="accept"
+        style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;"
+        @change="onFileChange"
+      />
       <div class="w-14 h-14 mx-auto mb-4 bg-lime/10 rounded-full flex items-center justify-center">
         <svg class="w-7 h-7 text-lime" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -119,11 +120,6 @@ const previewUrl = computed(() => {
   }
   return null
 })
-
-function openFilePicker() {
-  if (props.disabled) return
-  fileInput.value?.click()
-}
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement

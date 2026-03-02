@@ -128,6 +128,17 @@ export const useAIAnalysisStore = defineStore('aiAnalysis', () => {
     }
   }
 
+  async function deleteAnalysis(id: string) {
+    try {
+      await api.delete(API_ENDPOINTS.AI_ANALYSIS(id))
+      analyses.value = analyses.value.filter((a) => a.id !== id)
+      if (currentAnalysis.value?.id === id) currentAnalysis.value = null
+    } catch (err: any) {
+      error.value = err.message || 'Delete failed'
+      throw err
+    }
+  }
+
   async function fetchUsage() {
     try {
       const response = await api.get<AIUsage>(API_ENDPOINTS.AI_USAGE)
@@ -153,6 +164,7 @@ export const useAIAnalysisStore = defineStore('aiAnalysis', () => {
     fetchAnalysis,
     reviewAnalysis,
     shareWithStudent,
+    deleteAnalysis,
     fetchUsage,
   }
 })

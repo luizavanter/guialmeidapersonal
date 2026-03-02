@@ -11,11 +11,21 @@ defmodule GaPersonalWeb.MediaController do
   def create_upload_url(conn, %{"media" => params}) do
     user = conn.assigns.current_user
     trainer_id = resolve_trainer_id(user)
-    student_id = params["student_id"] || user.id
+
+    # Resolve student record ID to user ID if provided by trainer
+    student_id_param = params["student_id"] || user.id
+    resolved_student_id = case user.role do
+      role when role in [:trainer, :admin, "trainer", "admin"] ->
+        case resolve_and_verify_student(student_id_param, trainer_id) do
+          {:ok, uid} -> uid
+          _ -> student_id_param
+        end
+      _ -> user.id
+    end
 
     with :ok <- validate_required(params, ~w(file_type content_type original_filename)),
          {:ok, result} <- Media.generate_upload_url(
-           student_id,
+           resolved_student_id,
            params["file_type"],
            params["content_type"],
            params["original_filename"],

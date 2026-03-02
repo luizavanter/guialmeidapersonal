@@ -163,6 +163,20 @@ defmodule GaPersonal.AIAnalysis do
     end
   end
 
+  def delete_analysis(id, trainer_id) do
+    case get_analysis_for_trainer(id, trainer_id) do
+      {:ok, record} -> Repo.delete(record)
+      error -> error
+    end
+  end
+
+  def delete_all_analyses_for_student(student_id, trainer_id) do
+    from(a in AIAnalysisRecord,
+      where: a.student_id == ^student_id and a.trainer_id == ^trainer_id
+    )
+    |> Repo.delete_all()
+  end
+
   def usage_stats(trainer_id) do
     now = DateTime.utc_now()
     one_hour_ago = DateTime.add(now, -3600, :second)

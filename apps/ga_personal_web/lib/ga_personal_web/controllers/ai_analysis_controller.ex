@@ -116,6 +116,17 @@ defmodule GaPersonalWeb.AIAnalysisController do
     end
   end
 
+  @doc "DELETE /api/v1/ai/analyses/:id"
+  def delete(conn, %{"id" => id}) do
+    trainer_id = conn.assigns.current_user_id
+
+    case AIAnalysis.delete_analysis(id, trainer_id) do
+      {:ok, _} -> json(conn, %{data: %{message: "Analysis deleted"}})
+      {:error, :not_found} -> conn |> put_status(404) |> json(%{errors: %{message: "Not found"}})
+      {:error, :unauthorized} -> conn |> put_status(403) |> json(%{errors: %{message: "Unauthorized"}})
+    end
+  end
+
   @doc "GET /api/v1/ai/usage"
   def usage(conn, _params) do
     trainer_id = conn.assigns.current_user_id

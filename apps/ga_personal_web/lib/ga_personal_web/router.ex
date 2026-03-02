@@ -162,6 +162,7 @@ defmodule GaPersonalWeb.Router do
     get "/ai/analyses/:id", AIAnalysisController, :show
     put "/ai/analyses/:id/review", AIAnalysisController, :review
     post "/ai/analyses/:id/share", AIAnalysisController, :share
+    delete "/ai/analyses/:id", AIAnalysisController, :delete
     get "/ai/usage", AIAnalysisController, :usage
 
     # Pose detection - results from client-side TensorFlow.js
