@@ -223,6 +223,7 @@ function getStatusClass(status: string) {
     processing: 'bg-ocean/20 text-ocean',
     queued: 'bg-stone/20 text-stone',
     error: 'bg-red-500/20 text-red-500',
+    failed: 'bg-red-500/20 text-red-500',
     extracted: 'bg-lime/20 text-lime',
     applied: 'bg-green-500/20 text-green-500',
     rejected: 'bg-red-500/20 text-red-500',
@@ -525,27 +526,61 @@ function formatFileDate(dateStr: string) {
               </span>
             </div>
 
+            <!-- Failed status message -->
+            <div v-if="analysis.status === 'failed'" class="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-sm text-red-400">
+              {{ analysis.result?.error || 'Análise falhou. Tente novamente.' }}
+            </div>
+
             <!-- Results -->
             <div v-if="analysis.status === 'completed' && analysis.result" class="mt-3 space-y-2 text-sm">
               <div v-if="analysis.result.body_composition">
-                <span class="text-stone">{{ t('ai.bodyComposition') }}:</span>
-                <p class="text-smoke/90 ml-2">{{ analysis.result.body_composition }}</p>
+                <span class="text-stone font-medium">{{ t('ai.bodyComposition') }}:</span>
+                <template v-if="typeof analysis.result.body_composition === 'object'">
+                  <p v-for="(val, key) in analysis.result.body_composition" :key="key" class="text-smoke/90 ml-2">{{ val }}</p>
+                </template>
+                <p v-else class="text-smoke/90 ml-2">{{ analysis.result.body_composition }}</p>
               </div>
               <div v-if="analysis.result.muscle_development">
-                <span class="text-stone">{{ t('ai.muscleDevelopment') }}:</span>
-                <p class="text-smoke/90 ml-2">{{ analysis.result.muscle_development }}</p>
+                <span class="text-stone font-medium">{{ t('ai.muscleDevelopment') }}:</span>
+                <template v-if="typeof analysis.result.muscle_development === 'object'">
+                  <div v-for="(val, key) in analysis.result.muscle_development" :key="key" class="ml-2">
+                    <template v-if="Array.isArray(val)">
+                      <ul class="list-disc list-inside text-smoke/90">
+                        <li v-for="(item, i) in val" :key="i">{{ item }}</li>
+                      </ul>
+                    </template>
+                    <p v-else class="text-smoke/90">{{ val }}</p>
+                  </div>
+                </template>
+                <p v-else class="text-smoke/90 ml-2">{{ analysis.result.muscle_development }}</p>
               </div>
               <div v-if="analysis.result.posture_alignment">
-                <span class="text-stone">{{ t('ai.postureAlignment') }}:</span>
-                <p class="text-smoke/90 ml-2">{{ analysis.result.posture_alignment }}</p>
+                <span class="text-stone font-medium">{{ t('ai.postureAlignment') }}:</span>
+                <template v-if="typeof analysis.result.posture_alignment === 'object'">
+                  <div v-for="(val, key) in analysis.result.posture_alignment" :key="key" class="ml-2">
+                    <template v-if="Array.isArray(val)">
+                      <ul class="list-disc list-inside text-smoke/90">
+                        <li v-for="(item, i) in val" :key="i">{{ item }}</li>
+                      </ul>
+                    </template>
+                    <p v-else class="text-smoke/90">{{ val }}</p>
+                  </div>
+                </template>
+                <p v-else class="text-smoke/90 ml-2">{{ analysis.result.posture_alignment }}</p>
               </div>
               <div v-if="analysis.result.overall_notes || analysis.result.summary">
-                <span class="text-stone">{{ t('ai.overallNotes') }}:</span>
+                <span class="text-stone font-medium">{{ t('ai.overallNotes') }}:</span>
                 <p class="text-smoke/90 ml-2">{{ analysis.result.overall_notes || analysis.result.summary }}</p>
               </div>
               <div v-if="analysis.result.focus_areas">
-                <span class="text-stone">{{ t('ai.focusAreas') }}:</span>
-                <p class="text-smoke/90 ml-2">{{ Array.isArray(analysis.result.focus_areas) ? analysis.result.focus_areas.join(', ') : analysis.result.focus_areas }}</p>
+                <span class="text-stone font-medium">{{ t('ai.focusAreas') }}:</span>
+                <ul v-if="Array.isArray(analysis.result.focus_areas)" class="list-disc list-inside text-smoke/90 ml-2">
+                  <li v-for="(area, i) in analysis.result.focus_areas" :key="i">{{ area }}</li>
+                </ul>
+                <p v-else class="text-smoke/90 ml-2">{{ analysis.result.focus_areas }}</p>
+              </div>
+              <div v-if="analysis.result.confidence" class="text-xs text-stone mt-1">
+                {{ t('ai.confidence') }}: {{ Math.round(analysis.result.confidence * 100) }}%
               </div>
             </div>
 

@@ -374,6 +374,7 @@
     "analyzing": "Analisando...",
     "completed": "Concluída",
     "error": "Erro",
+    "failed": "Falhou",
     "queued": "Na fila",
     "processing": "Processando",
     "review": "Revisar",

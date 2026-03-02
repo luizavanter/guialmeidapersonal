@@ -374,6 +374,7 @@
     "analyzing": "Analyzing...",
     "completed": "Completed",
     "error": "Error",
+    "failed": "Failed",
     "queued": "Queued",
     "processing": "Processing",
     "review": "Review",
